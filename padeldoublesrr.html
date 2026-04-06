@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tennis Doubles Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e0e;
+  --surface: #161616;
+  --border: #2a2a2a;
+  --clay: #d4622a;
+  --clay-dark: #8c3d18;
+  --yellow: #e8c840;
+  --green: #3dba6f;
+  --muted: rgba(255,255,255,0.35);
+  --text: #f0ece4;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'IBM Plex Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.wrap { max-width: 700px; margin: 0 auto; padding: 0 16px 80px; }
+
+.hdr {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 32px 0 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.hdr-title { font-family: var(--font-display); font-size: clamp(52px,12vw,88px); letter-spacing: 2px; color: var(--clay); line-height: 1; }
+.hdr-sub { font-size: 10px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; padding-bottom: 8px; }
+
+/* SETUP */
+#setup { display: flex; flex-direction: column; gap: 24px; }
+.field-label { font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+
+.count-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.count-btn {
+  width: 52px; height: 52px; border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--surface); color: var(--muted);
+  font-family: var(--font-display); font-size: 28px;
+  cursor: pointer; transition: all 0.15s;
+}
+.count-btn:hover { border-color: var(--clay); color: var(--text); }
+.count-btn.active { border-color: var(--clay); background: var(--clay); color: #fff; }
+
+#team-inputs { display: flex; flex-direction: column; gap: 14px; }
+.team-input-row { display: flex; align-items: center; gap: 12px; }
+.team-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.team-input-wrap { flex: 1; }
+.team-input-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+input[type=text] {
+  width: 100%;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 11px 14px;
+  color: var(--text); font-family: var(--font-body); font-size: 13px;
+  outline: none; transition: border-color 0.2s;
+}
+input[type=text]:focus { border-color: var(--clay); }
+input[type=text]::placeholder { color: rgba(255,255,255,0.2); }
+
+.btn-primary {
+  background: var(--clay); color: #fff; border: none;
+  border-radius: 10px; padding: 16px;
+  font-family: var(--font-display); font-size: 24px; letter-spacing: 3px;
+  cursor: pointer; width: 100%;
+  box-shadow: 0 5px 0 var(--clay-dark);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-primary:active { transform: translateY(4px); box-shadow: none; }
+
+/* GAME */
+#game { display: none; flex-direction: column; gap: 20px; }
+
+.strip {
+  display: flex;
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+}
+.strip-cell { flex: 1; padding: 12px 16px; border-right: 1px solid var(--border); }
+.strip-cell:last-child { border-right: none; }
+.sc-label { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.sc-val { font-family: var(--font-display); font-size: 22px; }
+.sc-val-sm { font-size: 13px; padding-top: 5px; letter-spacing: 1px; line-height: 1.4; }
+
+.court {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 20px 18px;
+  position: relative;
+}
+.court-tag {
+  position: absolute; top: 14px; right: 16px;
+  font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: var(--muted);
+}
+.matchup { display: grid; grid-template-columns: 1fr 36px 1fr; gap: 8px; align-items: center; margin-bottom: 18px; }
+.m-name { font-family: var(--font-display); font-size: clamp(18px,4vw,26px); letter-spacing: 1px; line-height: 1.1; }
+.m-players { font-size: 10px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.m-right { text-align: right; }
+.m-vs { font-family: var(--font-display); font-size: 22px; color: var(--border); text-align: center; }
+
+.scores { display: grid; grid-template-columns: 1fr 30px 1fr; align-items: center; margin-bottom: 18px; }
+.sc-big { font-family: var(--font-display); font-size: clamp(72px,18vw,110px); text-align: center; line-height: 1; }
+.sc-big.bump { animation: bump 0.18s ease; }
+@keyframes bump { 0%{transform:scale(1)} 50%{transform:scale(1.25)} 100%{transform:scale(1)} }
+.sc-sep { font-family: var(--font-display); font-size: 36px; color: var(--border); text-align: center; }
+
+.game-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-game {
+  border: none; border-radius: 10px; padding: 15px 8px;
+  font-family: var(--font-display); font-size: 16px; letter-spacing: 1px;
+  cursor: pointer; color: #0e0e0e;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.5);
+  transition: transform 0.1s, box-shadow 0.1s;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.btn-game:hover { transform: translateY(-2px); }
+.btn-game:active { transform: translateY(3px); box-shadow: none; }
+.btn-undo {
+  grid-column: 1/-1;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px;
+  color: var(--muted); font-family: var(--font-body);
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-undo:hover { border-color: var(--muted); color: var(--text); }
+
+/* Queue */
+.queue-list { display: flex; flex-direction: column; gap: 8px; }
+.queue-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 16px;
+}
+.queue-item.on-court { border-color: rgba(212,98,42,0.45); background: rgba(212,98,42,0.07); }
+.queue-item.next-up  { border-color: rgba(232,200,64,0.3); }
+.q-pos { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; width: 56px; flex-shrink: 0; color: var(--muted); }
+.q-pos.on   { color: var(--clay); }
+.q-pos.next { color: var(--yellow); }
+.q-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.q-name { font-family: var(--font-display); font-size: 18px; letter-spacing: 1px; flex: 1; }
+.q-players { font-size: 10px; color: var(--muted); }
+.q-streak { font-size: 9px; letter-spacing: 1px; padding: 3px 8px; border-radius: 20px; background: rgba(255,255,255,0.06); color: var(--muted); white-space: nowrap; }
+.q-streak.warn { background: rgba(212,98,42,0.25); color: var(--clay); }
+
+/* Scoreboard */
+.sb { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.sb-head {
+  display: grid; grid-template-columns: 1fr 56px 56px 56px;
+  background: rgba(255,255,255,0.04);
+  padding: 10px 16px;
+  font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted);
+}
+.sb-row {
+  display: grid; grid-template-columns: 1fr 56px 56px 56px;
+  padding: 12px 16px; border-top: 1px solid var(--border);
+  align-items: center;
+}
+.sb-row:hover { background: rgba(255,255,255,0.02); }
+.sb-team-name { font-family: var(--font-display); font-size: 18px; letter-spacing: 1px; }
+.sb-team-players { font-size: 10px; color: var(--muted); }
+.sb-n { text-align: center; font-family: var(--font-display); font-size: 22px; }
+
+/* Log — no max-height, grows freely */
+.log-wrap { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.log-head {
+  background: rgba(255,255,255,0.04);
+  padding: 10px 16px;
+  font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted);
+  display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; z-index: 10;
+}
+.log-entry {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px; line-height: 1.5; color: var(--muted);
+  display: flex; gap: 12px; align-items: baseline;
+}
+.log-entry.latest { color: var(--text); background: rgba(255,255,255,0.02); }
+.log-num { font-size: 10px; color: rgba(255,255,255,0.2); width: 28px; flex-shrink: 0; }
+.log-txt { flex: 1; }
+.log-rotate { color: var(--clay); font-size: 10px; flex-shrink: 0; }
+.log-empty { padding: 20px 16px; font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 2px; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--green); color: #0e0e0e;
+  border-radius: 40px; padding: 12px 28px;
+  font-family: var(--font-display); font-size: 18px; letter-spacing: 3px;
+  z-index: 500; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.rot { background: var(--clay); color: #fff; }
+
+.btn-reset {
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px;
+  color: rgba(255,255,255,0.2); font-family: var(--font-body);
+  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+  cursor: pointer; width: 100%; transition: all 0.15s;
+}
+.btn-reset:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.4); }
+
+/* Team colors */
+.c0{color:#e8c840}.d0{background:#e8c840}
+.c1{color:#3dba6f}.d1{background:#3dba6f}
+.c2{color:#4a9fd4}.d2{background:#4a9fd4}
+.c3{color:#e06090}.d3{background:#e06090}
+.c4{color:#c07af0}.d4{background:#c07af0}
+.c5{color:#f0904a}.d5{background:#f0904a}
+.c6{color:#50d4c0}.d6{background:#50d4c0}
+.c7{color:#f04a4a}.d7{background:#f04a4a}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="hdr-title">TENNIS</div>
+    <div class="hdr-sub">Doubles Rotation Tracker</div>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup">
+    <div>
+      <div class="field-label">How many doubles?</div>
+      <div class="count-row" id="count-row"></div>
+    </div>
+    <div id="team-inputs"></div>
+    <div style="font-size:10px;color:var(--muted);letter-spacing:1px;line-height:1.8;padding:4px 0">
+      Enter players separated by comma — e.g. <span style="color:var(--text)">João, Maria</span><br>
+      First to 3 games wins · Winners stay · After 2 consecutive matches, rotate out
+    </div>
+    <button class="btn-primary" onclick="startGame()">START MATCH</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="game">
+
+    <div class="strip">
+      <div class="strip-cell">
+        <div class="sc-label">Match</div>
+        <div class="sc-val" id="st-match">1</div>
+      </div>
+      <div class="strip-cell">
+        <div class="sc-label">On Court</div>
+        <div class="sc-val sc-val-sm" id="st-court">—</div>
+      </div>
+      <div class="strip-cell">
+        <div class="sc-label">Up Next</div>
+        <div class="sc-val sc-val-sm" id="st-next">—</div>
+      </div>
+    </div>
+
+    <!-- Court -->
+    <div class="court">
+      <div class="court-tag">COURT</div>
+      <div class="matchup">
+        <div>
+          <div class="m-name" id="ct-left-name"></div>
+          <div class="m-players" id="ct-left-players"></div>
+        </div>
+        <div class="m-vs">VS</div>
+        <div style="text-align:right">
+          <div class="m-name" id="ct-right-name"></div>
+          <div class="m-players" id="ct-right-players"></div>
+        </div>
+      </div>
+      <div class="scores">
+        <div class="sc-big" id="sc-left">0</div>
+        <div class="sc-sep">–</div>
+        <div class="sc-big" id="sc-right">0</div>
+      </div>
+      <div class="game-btns">
+        <button class="btn-game" id="btn-left"  onclick="addGame(0)">+GAME</button>
+        <button class="btn-game" id="btn-right" onclick="addGame(1)">+GAME</button>
+        <button class="btn-undo" onclick="undoGame()">↩ undo last game</button>
+      </div>
+    </div>
+
+    <!-- Queue -->
+    <div>
+      <div class="field-label" style="margin-bottom:10px">Teams Queue</div>
+      <div class="queue-list" id="queue-list"></div>
+    </div>
+
+    <!-- Scoreboard -->
+    <div>
+      <div class="field-label" style="margin-bottom:10px">Scoreboard</div>
+      <div class="sb">
+        <div class="sb-head">
+          <div>Team</div>
+          <div style="text-align:center">Played</div>
+          <div style="text-align:center">Wins</div>
+          <div style="text-align:center">Games</div>
+        </div>
+        <div id="sb-body"></div>
+      </div>
+    </div>
+
+    <!-- Log — grows with page -->
+    <div>
+      <div class="field-label" style="margin-bottom:10px">Match Log</div>
+      <div class="log-wrap">
+        <div class="log-head">
+          <span>All matches · newest first</span>
+          <span id="log-count" style="color:var(--clay)">0 matches</span>
+        </div>
+        <div id="log-entries">
+          <div class="log-empty">No matches played yet...</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-reset" onclick="if(confirm('Reset everything?'))resetAll()">↺ reset everything</button>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+let teams = [];
+let queue = [];          // team indices: [0]=left court, [1]=right court, [2+]=waiting
+let scores = [0, 0];
+let consec = {};         // consecutive matches played on court per team
+let totalWins = {};
+let totalGamesWon = {};
+let totalPlayed = {};
+let matchLog = [];
+let totalMatches = 0;
+let history = [];
+
+const COLORS = ['c0','c1','c2','c3','c4','c5','c6','c7'];
+const DOTS   = ['d0','d1','d2','d3','d4','d5','d6','d7'];
+let selectedCount = 3;
+
+// ── SETUP BUTTONS ──
+(function() {
+  const row = document.getElementById('count-row');
+  for (let i = 3; i <= 8; i++) {
+    const b = document.createElement('button');
+    b.className = 'count-btn' + (i === 3 ? ' active' : '');
+    b.textContent = i;
+    b.onclick = () => {
+      selectedCount = i;
+      document.querySelectorAll('.count-btn').forEach((x,j) => x.classList.toggle('active', j+3 === i));
+      buildTeamInputs();
+    };
+    row.appendChild(b);
+  }
+  buildTeamInputs();
+})();
+
+function buildTeamInputs() {
+  const wrap = document.getElementById('team-inputs');
+  wrap.innerHTML = '';
+  for (let i = 0; i < selectedCount; i++) {
+    const letter = String.fromCharCode(65 + i);
+    wrap.innerHTML += `
+      <div class="team-input-row">
+        <div class="team-dot ${DOTS[i]}"></div>
+        <div class="team-input-wrap">
+          <div class="team-input-label">Double ${letter} — player 1, player 2</div>
+          <input type="text" id="t${i}" placeholder="e.g. João, Maria">
+        </div>
+      </div>`;
+  }
+}
+
+// ── START ──
+function startGame() {
+  teams = [];
+  for (let i = 0; i < selectedCount; i++) {
+    const raw = (document.getElementById('t'+i).value || '').trim();
+    const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
+    const letter = String.fromCharCode(65 + i);
+    teams.push({
+      name: `Double ${letter}`,
+      players: [parts[0] || `P${i*2+1}`, parts[1] || `P${i*2+2}`],
+      c: COLORS[i], d: DOTS[i]
+    });
+  }
+  queue = teams.map((_,i) => i);
+  scores = [0,0];
+  consec = {}; totalWins = {}; totalGamesWon = {}; totalPlayed = {};
+  teams.forEach((_,i) => { consec[i]=0; totalWins[i]=0; totalGamesWon[i]=0; totalPlayed[i]=0; });
+  matchLog = []; totalMatches = 0; history = [];
+
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('game').style.display = 'flex';
+  render();
+}
+
+// ── ADD GAME ──
+function addGame(side) {
+  snapshot();
+  scores[side]++;
+  totalGamesWon[queue[side]]++;
+  const el = document.getElementById(side===0?'sc-left':'sc-right');
+  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+  if (scores[0] >= 3 || scores[1] >= 3) endMatch(scores[0]>=3 ? 0 : 1);
+  else render();
+}
+
+// ── END MATCH ──
+function endMatch(winSide) {
+  const wIdx = queue[winSide];
+  const lIdx = queue[winSide===0?1:0];
+
+  totalWins[wIdx]++;
+  totalPlayed[wIdx]++;
+  totalPlayed[lIdx]++;
+  totalMatches++;
+
+  // Both court players +1 consecutive; waiting players reset to 0
+  consec[wIdx]++;
+  consec[lIdx]++;
+  for (let i = 2; i < queue.length; i++) consec[queue[i]] = 0;
+
+  const mustRotate = consec[wIdx] >= 2;
+
+  matchLog.unshift({
+    n: totalMatches,
+    txt: `${teams[wIdx].name} (${teams[wIdx].players.join(' & ')}) beat ${teams[lIdx].name} (${teams[lIdx].players.join(' & ')}) — ${scores[0]}–${scores[1]}`,
+    rotate: mustRotate ? `${teams[wIdx].name} rotates out` : null,
+    wc: teams[wIdx].c
+  });
+
+  showToast(mustRotate ? `${teams[wIdx].name} rotates out!` : `${teams[wIdx].name} stays on!`, mustRotate);
+
+  scores = [0,0];
+
+  // Rebuild queue
+  const incoming = queue[2];
+  const rest = queue.slice(3);
+
+  if (mustRotate) {
+    // winner → end of queue; loser stays; incoming challenges
+    consec[wIdx] = 0;
+    queue = [lIdx, incoming, ...rest, wIdx];
+  } else {
+    // winner stays; loser → end; incoming challenges
+    queue = [wIdx, incoming, ...rest, lIdx];
+  }
+
+  render();
+}
+
+// ── UNDO ──
+function snapshot() {
+  history.push({
+    queue:[...queue], scores:[...scores],
+    consec:{...consec}, totalWins:{...totalWins},
+    totalGamesWon:{...totalGamesWon}, totalPlayed:{...totalPlayed},
+    matchLog:matchLog.map(x=>({...x})), totalMatches
+  });
+}
+function undoGame() {
+  if (!history.length) return;
+  const s = history.pop();
+  queue=s.queue; scores=s.scores; consec=s.consec;
+  totalWins=s.totalWins; totalGamesWon=s.totalGamesWon;
+  totalPlayed=s.totalPlayed; matchLog=s.matchLog; totalMatches=s.totalMatches;
+  render();
+}
+
+// ── RENDER ──
+function render() {
+  const li = queue[0], ri = queue[1];
+  const tl = teams[li], tr = teams[ri];
+
+  // Court
+  el('ct-left-name').textContent  = tl.name;
+  el('ct-left-name').className    = 'm-name '+tl.c;
+  el('ct-left-players').textContent = tl.players.join(' & ');
+  el('ct-right-name').textContent = tr.name;
+  el('ct-right-name').className   = 'm-name '+tr.c;
+  el('ct-right-players').textContent = tr.players.join(' & ');
+
+  el('sc-left').textContent  = scores[0];
+  el('sc-left').className    = 'sc-big '+tl.c;
+  el('sc-right').textContent = scores[1];
+  el('sc-right').className   = 'sc-big '+tr.c;
+
+  el('btn-left').textContent  = `+GAME  ${tl.name}`;
+  el('btn-right').textContent = `+GAME  ${tr.name}`;
+  el('btn-left').className  = 'btn-game '+tl.d;
+  el('btn-right').className = 'btn-game '+tr.d;
+
+  // Strip
+  el('st-match').textContent = totalMatches+1;
+  el('st-court').textContent = `${tl.name} vs ${tr.name}`;
+  el('st-next').textContent  = queue.length > 2 ? teams[queue[2]].name : '—';
+
+  // Queue
+  el('queue-list').innerHTML = queue.map((ti, pos) => {
+    const t = teams[ti];
+    const onCourt = pos < 2;
+    const nextUp  = pos === 2;
+    let posLabel, posClass;
+    if (pos===0)      { posLabel='Court ←'; posClass='on'; }
+    else if (pos===1) { posLabel='Court →'; posClass='on'; }
+    else if (pos===2) { posLabel='Next up';  posClass='next'; }
+    else              { posLabel=`Wait #${pos-1}`; posClass=''; }
+    const streak = consec[ti];
+    return `<div class="queue-item ${onCourt?'on-court':''} ${nextUp?'next-up':''}">
+      <div class="q-pos ${posClass}">${posLabel}</div>
+      <div class="q-dot ${t.d}"></div>
+      <div style="flex:1">
+        <div class="q-name ${t.c}">${t.name}</div>
+        <div class="q-players">${t.players.join(' & ')}</div>
+      </div>
+      ${onCourt ? `<div class="q-streak ${streak>=1?'warn':''}">${streak}/2 played</div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Scoreboard
+  const sorted = teams.map((t,i)=>({t,i})).sort((a,b)=>totalWins[b.i]-totalWins[a.i]||totalGamesWon[b.i]-totalGamesWon[a.i]);
+  el('sb-body').innerHTML = sorted.map(({t,i})=>`
+    <div class="sb-row">
+      <div>
+        <div class="sb-team-name ${t.c}">${t.name}</div>
+        <div class="sb-team-players">${t.players.join(' & ')}</div>
+      </div>
+      <div class="sb-n" style="color:var(--muted)">${totalPlayed[i]}</div>
+      <div class="sb-n ${t.c}">${totalWins[i]}</div>
+      <div class="sb-n" style="color:var(--muted);font-size:18px">${totalGamesWon[i]}</div>
+    </div>`).join('');
+
+  // Log
+  el('log-count').textContent = `${totalMatches} match${totalMatches!==1?'es':''}`;
+  el('log-entries').innerHTML = matchLog.length
+    ? matchLog.map((e,idx)=>`
+        <div class="log-entry ${idx===0?'latest':''}">
+          <span class="log-num">#${e.n}</span>
+          <span class="log-txt">${e.txt}</span>
+          ${e.rotate?`<span class="log-rotate">🔄 ${e.rotate}</span>`:''}
+        </div>`).join('')
+    : '<div class="log-empty">No matches played yet...</div>';
+}
+
+function el(id) { return document.getElementById(id); }
+
+function showToast(msg, isRot) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isRot?' rot':'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+function resetAll() {
+  document.getElementById('game').style.display = 'none';
+  document.getElementById('setup').style.display = 'flex';
+}
+</script>
+</body>
+</html>
