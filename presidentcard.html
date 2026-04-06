@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PRESIDENT — Midnight Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;700;800&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script id="tw-cfg">
+tailwind.config = {
+  darkMode:"class",
+  theme:{ extend:{
+    colors:{
+      "primary":"#59de9b","primary-container":"#00a86b","on-primary":"#003921","on-primary-container":"#00331d",
+      "secondary":"#e9c349","secondary-container":"#af8d11","on-secondary":"#3c2f00",
+      "surface":"#131313","surface-dim":"#131313","surface-container-lowest":"#0e0e0e",
+      "surface-container-low":"#1c1b1b","surface-container":"#201f1f",
+      "surface-container-high":"#2a2a2a","surface-container-highest":"#353534",
+      "surface-variant":"#353534","surface-bright":"#393939",
+      "on-surface":"#e5e2e1","on-surface-variant":"#bccabe",
+      "outline":"#869489","outline-variant":"#3d4a41",
+      "error":"#ffb4ab","error-container":"#93000a",
+      "inverse-surface":"#e5e2e1","inverse-on-surface":"#313030","inverse-primary":"#006d43"
+    },
+    borderRadius:{ DEFAULT:"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem" },
+    fontFamily:{ headline:["Manrope"],"body":["Inter"],label:["Inter"] }
+  }}
+}
+</script>
+<style>
+  body { background:#131313; color:#e5e2e1; min-height:100dvh; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; font-size:20px; }
+  .fill-icon { font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .poker-glow { background:linear-gradient(135deg,#59de9b 0%,#00a86b 100%); }
+  .glass-panel { background:rgba(53,53,52,0.6); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); }
+  .glow-tl { box-shadow:-1px -1px 0px 0px rgba(89,222,155,0.25); }
+  .glow-green { box-shadow:0 0 20px rgba(89,222,155,0.15); }
+  /* position badge colors */
+  .pos-president { color:#59de9b; border-color:#59de9b; }
+  .pos-vp        { color:#e9c349; border-color:#e9c349; }
+  .pos-neutral   { color:#bccabe; border-color:#bccabe; }
+  .pos-vasshole  { color:#f4a261; border-color:#f4a261; }
+  .pos-asshole   { color:#ffb4ab; border-color:#ffb4ab; }
+  .pill-president { background:rgba(89,222,155,0.12); color:#59de9b; }
+  .pill-vp        { background:rgba(233,195,73,0.12); color:#e9c349; }
+  .pill-neutral   { background:rgba(188,202,190,0.1);  color:#bccabe; }
+  .pill-vasshole  { background:rgba(244,162,97,0.12);  color:#f4a261; }
+  .pill-asshole   { background:rgba(255,180,171,0.12); color:#ffb4ab; }
+  /* top-border accent per position */
+  .tb-president { border-top:2px solid #59de9b; }
+  .tb-vp        { border-top:2px solid #e9c349; }
+  .tb-neutral   { border-top:2px solid #bccabe; }
+  .tb-vasshole  { border-top:2px solid #f4a261; }
+  .tb-asshole   { border-top:2px solid #ffb4ab; }
+  /* segmented bar chip */
+  .seg-chip { height:6px; flex:1; background:#2a2a2a; transition:background 0.3s; }
+  .seg-chip.on { background:#59de9b; }
+  /* screen management */
+  .screen { display:none; }
+  .screen.active { display:block; }
+  /* animations */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes popIn  { 0%{transform:scale(0.8);opacity:0} 65%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
+  .anim-fadeup { animation:fadeUp 0.4s ease both; }
+  .anim-pop    { animation:popIn 0.22s ease both; }
+  /* toggle switch */
+  .toggle-track { width:44px;height:24px;border-radius:12px;position:relative;cursor:pointer;transition:background .2s; }
+  .toggle-track.off { background:#2a2a2a; }
+  .toggle-track.on  { background:linear-gradient(135deg,#59de9b,#00a86b); }
+  .toggle-thumb { width:18px;height:18px;border-radius:50%;background:#e5e2e1;position:absolute;top:3px;transition:left .2s; }
+  .toggle-track.off .toggle-thumb { left:3px; }
+  .toggle-track.on  .toggle-thumb { left:23px; }
+  /* rank mode pill toggle */
+  .mode-tab { padding:6px 14px; font-size:10px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; border-radius:4px; cursor:pointer; transition:all .15s; }
+  .mode-tab.active { background:linear-gradient(135deg,#59de9b,#00a86b); color:#003921; }
+  .mode-tab.inactive { color:#869489; }
+  .mode-tab.inactive:hover { color:#e5e2e1; }
+  /* scrollbar */
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:#131313; }
+  ::-webkit-scrollbar-thumb { background:#2a2a2a; border-radius:2px; }
+</style>
+</head>
+<body class="font-body selection:bg-primary selection:text-on-primary">
+
+<!-- ════════════════════════════════════════
+     TOP APP BAR
+════════════════════════════════════════ -->
+<header class="sticky top-0 z-50 bg-surface-container-low">
+  <div class="flex items-center justify-between px-5 h-14 max-w-2xl mx-auto">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined fill-icon text-primary">style</span>
+      <span class="font-headline font-light tracking-[.2em] text-on-surface text-base">PRESIDENT</span>
+    </div>
+    <div id="header-round" class="hidden text-xs font-mono text-on-surface-variant tracking-widest"></div>
+    <div id="header-right" class="w-16"></div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     SCREEN 1 — SETUP
+════════════════════════════════════════ -->
+<div id="screen-setup" class="screen active">
+  <main class="max-w-2xl mx-auto px-5 pt-8 pb-32">
+    <!-- Hero -->
+    <section class="mb-10">
+      <p class="text-[10px] uppercase tracking-[.25em] text-on-surface-variant font-label mb-2">Private Session</p>
+      <h2 class="font-headline font-extrabold text-5xl tracking-tight leading-none mb-3 text-on-surface">
+        Lobby<br/><span class="text-primary">Setup</span>
+      </h2>
+      <p class="text-on-surface-variant text-sm font-body leading-relaxed">Add players, choose count, deal the first hand.</p>
+    </section>
+
+    <!-- Player count -->
+    <section class="mb-8">
+      <p class="text-[10px] uppercase tracking-[.2em] text-secondary font-label font-bold mb-4">Table Size</p>
+      <div class="flex gap-2 flex-wrap" id="count-btns"></div>
+    </section>
+
+    <!-- Player names -->
+    <section class="mb-10">
+      <p class="text-[10px] uppercase tracking-[.2em] text-secondary font-label font-bold mb-4">Player Roster</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="player-inputs"></div>
+    </section>
+
+    <!-- CTA -->
+    <button onclick="startGame()" class="poker-glow w-full py-5 rounded-lg font-headline font-extrabold text-sm tracking-[.2em] text-on-primary uppercase shadow-xl hover:scale-[1.02] active:scale-[.98] transition-transform">
+      START SESSION
+    </button>
+
+    <!-- corner glow -->
+    <div class="fixed top-0 right-0 w-48 h-48 pointer-events-none overflow-hidden opacity-20">
+      <div class="absolute -top-24 -right-24 w-48 h-48 border border-primary/20 rounded-full"></div>
+      <div class="absolute -top-16 -right-16 w-48 h-48 border border-primary/10 rounded-full"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 2 — ROUND (Finishing Order)
+════════════════════════════════════════ -->
+<div id="screen-round" class="screen">
+  <main class="max-w-2xl mx-auto px-5 pt-6 pb-32">
+
+    <!-- Seating card (hidden round 1) -->
+    <div id="seating-section" class="hidden mb-6 anim-fadeup">
+      <p class="text-[10px] uppercase tracking-[.2em] text-secondary font-label font-bold mb-3">
+        <span class="material-symbols-outlined fill-icon" style="font-size:12px;vertical-align:middle">chair</span>
+        Seating &amp; Card Exchange
+      </p>
+      <div class="grid grid-cols-2 gap-3" id="seat-cards"></div>
+    </div>
+
+    <!-- Finishing order hero -->
+    <section class="mb-6">
+      <div class="flex items-end justify-between mb-1">
+        <p class="text-[10px] uppercase tracking-[.2em] text-on-surface-variant font-label">Round</p>
+        <p class="text-[10px] font-mono text-on-surface-variant" id="round-prog-label"></p>
+      </div>
+      <div class="font-headline font-extrabold text-5xl tracking-tight leading-none text-on-surface mb-4" id="round-headline">
+        Round <span id="round-num-big" class="text-primary">1</span>
+      </div>
+      <!-- segmented progress bar -->
+      <div class="flex gap-[3px] mb-6" id="seg-bar"></div>
+    </section>
+
+    <!-- Next position hint -->
+    <div class="bg-surface-container-low px-4 py-3 rounded-lg mb-5 flex items-center gap-3 relative overflow-hidden" id="next-hint-box">
+      <div class="absolute left-0 top-0 w-1 h-full" id="next-hint-bar"></div>
+      <div class="pl-2">
+        <p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-label font-bold mb-0.5">Next Position</p>
+        <p class="font-headline font-bold text-base text-on-surface" id="next-hint-text">—</p>
+      </div>
+    </div>
+
+    <!-- Queue of assigned pills -->
+    <div class="flex flex-wrap gap-2 min-h-[40px] mb-6" id="finish-queue"></div>
+
+    <!-- Player chips -->
+    <div class="mb-2">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-[10px] uppercase tracking-[.2em] text-on-surface-variant font-label font-bold">Tap to assign</p>
+        <button onclick="undoLast()" id="undo-btn" disabled
+          class="text-[10px] uppercase tracking-widest font-label font-bold text-on-surface-variant hover:text-error transition-colors disabled:opacity-20 flex items-center gap-1">
+          <span class="material-symbols-outlined" style="font-size:14px">undo</span>Undo
+        </button>
+      </div>
+      <div class="grid grid-cols-2 gap-2" id="player-chips"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 3 — RANKINGS & HISTORY
+════════════════════════════════════════ -->
+<div id="screen-rankings" class="screen">
+  <main class="max-w-2xl mx-auto px-5 pt-6 pb-32">
+
+    <!-- Hero -->
+    <section class="mb-8 anim-fadeup">
+      <p class="text-[10px] uppercase tracking-[.25em] text-on-surface-variant font-label mb-1">After Round <span id="rank-after-round">—</span></p>
+      <h2 class="font-headline font-extrabold text-5xl tracking-tight leading-none text-on-surface">
+        Rankings &amp;<br/><span class="text-secondary">History</span>
+      </h2>
+    </section>
+
+    <!-- Rank mode toggle -->
+    <div class="bg-surface-container-low rounded-lg p-1 flex gap-1 mb-6 w-fit">
+      <div class="mode-tab active" id="tab-votes" onclick="setRankMode('votes')">Votes (pts)</div>
+      <div class="mode-tab inactive" id="tab-position" onclick="setRankMode('position')">Position rank</div>
+    </div>
+    <p class="text-[10px] text-on-surface-variant font-body mb-6" id="rank-mode-desc">
+      Higher points = better rank. President earns +4 pts.
+    </p>
+
+    <!-- Leaderboard -->
+    <section class="space-y-2 mb-10" id="leaderboard"></section>
+
+    <!-- History per player -->
+    <section class="mb-6">
+      <div class="flex items-center gap-4 mb-5">
+        <span class="h-px flex-1 bg-outline-variant/20"></span>
+        <h3 class="font-headline font-bold text-secondary uppercase tracking-[.2em] text-xs">Position History</h3>
+        <span class="h-px flex-1 bg-outline-variant/20"></span>
+      </div>
+      <div class="space-y-4" id="history-rows"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ════════════════════════════════════════
+     BOTTOM NAV  (hidden on setup screen)
+════════════════════════════════════════ -->
+<nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-surface-container-lowest z-50 shadow-[0_-4px_40px_rgba(0,0,0,0.3)]">
+  <div class="max-w-2xl mx-auto flex justify-around items-center h-16 px-2">
+
+    <!-- Setup / back -->
+    <button onclick="goToSetup()" id="nav-setup"
+      class="flex flex-col items-center justify-center gap-0.5 pt-1 transition-all text-on-surface/40 hover:text-secondary min-w-[52px]">
+      <span class="material-symbols-outlined">group_add</span>
+      <span class="font-label text-[9px] tracking-[.05em] font-bold uppercase">Setup</span>
+    </button>
+
+    <!-- Play -->
+    <button onclick="navTo('round')" id="nav-round"
+      class="flex flex-col items-center justify-center gap-0.5 pt-1 transition-all text-on-surface/40 hover:text-primary min-w-[52px]">
+      <span class="material-symbols-outlined">playing_cards</span>
+      <span class="font-label text-[9px] tracking-[.05em] font-bold uppercase">Play</span>
+    </button>
+
+    <!-- Rankings -->
+    <button onclick="navTo('rankings')" id="nav-rankings"
+      class="flex flex-col items-center justify-center gap-0.5 pt-1 transition-all text-on-surface/40 hover:text-primary min-w-[52px]">
+      <span class="material-symbols-outlined">leaderboard</span>
+      <span class="font-label text-[9px] tracking-[.05em] font-bold uppercase">Rankings</span>
+    </button>
+
+    <!-- Next Round -->
+    <button onclick="confirmNextRound()" id="nav-next"
+      class="flex flex-col items-center justify-center gap-0.5 pt-1 transition-all text-on-surface/40 min-w-[52px] disabled:opacity-20" disabled>
+      <span class="material-symbols-outlined">skip_next</span>
+      <span class="font-label text-[9px] tracking-[.05em] font-bold uppercase">Next Rnd</span>
+    </button>
+
+    <!-- Export CSV -->
+    <button onclick="exportCSV()" id="nav-export"
+      class="flex flex-col items-center justify-center gap-0.5 pt-1 transition-all text-on-surface/40 hover:text-secondary min-w-[52px]">
+      <span class="material-symbols-outlined">download</span>
+      <span class="font-label text-[9px] tracking-[.05em] font-bold uppercase">Export</span>
+    </button>
+
+  </div>
+</nav>
+
+<script>
+/* ══════════════════════════════════════
+   POSITION DEFINITIONS
+══════════════════════════════════════ */
+const POS_DEF = [
+  { key:'president', label:'President',     short:'PRES', icon:'military_tech', pts:4,  cls:'president', exchange:'Receives 2 best cards from Asshole' },
+  { key:'vp',        label:'Vice President',short:'VP',   icon:'shield',        pts:2,  cls:'vp',        exchange:'Receives 1 best card from Vice Asshole' },
+  { key:'neutral',   label:'Neutral',       short:'NEUT', icon:'remove',        pts:1,  cls:'neutral',   exchange:null },
+  { key:'vasshole',  label:'Vice Asshole',  short:'VASS', icon:'south',         pts:0,  cls:'vasshole',  exchange:'Gives best card to VP' },
+  { key:'asshole',   label:'Asshole',       short:'ASS',  icon:'thumb_down',    pts:-1, cls:'asshole',   exchange:'Gives 2 best cards to President' },
+];
+
+const POS_COLORS = {
+  president:'#59de9b', vp:'#e9c349', neutral:'#bccabe', vasshole:'#f4a261', asshole:'#ffb4ab'
+};
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let numPlayers  = 6;
+let players     = [];
+let scores      = [];        // cumulative vote points
+let posScores   = [];        // cumulative position-rank points (lower = better)
+let history     = [];        // history[i] = [{slot}]
+let lastResult  = [];        // lastResult[i] = slot | null
+let finishOrder = [];        // [{playerIdx, slot}]
+let round       = 1;
+let rankMode    = 'votes';   // 'votes' | 'position'
+let currentScreen = 'setup';
+
+/* ══════════════════════════════════════
+   SETUP
+══════════════════════════════════════ */
+const cbWrap = document.getElementById('count-btns');
+for (let i = 4; i <= 10; i++) {
+  const b = document.createElement('button');
+  b.id = `cb-${i}`;
+  b.className = 'w-11 h-11 rounded-lg font-headline font-bold text-sm transition-all ' +
+    (i === numPlayers
+      ? 'poker-glow text-on-primary shadow-md'
+      : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface');
+  b.textContent = i;
+  b.onclick = () => setCount(i);
+  cbWrap.appendChild(b);
+}
+renderInputs();
+
+function setCount(n) {
+  numPlayers = n;
+  document.querySelectorAll('[id^="cb-"]').forEach(b => {
+    const active = parseInt(b.id.split('-')[1]) === n;
+    b.className = 'w-11 h-11 rounded-lg font-headline font-bold text-sm transition-all ' +
+      (active ? 'poker-glow text-on-primary shadow-md' : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface');
+  });
+  renderInputs();
+}
+
+function renderInputs() {
+  const w = document.getElementById('player-inputs');
+  const vals = Array.from(w.querySelectorAll('input')).map(i=>i.value);
+  w.innerHTML = '';
+  for (let i = 0; i < numPlayers; i++) {
+    const d = document.createElement('div');
+    d.className = 'bg-surface-container-low rounded-lg p-4 flex items-center gap-3 hover:bg-surface-container-high transition-colors';
+    d.innerHTML = `
+      <div class="w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center flex-shrink-0 border border-outline-variant/15">
+        <span class="font-headline font-bold text-primary text-sm player-initial">${vals[i] ? vals[i][0].toUpperCase() : (i+1)}</span>
+      </div>
+      <input type="text" placeholder="Player ${i+1}" value="${vals[i]||''}" maxlength="14"
+        class="bg-transparent border-none outline-none text-on-surface font-headline font-bold text-base w-full placeholder-on-surface-variant/40"
+        oninput="updateInitial(this,${i})">
+    `;
+    w.appendChild(d);
+  }
+}
+
+function updateInitial(inp, idx) {
+  const initial = inp.value ? inp.value[0].toUpperCase() : (idx+1);
+  inp.closest('div').querySelector('.player-initial').textContent = initial;
+}
+
+/* ══════════════════════════════════════
+   SLOT BUILDER
+══════════════════════════════════════ */
+function getSlots() {
+  const s = [];
+  s.push({...POS_DEF[0], id:'president'});
+  if (numPlayers >= 5) s.push({...POS_DEF[1], id:'vp'});
+  const nc = numPlayers - (numPlayers >= 5 ? 4 : 3);
+  for (let i = 0; i < nc; i++)
+    s.push({...POS_DEF[2], id:`neutral_${i}`, label: nc>1?`Neutral ${i+1}`:'Neutral'});
+  if (numPlayers >= 5) s.push({...POS_DEF[3], id:'vasshole'});
+  s.push({...POS_DEF[4], id:'asshole'});
+  return s;
+}
+
+/* ══════════════════════════════════════
+   START GAME
+══════════════════════════════════════ */
+function startGame() {
+  const inputs = document.querySelectorAll('#player-inputs input');
+  players = Array.from(inputs).map((inp,i) => inp.value.trim() || `Player ${i+1}`);
+  scores    = new Array(numPlayers).fill(0);
+  posScores = new Array(numPlayers).fill(0);
+  history   = players.map(()=>[]);
+  lastResult= new Array(numPlayers).fill(null);
+  round = 1; finishOrder = [];
+  showScreen('round');
+  renderRound();
+}
+
+/* ══════════════════════════════════════
+   SCREENS
+══════════════════════════════════════ */
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+  currentScreen = name;
+
+  // Bottom nav: hide on setup, show otherwise
+  const bottomNav = document.getElementById('bottom-nav');
+  bottomNav.classList.toggle('hidden', name === 'setup');
+
+  // Highlight active nav tab
+  ['setup','round','rankings'].forEach(n => {
+    const btn = document.getElementById(`nav-${n}`);
+    if (!btn) return;
+    const active = n === name;
+    const isSetup = n === 'setup';
+    // reset classes
+    btn.classList.remove('text-primary','text-secondary','text-on-surface/40','border-t-2','border-primary','border-secondary');
+    if (active) {
+      btn.classList.add('border-t-2', isSetup ? 'text-secondary' : 'text-primary', isSetup ? 'border-secondary' : 'border-primary');
+    } else {
+      btn.classList.add('text-on-surface/40');
+    }
+  });
+
+  // Header round label
+  const hdr = document.getElementById('header-round');
+  if (name !== 'setup') {
+    hdr.classList.remove('hidden');
+    hdr.textContent = `R${round}`;
+  } else {
+    hdr.classList.add('hidden');
+  }
+
+  if (name === 'rankings') renderRankings();
+}
+
+function navTo(name) {
+  // Can only go to play/rankings if a game has been started
+  if ((name === 'round' || name === 'rankings') && players.length === 0) return;
+  showScreen(name);
+}
+
+function goToSetup() {
+  if (players.length > 0 && round > 1) {
+    if (!confirm('Go back to Setup?\n\nYour session scores stay in memory — tap Play or Rankings to return to the game.')) return;
+  }
+  // Pre-populate inputs with existing player names so they can tweak or just go back
+  showScreen('setup');
+  renderInputs();
+}
+
+/* ══════════════════════════════════════
+   RENDER ROUND SCREEN
+══════════════════════════════════════ */
+function renderRound() {
+  document.getElementById('round-num-big').textContent = round;
+  document.getElementById('header-round').textContent = `R${round}`;
+  document.getElementById('round-prog-label').textContent = `${finishOrder.length} / ${getSlots().length} assigned`;
+  finishOrder = [];
+  document.getElementById('nav-next').disabled = true;
+  document.getElementById('undo-btn').disabled  = true;
+  renderSeats();
+  renderSegBar();
+  renderQueue();
+  renderChips();
+}
+
+/* Seating guide */
+function renderSeats() {
+  const sec = document.getElementById('seating-section');
+  const grid= document.getElementById('seat-cards');
+  if (round === 1) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+  grid.innerHTML = '';
+  const slots = getSlots();
+  const exchangeKeys = ['president','vp','vasshole','asshole'];
+  slots.filter(s=>exchangeKeys.includes(s.key)).forEach(slot => {
+    const pIdx = lastResult.findIndex(r => r && r.id === slot.id);
+    if (pIdx === -1) return;
+    const col = POS_COLORS[slot.cls];
+    const card = document.createElement('div');
+    card.className = 'bg-surface-container-low rounded-lg p-4 relative overflow-hidden anim-pop';
+    card.innerHTML = `
+      <div class="absolute left-0 top-0 w-1 h-full" style="background:${col}"></div>
+      <p class="text-[9px] uppercase tracking-widest font-label font-bold mb-1 pl-2" style="color:${col}">${slot.label}</p>
+      <p class="font-headline font-bold text-on-surface text-lg pl-2">${players[pIdx]}</p>
+      ${slot.exchange ? `<p class="text-[10px] text-on-surface-variant mt-1 pl-2 leading-tight">${slot.exchange}</p>` : ''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* Segmented progress bar */
+function renderSegBar() {
+  const bar = document.getElementById('seg-bar');
+  const slots = getSlots();
+  bar.innerHTML = '';
+  slots.forEach((slot, i) => {
+    const d = document.createElement('div');
+    d.id = `seg-${i}`;
+    d.className = 'seg-chip rounded-sm';
+    bar.appendChild(d);
+  });
+}
+
+function updateSegBar() {
+  const slots = getSlots();
+  slots.forEach((_, i) => {
+    const el = document.getElementById(`seg-${i}`);
+    if (el) el.classList.toggle('on', i < finishOrder.length);
+  });
+}
+
+/* Queue pills */
+function renderQueue() {
+  const slots = getSlots();
+  const qEl = document.getElementById('finish-queue');
+  qEl.innerHTML = '';
+  finishOrder.forEach((e, idx) => {
+    const pill = document.createElement('div');
+    pill.className = `pill-${e.slot.cls} rounded-lg px-3 py-2 flex items-center gap-2 anim-pop`;
+    pill.innerHTML = `
+      <span class="material-symbols-outlined fill-icon" style="font-size:14px">${e.slot.icon}</span>
+      <div>
+        <div class="text-[8px] uppercase tracking-widest font-label font-bold opacity-70">${e.slot.short}</div>
+        <div class="font-headline font-bold text-sm">${players[e.playerIdx]}</div>
+      </div>
+    `;
+    qEl.appendChild(pill);
+  });
+
+  const nextIdx = finishOrder.length;
+  const hintBox = document.getElementById('next-hint-box');
+  const hintBar = document.getElementById('next-hint-bar');
+  const hintTxt = document.getElementById('next-hint-text');
+  const progLbl = document.getElementById('round-prog-label');
+  progLbl.textContent = `${nextIdx} / ${slots.length} assigned`;
+
+  if (nextIdx < slots.length) {
+    const next = slots[nextIdx];
+    const col = POS_COLORS[next.cls];
+    hintBar.style.background = col;
+    hintTxt.textContent = `${next.label} — finish ${nextIdx+1} of ${slots.length}`;
+    hintTxt.style.color = col;
+    document.getElementById('nav-next').disabled = true;
+  } else {
+    hintBar.style.background = '#59de9b';
+    hintTxt.textContent = 'All positions filled — confirm round!';
+    hintTxt.style.color = '#59de9b';
+    document.getElementById('nav-next').disabled = false;
+  }
+}
+
+/* Player chips */
+function renderChips() {
+  const used = new Set(finishOrder.map(e=>e.playerIdx));
+  const wrap = document.getElementById('player-chips');
+  wrap.innerHTML = '';
+  players.forEach((name, i) => {
+    const done = used.has(i);
+    const initial = name[0].toUpperCase();
+    const c = document.createElement('button');
+    c.disabled = done;
+    c.className = `flex items-center gap-3 rounded-lg px-4 py-3 transition-all text-left ${
+      done
+        ? 'bg-surface-container opacity-30 cursor-not-allowed'
+        : 'bg-surface-container-high hover:bg-surface-container-highest hover:glow-green active:scale-95'
+    }`;
+    c.innerHTML = `
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${done ? 'bg-surface-container-highest' : 'bg-primary/10'}">
+        <span class="font-headline font-bold text-sm ${done ? 'text-on-surface-variant' : 'text-primary'}">${initial}</span>
+      </div>
+      <span class="font-headline font-bold text-sm text-on-surface">${name}</span>
+      ${done ? '<span class="material-symbols-outlined fill-icon ml-auto text-primary" style="font-size:16px">check_circle</span>' : ''}
+    `;
+    c.onclick = () => assignNext(i);
+    wrap.appendChild(c);
+  });
+}
+
+function assignNext(pIdx) {
+  const slots = getSlots();
+  if (finishOrder.length >= slots.length || finishOrder.some(e=>e.playerIdx===pIdx)) return;
+  finishOrder.push({playerIdx:pIdx, slot:slots[finishOrder.length]});
+  document.getElementById('undo-btn').disabled = false;
+  updateSegBar();
+  renderQueue();
+  renderChips();
+}
+
+function undoLast() {
+  if (!finishOrder.length) return;
+  finishOrder.pop();
+  if (!finishOrder.length) document.getElementById('undo-btn').disabled = true;
+  const nextBtn = document.getElementById('nav-next');
+  nextBtn.disabled = true;
+  nextBtn.querySelector('span:last-child').textContent = 'Next Rnd';
+  updateSegBar();
+  renderQueue();
+  renderChips();
+}
+
+/* ══════════════════════════════════════
+   RANKINGS SCREEN
+══════════════════════════════════════ */
+function setRankMode(mode) {
+  rankMode = mode;
+  document.getElementById('tab-votes').className    = `mode-tab ${mode==='votes'    ? 'active':'inactive'}`;
+  document.getElementById('tab-position').className = `mode-tab ${mode==='position' ? 'active':'inactive'}`;
+  document.getElementById('rank-mode-desc').textContent = mode === 'votes'
+    ? 'Higher points = better rank. President earns +4 pts per round.'
+    : 'Lower position score = better rank. President earns 1 pt, last place earns N pts.';
+  renderRankings();
+}
+
+function renderRankings() {
+  const board = document.getElementById('leaderboard');
+  const histEl = document.getElementById('history-rows');
+  const completedRounds = round - 1;
+  document.getElementById('rank-after-round').textContent = completedRounds || '—';
+
+  // Sort players
+  const ranked = players.map((name,i) => ({
+    name, i, score: scores[i], posScore: posScores[i], hist: history[i], last: lastResult[i]
+  })).sort((a,b) => rankMode === 'votes'
+    ? b.score - a.score          // higher pts wins
+    : a.posScore - b.posScore    // lower pos score wins
+  );
+
+  /* ── Leaderboard ── */
+  board.innerHTML = '';
+  ranked.forEach((p, rank) => {
+    const isFirst = rank === 0;
+    const rankDisplay = rank === 0 ? '01' : rank === 1 ? '02' : rank === 2 ? '03' : String(rank+1).padStart(2,'0');
+    const scoreDisplay = rankMode === 'votes' ? `${p.score} <span class="text-xs text-on-surface-variant">pts</span>` : `${p.posScore} <span class="text-xs text-on-surface-variant">pos</span>`;
+    const lastBadge = p.last
+      ? `<span class="pill-${p.last.cls} text-[9px] font-label font-bold uppercase tracking-wider px-2 py-0.5 rounded">${p.last.short}</span>`
+      : '';
+
+    const card = document.createElement('div');
+    card.className = `group rounded-lg flex items-center justify-between p-4 gap-3 transition-all ${
+      isFirst
+        ? 'bg-surface-container-high glow-tl hover:bg-surface-container-highest'
+        : 'bg-surface-container-low hover:bg-surface-container-high'
+    }`;
+    card.innerHTML = `
+      <div class="flex items-center gap-4">
+        <span class="font-headline font-extrabold text-2xl italic ${isFirst ? 'text-primary' : 'text-on-surface-variant/50'} w-8 tabular-nums">${rankDisplay}</span>
+        <div>
+          <div class="font-headline font-bold text-base text-on-surface">${p.name}</div>
+          <div class="flex items-center gap-2 mt-0.5">${lastBadge}</div>
+        </div>
+      </div>
+      <div class="font-headline font-black text-xl tabular-nums text-on-surface">${scoreDisplay}</div>
+    `;
+    board.appendChild(card);
+  });
+
+  /* ── History rows ── */
+  if (completedRounds === 0) {
+    histEl.innerHTML = `<p class="text-on-surface-variant text-sm font-body text-center py-6">No rounds completed yet.</p>`;
+    return;
+  }
+  histEl.innerHTML = '';
+  // Sort history rows by same ranking
+  ranked.forEach(p => {
+    const slots = getSlots();
+    const row = document.createElement('div');
+    row.className = 'bg-surface-container-low rounded-lg p-4';
+
+    // Per-round mini cells
+    const cells = p.hist.map((h, ri) => {
+      const col = POS_COLORS[h.cls];
+      const top = `border-top:2px solid ${col}`;
+      return `
+        <div class="flex flex-col items-center p-2 bg-surface-container-high rounded" style="${top}">
+          <span class="text-[9px] uppercase text-on-surface-variant font-bold mb-1">R${ri+1}</span>
+          <span class="font-headline font-black text-base" style="color:${col}">${h.finishPos}</span>
+          <span class="text-[8px] font-label" style="color:${col};opacity:.7">${h.short}</span>
+        </div>
+      `;
+    }).join('');
+
+    const totalDisplay = rankMode === 'votes'
+      ? `${p.score}pts`
+      : `${p.posScore}pos`;
+
+    row.innerHTML = `
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center">
+            <span class="font-headline font-bold text-xs text-primary">${p.name[0].toUpperCase()}</span>
+          </div>
+          <span class="font-headline font-bold text-base">${p.name}</span>
+        </div>
+        <span class="font-mono text-xs text-primary font-bold">${totalDisplay}</span>
+      </div>
+      <div class="grid gap-1.5" style="grid-template-columns:repeat(${Math.min(p.hist.length, 8)},1fr)">
+        ${cells}
+      </div>
+    `;
+    histEl.appendChild(row);
+  });
+}
+
+/* ══════════════════════════════════════
+   NEXT ROUND — smart nav-next button
+   On Play screen  → confirm & commit round → go to Rankings
+   On Rankings     → start new round → go to Play
+══════════════════════════════════════ */
+function confirmNextRound() {
+  if (document.getElementById('nav-next').disabled) return;
+
+  if (currentScreen === 'rankings') {
+    // From Rankings: just go back to Play for a new round
+    showScreen('round');
+    renderRound();
+    return;
+  }
+
+  // From Play: commit scores
+  lastResult = new Array(numPlayers).fill(null);
+  finishOrder.forEach(({playerIdx, slot}, idx) => {
+    scores[playerIdx]    += slot.pts;
+    posScores[playerIdx] += (idx + 1);
+    history[playerIdx].push({...slot, finishPos: idx + 1});
+    lastResult[playerIdx] = slot;
+  });
+  round++;
+  finishOrder = [];
+
+  // Enable next-round button for rankings screen (it will start new round from there)
+  document.getElementById('nav-next').disabled = false;
+  document.getElementById('nav-next').querySelector('span:last-child').textContent = 'New Rnd';
+  showScreen('rankings');
+  document.getElementById('rank-after-round').textContent = round - 1;
+}
+
+/* ══════════════════════════════════════
+   CSV EXPORT
+══════════════════════════════════════ */
+function exportCSV() {
+  if (!players.length) return;
+  const completedRounds = round - 1;
+  if (completedRounds === 0) { alert('No rounds completed yet.'); return; }
+
+  const slots = getSlots();
+  let csv = 'Player';
+  for (let r = 1; r <= completedRounds; r++) csv += `,R${r}_Position,R${r}_Pts`;
+  csv += ',Total_Pts,Total_PosScore\n';
+
+  players.forEach((name, i) => {
+    let row = `"${name}"`;
+    history[i].forEach(h => {
+      row += `,${h.finishPos},${h.pts}`;
+    });
+    // pad if fewer rounds played somehow
+    for (let r = history[i].length; r < completedRounds; r++) row += ',-,-';
+    row += `,${scores[i]},${posScores[i]}`;
+    csv += row + '\n';
+  });
+
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `president_session_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ══════════════════════════════════════
+   RESET
+══════════════════════════════════════ */
+function confirmReset() {
+  if (!confirm('End session and reset all scores?')) return;
+  players=[]; scores=[]; posScores=[]; history=[]; lastResult=[]; finishOrder=[]; round=1;
+  document.getElementById('nav-next').disabled = true;
+  showScreen('setup');
+  renderInputs();
+}
+</script>
+</body>
+</html>
