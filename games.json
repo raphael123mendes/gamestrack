@@ -1,0 +1,25 @@
+{
+  "games": [
+    {
+      "file": "snake.html",
+      "name": "Snake Deluxe",
+      "description": "Eat, grow, don't crash. The classic. Impossible to stop once you start.",
+      "emoji": "🐍",
+      "tags": ["classic", "arcade"]
+    },
+    {
+      "file": "puzzle.html",
+      "name": "Puzzle Quest",
+      "description": "Slide the pieces into place before the timer runs out. 50 handcrafted levels.",
+      "emoji": "🧩",
+      "tags": ["puzzle"]
+    },
+    {
+      "file": "space.html",
+      "name": "Space Blaster",
+      "description": "Shoot the invaders. Don't get shot. Defend Earth at all costs.",
+      "emoji": "🚀",
+      "tags": ["action", "arcade"]
+    }
+  ]
+}

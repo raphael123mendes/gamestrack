@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ixtain ACME Game Factory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yellow: #FFD700;
+      --yellow-dark: #c9a800;
+      --red: #cc2200;
+      --bg: #1a1a1a;
+      --surface: #242424;
+      --surface2: #2a2a2a;
+      --border: #333;
+      --border-hover: #444;
+      --text: #eeeeee;
+      --text-muted: #888;
+      --text-dim: #555;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Oswald', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── hazard stripe ── */
+    .hazard {
+      height: 16px;
+      flex-shrink: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--yellow) 0px, var(--yellow) 12px,
+        var(--bg)     12px, var(--bg)     24px
+      );
+    }
+
+    /* ── header ── */
+    header {
+      background: var(--yellow);
+      padding: 22px 24px 18px;
+      border-bottom: 4px solid var(--bg);
+      position: relative;
+    }
+
+    .logo {
+      font-family: 'Black Ops One', sans-serif;
+      font-size: clamp(32px, 8vw, 56px);
+      color: var(--bg);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .logo span { color: var(--red); }
+
+    .header-sub {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .header-sub p {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--bg);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      opacity: 0.65;
+    }
+
+    .header-sub p.tagline { opacity: 0.45; }
+
+    .stamp {
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      width: 66px;
+      height: 66px;
+      border: 2.5px solid var(--red);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-12deg);
+      font-family: 'Black Ops One', sans-serif;
+      font-size: 8px;
+      color: var(--red);
+      text-align: center;
+      text-transform: uppercase;
+      line-height: 1.45;
+      user-select: none;
+    }
+
+    /* ── main body ── */
+    main {
+      flex: 1;
+      padding: 20px 16px 28px;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ── search ── */
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 9px 14px;
+      margin-bottom: 18px;
+      transition: border-color 0.15s;
+    }
+
+    .search-wrap:focus-within { border-color: var(--yellow); }
+
+    .search-wrap svg {
+      width: 15px;
+      height: 15px;
+      stroke: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .search-wrap input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 1px;
+      width: 100%;
+    }
+
+    .search-wrap input::placeholder { color: var(--text-dim); }
+
+    /* ── section label ── */
+    .section-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--yellow);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    @media (min-width: 600px) {
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (min-width: 860px) {
+      .grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    /* ── card ── */
+    .card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 12px 12px;
+      cursor: pointer;
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.15s, transform 0.1s;
+      outline: none;
+    }
+
+    .card:hover,
+    .card:focus-visible {
+      border-color: var(--yellow);
+      transform: translateY(-2px);
+    }
+
+    .card:hover .card-btn,
+    .card:focus-visible .card-btn {
+      background: var(--red);
+      color: #fff;
+    }
+
+    /* featured: first card spans 2 columns */
+    .card.featured {
+      grid-column: span 2;
+      flex-direction: row;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 14px;
+    }
+
+    @media (min-width: 600px) {
+      .card.featured { grid-column: span 1; flex-direction: column; align-items: flex-start; }
+    }
+
+    .card-corner {
+      position: absolute;
+      top: 0; right: 0;
+      width: 0; height: 0;
+      border-style: solid;
+      border-width: 0 18px 18px 0;
+      border-color: transparent var(--yellow) transparent transparent;
+      pointer-events: none;
+    }
+
+    .card-emoji {
+      font-size: 28px;
+      line-height: 1;
+      display: block;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    .card.featured .card-emoji {
+      font-size: 40px;
+      margin-bottom: 0;
+    }
+
+    @media (min-width: 600px) {
+      .card.featured .card-emoji { font-size: 28px; margin-bottom: 10px; }
+    }
+
+    .card-body { flex: 1; display: flex; flex-direction: column; }
+
+    .card-name {
+      font-family: 'Black Ops One', sans-serif;
+      font-size: 13px;
+      color: var(--yellow);
+      margin-bottom: 5px;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .card.featured .card-name { font-size: 16px; }
+
+    @media (min-width: 600px) {
+      .card.featured .card-name { font-size: 13px; }
+    }
+
+    .card-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      font-weight: 400;
+      flex: 1;
+      margin-bottom: 10px;
+    }
+
+    .card-btn {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--bg);
+      background: var(--yellow);
+      border: none;
+      padding: 5px 10px;
+      border-radius: 2px;
+      display: inline-block;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      align-self: flex-start;
+    }
+
+    /* ── empty state ── */
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── error state ── */
+    .error-box {
+      background: #2a1010;
+      border: 1px solid #5a1a1a;
+      border-radius: 4px;
+      padding: 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: #e06060;
+      letter-spacing: 1px;
+      line-height: 1.7;
+    }
+
+    .error-box strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: var(--red);
+    }
+
+    /* ── footer ── */
+    footer {
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      padding: 10px 16px;
+      text-align: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hazard" aria-hidden="true"></div>
+
+  <header>
+    <div class="logo">IXTAIN<br><span>ACME</span></div>
+    <div class="header-sub">
+      <p>Game Factory &nbsp;·&nbsp; Est. 2025 &nbsp;·&nbsp; Patent Pending</p>
+      <p class="tagline">Guaranteed to entertain — or your money back</p>
+    </div>
+    <div class="stamp" aria-hidden="true">100%<br>Tested<br>on<br>Coyotes</div>
+  </header>
+
+  <main>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="search"
+        id="search"
+        placeholder="Search products..."
+        aria-label="Search games"
+        autocomplete="off"
+      />
+    </div>
+
+    <p class="section-label" id="count-label">Loading catalogue…</p>
+
+    <div class="grid" id="grid" role="list"></div>
+  </main>
+
+  <div class="hazard" aria-hidden="true"></div>
+  <footer>Ixtain ACME Game Factory &nbsp;·&nbsp; All products ship immediately &nbsp;·&nbsp; No refunds</footer>
+
+  <script>
+    const grid       = document.getElementById('grid');
+    const countLabel = document.getElementById('count-label');
+    const searchInput = document.getElementById('search');
+
+    let allGames = [];
+
+    function renderCards(games) {
+      grid.innerHTML = '';
+
+      if (games.length === 0) {
+        grid.innerHTML = '<div class="empty">No products found — try a different search</div>';
+        countLabel.textContent = 'Product catalogue — 0 items';
+        return;
+      }
+
+      countLabel.textContent = `Product catalogue — ${games.length} item${games.length !== 1 ? 's' : ''}`;
+
+      games.forEach((game, index) => {
+        const isFeatured = index === 0 && games.length > 2;
+        const a = document.createElement('a');
+        a.className = 'card' + (isFeatured ? ' featured' : '');
+        a.href = game.file;
+        a.setAttribute('role', 'listitem');
+        a.setAttribute('aria-label', `Play ${game.name}`);
+
+        a.innerHTML = `
+          <div class="card-corner" aria-hidden="true"></div>
+          <span class="card-emoji" aria-hidden="true">${game.emoji || '🎮'}</span>
+          <div class="card-body">
+            <p class="card-name">${escHtml(game.name)}</p>
+            <p class="card-desc">${escHtml(game.description || 'No description available.')}</p>
+            <span class="card-btn">▶ Launch</span>
+          </div>
+        `;
+
+        grid.appendChild(a);
+      });
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function filterGames(query) {
+      const q = query.trim().toLowerCase();
+      if (!q) return allGames;
+      return allGames.filter(g =>
+        g.name.toLowerCase().includes(q) ||
+        (g.description || '').toLowerCase().includes(q) ||
+        (g.tags || []).some(t => t.toLowerCase().includes(q))
+      );
+    }
+
+    searchInput.addEventListener('input', () => {
+      renderCards(filterGames(searchInput.value));
+    });
+
+    // Load games.json
+    fetch('games.json')
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(data => {
+        allGames = data.games || [];
+        renderCards(allGames);
+      })
+      .catch(err => {
+        countLabel.textContent = 'Product catalogue — error';
+        grid.innerHTML = `
+          <div class="error-box">
+            <strong>⚠ Catalogue failed to load</strong>
+            Could not read <code>games.json</code>: ${escHtml(err.message)}<br><br>
+            Make sure <code>games.json</code> exists in the same folder as <code>index.html</code>.<br>
+            Run <code>node generate-games-json.js</code> to generate it automatically.
+          </div>
+        `;
+      });
+  </script>
+</body>
+</html>
