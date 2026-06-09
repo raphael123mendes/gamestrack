@@ -390,7 +390,7 @@
       countLabel.textContent = `Product catalogue — ${games.length} item${games.length !== 1 ? 's' : ''}`;
 
       games.forEach((game, index) => {
-        const isFeatured = index === 0 && games.length > 2;
+        const isFeatured = (game.featured === true || (index === 0 && !games.some(g => g.featured))) && games.length > 2;
         const a = document.createElement('a');
         a.className = 'card' + (isFeatured ? ' featured' : '');
         a.href = game.file;
