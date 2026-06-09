@@ -9,10 +9,11 @@
     },
     {
       "file": "padelmixrr.html",
-      "name": "PADEL Tracker",
+      "name": "PADEL Super Mix Crazy rounds",
       "description": "Fun way to play padel with your friends, with some twists if you play mix doubles",
       "emoji": "🌀",
-      "tags": ["padel","couples","twists","roundrobin"]
+      "tags": ["padel","couples","twists","roundrobin"],
+      "featured": true
     },
     {
       "file": "presidentcard.html",
