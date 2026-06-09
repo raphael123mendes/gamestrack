@@ -3,23 +3,23 @@
     {
       "file": "padeldoublesrr.html",
       "name": "PADEL Doubles Tracker",
-      "description": "",
-      "emoji": "🎮",
-      "tags": []
+      "description": "Easy way for you to track fun Padel matches with your friends ensurign all play and rest properly",
+      "emoji": "🏸",
+      "tags": ["padel","doubles","roundrobin"]
     },
     {
       "file": "padelmixrr.html",
       "name": "PADEL Tracker",
-      "description": "",
-      "emoji": "🎮",
-      "tags": []
+      "description": "Fun way to play padel with your friends, with some twists if you play mix doubles",
+      "emoji": "🌀",
+      "tags": ["padel","couples","twists","roundrobin"]
     },
     {
       "file": "presidentcard.html",
       "name": "PRESIDENT",
-      "description": "",
-      "emoji": "🎮",
-      "tags": []
+      "description": "The famous president card game, easy to track and guide to track results",
+      "emoji": "♠️",
+      "tags": ["cards","fun","cu","gamenight"],[
     }
   ]
 }
