@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PADEL Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e0e; --surface: #161616; --surface2: #1e1e1e;
+  --border: #2a2a2a; --clay: #d4622a; --clay-dark: #8c3d18;
+  --yellow: #e8c840; --green: #3dba6f; --blue: #4a9fd4;
+  --muted: rgba(255,255,255,0.35); --text: #f0ece4; --warn: #e06090;
+  --font-display: 'Bebas Neue', sans-serif; --font-body: 'IBM Plex Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 80px; }
+
+.hdr { display: flex; align-items: flex-end; justify-content: space-between; padding: 32px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+.hdr-title { font-family: var(--font-display); font-size: clamp(52px,12vw,88px); letter-spacing: 2px; color: var(--clay); line-height: 1; }
+.hdr-sub { font-size: 10px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; padding-bottom: 8px; }
+
+/* STEPS */
+.step { display: none; flex-direction: column; gap: 24px; }
+.step.active { display: flex; }
+.step-indicator { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+.step-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); font-family: var(--font-display); font-size: 14px; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all 0.2s; }
+.step-dot.done { background: var(--clay); border-color: var(--clay); color: #fff; }
+.step-dot.active { border-color: var(--clay); color: var(--clay); }
+.step-line { flex: 1; height: 1px; background: var(--border); }
+.field-label { font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.field-hint { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 6px; line-height: 1.6; }
+.field-hint.warn { color: var(--warn); }
+.field-hint.ok { color: var(--green); }
+
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.sel-btn { height: 52px; min-width: 52px; padding: 0 14px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface); color: var(--muted); font-family: var(--font-display); font-size: 26px; cursor: pointer; transition: all 0.15s; }
+.sel-btn:hover { border-color: var(--clay); color: var(--text); }
+.sel-btn.active { border-color: var(--clay); background: var(--clay); color: #fff; }
+.sel-btn.wide { font-size: 16px; letter-spacing: 2px; min-width: 100px; }
+
+.mode-cards { display: flex; flex-direction: column; gap: 10px; }
+.mode-card { border: 2px solid var(--border); border-radius: 12px; padding: 16px 18px; cursor: pointer; transition: all 0.15s; background: var(--surface); }
+.mode-card:hover { border-color: rgba(212,98,42,0.5); }
+.mode-card.active { border-color: var(--clay); background: rgba(212,98,42,0.08); }
+.mode-card-title { font-family: var(--font-display); font-size: 20px; letter-spacing: 2px; color: var(--text); margin-bottom: 4px; }
+.mode-card-desc { font-size: 10px; color: var(--muted); letter-spacing: 1px; line-height: 1.6; }
+.mode-sub { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); gap: 8px; }
+.mode-sub.show { display: flex; }
+
+.team-rows { display: flex; flex-direction: column; gap: 12px; }
+.team-row { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.team-row-head { display: flex; align-items: center; gap: 10px; }
+.team-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.team-label { font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; }
+.team-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.input-group { display: flex; flex-direction: column; gap: 5px; }
+.input-sub-label { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+input[type=text], input[type=number] { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-family: var(--font-body); font-size: 12px; outline: none; transition: border-color 0.2s; }
+input[type=text]:focus, input[type=number]:focus { border-color: var(--clay); }
+input[type=text]::placeholder, input[type=number]::placeholder { color: rgba(255,255,255,0.2); }
+.gender-row { display: flex; gap: 6px; }
+.gender-btn { flex: 1; padding: 7px 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-family: var(--font-body); font-size: 10px; letter-spacing: 2px; cursor: pointer; transition: all 0.15s; text-align: center; }
+.gender-btn:hover { border-color: var(--clay); color: var(--text); }
+.gender-btn.active { border-color: var(--clay); background: rgba(212,98,42,0.2); color: var(--text); }
+
+.estimate-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; }
+.est-line { font-family: var(--font-display); font-size: 22px; letter-spacing: 2px; color: var(--clay); }
+.est-detail { font-size: 10px; color: var(--muted); letter-spacing: 2px; line-height: 1.8; }
+.est-warn { color: var(--warn); font-size: 10px; letter-spacing: 2px; margin-top: 4px; }
+
+.review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.review-cell { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.review-cell-label { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.review-cell-val { font-family: var(--font-display); font-size: 20px; letter-spacing: 2px; color: var(--text); }
+.review-cell-sub { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: 1px; }
+.review-team-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.review-team-item { display: flex; align-items: center; gap: 10px; font-size: 11px; }
+
+.btn-primary { background: var(--clay); color: #fff; border: none; border-radius: 10px; padding: 16px; font-family: var(--font-display); font-size: 24px; letter-spacing: 3px; cursor: pointer; width: 100%; box-shadow: 0 5px 0 var(--clay-dark); transition: transform 0.12s, box-shadow 0.12s; }
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-primary:active { transform: translateY(4px); box-shadow: none; }
+.btn-secondary { background: transparent; border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; color: var(--muted); cursor: pointer; width: 100%; transition: all 0.15s; }
+.btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+.btn-nav { display: flex; gap: 10px; }
+.btn-nav .btn-secondary { flex: 0 0 auto; width: auto; padding: 14px 24px; }
+.btn-nav .btn-primary { flex: 1; }
+
+/* ═══ GAME SCREEN ═══ */
+#game { display: none; flex-direction: column; gap: 20px; }
+
+.strip { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.strip-cell { flex: 1; padding: 12px 16px; border-right: 1px solid var(--border); }
+.strip-cell:last-child { border-right: none; }
+.sc-label { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.sc-val { font-family: var(--font-display); font-size: 22px; }
+.sc-val-sm { font-size: 13px; padding-top: 4px; letter-spacing: 1px; line-height: 1.4; }
+
+.phase-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 9px; letter-spacing: 4px; text-transform: uppercase; background: rgba(212,98,42,0.15); color: var(--clay); border: 1px solid rgba(212,98,42,0.3); align-self: flex-start; }
+
+/* courts grid */
+.courts-grid { display: grid; gap: 16px; }
+.courts-grid.courts-1 { grid-template-columns: 1fr; }
+.courts-grid.courts-2 { grid-template-columns: 1fr 1fr; }
+.courts-grid.courts-3 { grid-template-columns: 1fr 1fr 1fr; }
+.courts-grid.courts-4 { grid-template-columns: 1fr 1fr; }
+@media(max-width:600px) {
+  .courts-grid.courts-2,.courts-grid.courts-3,.courts-grid.courts-4 { grid-template-columns: 1fr; }
+}
+
+.court-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 16px 14px; position: relative; }
+.court-card.match-done { border-color: rgba(61,186,111,0.3); background: rgba(61,186,111,0.04); }
+.court-card.has-error { border-color: var(--warn); }
+.court-num { position: absolute; top: 12px; right: 14px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: var(--muted); }
+.court-match-num { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+
+/* ── Team header: player names big, double label small ── */
+.team-header { display: flex; flex-direction: column; gap: 2px; }
+.team-header-label { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+.team-header-names { font-family: var(--font-display); font-size: clamp(16px,4vw,26px); letter-spacing: 1px; line-height: 1.15; }
+/* On narrow screens stack names one below the other */
+.team-header-names .p2::before { content: ' & '; }
+@media(max-width:420px) {
+  .team-header-names .p1 { display: block; }
+  .team-header-names .p2::before { content: ''; }
+  .team-header-names .p2 { display: block; font-size: 0.9em; }
+}
+
+.matchup-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-bottom: 14px; }
+.matchup-row .m-right { text-align: right; }
+.m-vs { font-family: var(--font-display); font-size: 18px; color: var(--border); text-align: center; padding: 0 4px; }
+
+/* ── Score inputs ── */
+.score-inputs { display: grid; grid-template-columns: 1fr 24px 1fr; align-items: center; margin-bottom: 12px; gap: 4px; }
+.score-input-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.score-input {
+  width: 100%; background: var(--surface2); border: 2px solid var(--border);
+  border-radius: 10px; padding: 16px 4px;
+  color: var(--text); font-family: var(--font-display); font-size: clamp(72px,18vw,110px);
+  text-align: center; outline: none; transition: border-color 0.2s;
+  -moz-appearance: textfield; appearance: textfield;
+}
+.score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.score-input:focus { border-color: var(--clay); }
+.score-input.error { border-color: var(--warn); }
+.sc-sep { font-family: var(--font-display); font-size: 28px; color: var(--border); text-align: center; }
+.score-error { font-size: 9px; letter-spacing: 2px; color: var(--warn); text-align: center; min-height: 14px; grid-column: 1/-1; }
+
+.match-result-done { text-align: center; padding: 16px 12px; }
+.match-result-score { font-family: var(--font-display); font-size: clamp(40px,10vw,64px); letter-spacing: 4px; color: var(--green); line-height: 1; }
+.match-result-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+/* court timer */
+.court-timer { text-align: center; font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; color: var(--yellow); margin-bottom: 8px; }
+.court-timer.warn { color: var(--warn); }
+
+/* Submit round */
+.submit-row { margin-top: 4px; }
+.btn-submit {
+  background: var(--green); color: #0e0e0e; border: none;
+  border-radius: 10px; padding: 15px; width: 100%;
+  font-family: var(--font-display); font-size: 22px; letter-spacing: 3px;
+  cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-submit:hover { transform: translateY(-2px); }
+.btn-submit:active { transform: translateY(3px); box-shadow: none; }
+.btn-submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* schedule */
+.schedule-section { display: flex; flex-direction: column; gap: 8px; }
+.round-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.round-head { padding: 10px 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.round-head-label { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); }
+.round-head-status { font-size: 9px; letter-spacing: 2px; color: var(--muted); }
+.round-head-status.active { color: var(--clay); }
+.round-head-status.done { color: var(--green); }
+.schedule-match { padding: 10px 16px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 12px; font-size: 11px; }
+.sched-court { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); width: 52px; flex-shrink: 0; }
+.sched-teams { flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sched-team { font-family: var(--font-display); font-size: 15px; letter-spacing: 1px; }
+.sched-vs { color: var(--border); font-size: 10px; }
+.sched-score { font-family: var(--font-display); font-size: 15px; letter-spacing: 2px; color: var(--muted); white-space: nowrap; }
+.sched-score.done { color: var(--green); }
+.sched-sit { font-size: 9px; letter-spacing: 2px; color: var(--muted); padding: 8px 16px; border-top: 1px solid var(--border); }
+
+/* ── Scoreboard tabs + table ── */
+.sb-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.sb-tab { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-family: var(--font-body); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+.sb-tab:hover { border-color: var(--clay); color: var(--text); }
+.sb-tab.active { border-color: var(--clay); background: var(--clay); color: #fff; }
+
+.sb { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+/* 6 cols: name | played | wins | gw | gl | net */
+.sb-head { display: grid; grid-template-columns: 1fr 44px 44px 44px 44px 52px; background: rgba(255,255,255,0.04); padding: 10px 16px; font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); }
+.sb-row { display: grid; grid-template-columns: 1fr 44px 44px 44px 44px 52px; padding: 12px 16px; border-top: 1px solid var(--border); align-items: center; }
+.sb-row:hover { background: rgba(255,255,255,0.02); }
+.sb-team-name { font-family: var(--font-display); font-size: 17px; letter-spacing: 1px; }
+.sb-team-players { font-size: 9px; color: var(--muted); margin-top: 2px; }
+.sb-n { text-align: center; font-family: var(--font-display); font-size: 19px; }
+.sb-net { text-align: center; font-family: var(--font-display); font-size: 19px; }
+.sb-net.pos { color: var(--green); }
+.sb-net.neg { color: var(--warn); }
+.sb-net.zero { color: var(--muted); }
+.sb-rank { font-size: 9px; color: var(--muted); margin-right: 6px; }
+
+/* log */
+.log-wrap { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.log-head { background: rgba(255,255,255,0.04); padding: 10px 16px; font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+.log-entry { padding: 10px 16px; border-top: 1px solid var(--border); font-size: 11px; line-height: 1.5; color: var(--muted); display: flex; gap: 10px; align-items: baseline; }
+.log-entry.latest { color: var(--text); background: rgba(255,255,255,0.02); }
+.log-num { font-size: 9px; color: rgba(255,255,255,0.2); width: 26px; flex-shrink: 0; }
+.log-txt { flex: 1; }
+.log-court { font-size: 9px; color: var(--clay); flex-shrink: 0; }
+.log-empty { padding: 20px 16px; font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 2px; }
+
+.session-complete { background: rgba(61,186,111,0.08); border: 1px solid rgba(61,186,111,0.3); border-radius: 14px; padding: 24px 20px; text-align: center; }
+.session-complete-title { font-family: var(--font-display); font-size: 36px; letter-spacing: 4px; color: var(--green); margin-bottom: 8px; }
+.session-complete-sub { font-size: 10px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+.btn-export { background: var(--green); color: #0e0e0e; border: none; border-radius: 10px; padding: 14px 24px; font-family: var(--font-display); font-size: 20px; letter-spacing: 3px; cursor: pointer; transition: all 0.15s; margin-top: 16px; box-shadow: 0 4px 0 rgba(0,0,0,0.4); }
+.btn-export:hover { transform: translateY(-2px); }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--green); color: #0e0e0e; border-radius: 40px; padding: 12px 28px; font-family: var(--font-display); font-size: 18px; letter-spacing: 3px; z-index: 500; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.alt { background: var(--clay); color: #fff; }
+.btn-reset { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: rgba(255,255,255,0.2); font-family: var(--font-body); font-size: 10px; letter-spacing: 4px; text-transform: uppercase; cursor: pointer; width: 100%; transition: all 0.15s; }
+.btn-reset:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.4); }
+
+/* team colors */
+.c0{color:#e8c840}.d0{background:#e8c840}
+.c1{color:#3dba6f}.d1{background:#3dba6f}
+.c2{color:#4a9fd4}.d2{background:#4a9fd4}
+.c3{color:#e06090}.d3{background:#e06090}
+.c4{color:#c07af0}.d4{background:#c07af0}
+.c5{color:#f0904a}.d5{background:#f0904a}
+.c6{color:#50d4c0}.d6{background:#50d4c0}
+.c7{color:#f04a4a}.d7{background:#f04a4a}
+.cm{color:#4a9fd4}.dm{background:#4a9fd4}
+.cf{color:#e06090}.df{background:#e06090}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-title">PADEL RR</div>
+    <div class="hdr-sub">Doubles Rotation Tracker</div>
+  </div>
+
+  <!-- ═══ SETUP ═══ -->
+  <div id="setup">
+    <div class="step-indicator" id="step-indicator"></div>
+
+    <!-- Step 1 -->
+    <div class="step active" id="step-1">
+      <div>
+        <div class="field-label">How many doubles?</div>
+        <div class="btn-row" id="sel-doubles"></div>
+      </div>
+      <div>
+        <div class="field-label">How many courts?</div>
+        <div class="btn-row" id="sel-courts"></div>
+        <div class="field-hint" id="hint-courts"></div>
+      </div>
+      <div class="btn-nav">
+        <button class="btn-primary" onclick="goStep(2)">NEXT →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step" id="step-2">
+      <div>
+        <div class="field-label">Session mode</div>
+        <div class="mode-cards">
+          <div class="mode-card active" id="mode-classic" onclick="selectMode('classic')">
+            <div class="mode-card-title">CLASSIC</div>
+            <div class="mode-card-desc">Doubles round robin only. Every double plays every other double. No gender tracking.</div>
+          </div>
+          <div class="mode-card" id="mode-mixed" onclick="selectMode('mixed')">
+            <div class="mode-card-title">MIXED SHUFFLE</div>
+            <div class="mode-card-desc">Doubles round robin + gender rounds. Players reshuffle into same-gender doubles mid-session.</div>
+            <div class="mode-sub" id="mode-sub">
+              <button class="sel-btn wide active" id="sub-interleaved" onclick="event.stopPropagation();selectSubMode('interleaved')">INTERLEAVED</button>
+              <button class="sel-btn wide" id="sub-sequential" onclick="event.stopPropagation();selectSubMode('sequential')">SEQUENTIAL</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-nav">
+        <button class="btn-secondary" onclick="goStep(1)">← BACK</button>
+        <button class="btn-primary" onclick="goStep(3)">NEXT →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step" id="step-3">
+      <div>
+        <div class="field-label">Enter team names</div>
+        <div class="team-rows" id="team-rows"></div>
+      </div>
+      <div class="btn-nav">
+        <button class="btn-secondary" onclick="goStep(2)">← BACK</button>
+        <button class="btn-primary" onclick="goStep(4)">NEXT →</button>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step" id="step-4">
+      <div>
+        <div class="field-label">Set length</div>
+        <div class="btn-row">
+          <button class="sel-btn wide active" id="fmt-3" onclick="selectSetLen(3)">3 GAMES</button>
+          <button class="sel-btn wide" id="fmt-6" onclick="selectSetLen(6)">6 GAMES</button>
+        </div>
+      </div>
+      <div>
+        <div class="field-label">Court time booked</div>
+        <div class="btn-row">
+          <button class="sel-btn wide active" id="time-90" onclick="selectBookedTime(90)">90 MIN</button>
+          <button class="sel-btn wide" id="time-60" onclick="selectBookedTime(60)">60 MIN</button>
+          <button class="sel-btn wide" id="time-120" onclick="selectBookedTime(120)">120 MIN</button>
+        </div>
+      </div>
+      <div>
+        <div class="field-label">Match timer (optional)</div>
+        <div style="max-width:180px">
+          <input type="number" id="match-timer-input" placeholder="minutes, e.g. 20" min="5" max="60" oninput="updateEstimate()">
+        </div>
+        <div class="field-hint">Leave empty for no timer. Break is estimated at 3 min.</div>
+      </div>
+      <div class="estimate-box">
+        <div class="est-line" id="est-line">— matches · — rounds</div>
+        <div class="est-detail" id="est-detail"></div>
+        <div class="est-warn" id="est-warn"></div>
+      </div>
+      <div class="btn-nav">
+        <button class="btn-secondary" onclick="goStep(3)">← BACK</button>
+        <button class="btn-primary" onclick="goStep(5)">NEXT →</button>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step" id="step-5">
+      <div>
+        <div class="field-label">Review & start</div>
+        <div class="review-grid" id="review-grid"></div>
+      </div>
+      <button class="btn-primary" onclick="startSession()" style="margin-top:8px">START SESSION</button>
+    </div>
+  </div>
+
+  <!-- ═══ GAME ═══ -->
+  <div id="game">
+    <div class="strip">
+      <div class="strip-cell"><div class="sc-label">Round</div><div class="sc-val" id="g-round">1</div></div>
+      <div class="strip-cell"><div class="sc-label">Matches</div><div class="sc-val" id="g-match">1</div></div>
+      <div class="strip-cell"><div class="sc-label">Remaining</div><div class="sc-val sc-val-sm" id="g-remaining">—</div></div>
+    </div>
+
+    <div id="g-phase-badge" class="phase-badge">Phase 1 — Doubles</div>
+
+    <div class="courts-grid" id="courts-grid"></div>
+
+    <!-- Submit round button -->
+    <div class="submit-row">
+      <button class="btn-submit" id="btn-submit-round" onclick="submitRound()">SUBMIT ROUND</button>
+    </div>
+
+    <div>
+      <div class="field-label" style="margin-bottom:10px">Full Schedule</div>
+      <div class="schedule-section" id="schedule-section"></div>
+    </div>
+
+    <div>
+      <div class="field-label" style="margin-bottom:10px">Scoreboard</div>
+      <div class="sb-tabs" id="sb-tabs"></div>
+      <div class="sb">
+        <div class="sb-head" id="sb-head">
+          <div>Team</div>
+          <div style="text-align:center">P</div>
+          <div style="text-align:center">W</div>
+          <div style="text-align:center">GW</div>
+          <div style="text-align:center">GL</div>
+          <div style="text-align:center;color:var(--clay)">NET ▼</div>
+        </div>
+        <div id="sb-body"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="field-label" style="margin-bottom:10px">Match Log</div>
+      <div class="log-wrap">
+        <div class="log-head">
+          <span>All matches · newest first</span>
+          <span id="log-count" style="color:var(--clay)">0 matches</span>
+        </div>
+        <div id="log-entries"><div class="log-empty">No matches played yet...</div></div>
+      </div>
+    </div>
+
+    <div id="session-complete" style="display:none" class="session-complete">
+      <div class="session-complete-title">SESSION COMPLETE</div>
+      <div class="session-complete-sub">All scheduled rounds finished</div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn-export" onclick="exportSummary()">⬇ TXT SUMMARY</button>
+      <button class="btn-export" style="background:var(--blue);color:#fff" onclick="exportCSV()">⬇ CSV / EXCEL</button>
+    </div>
+
+    <button class="btn-reset" onclick="if(confirm('Reset everything?'))resetAll()">↺ reset everything</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let cfg = { numDoubles:4, numCourts:2, mode:'classic', subMode:'interleaved', setLen:3, bookedTime:90, matchTimer:null };
+let teams = [];
+let schedule = [];
+let matchLog = [];
+let totalMatchesPlayed = 0;
+let currentRoundIdx = 0;
+let courtTimers = {};
+let courtTimeLeft = {};
+let stats = {}; // idx -> {played,wins,gamesWon,gamesLost}
+// individual player stats: playerKey -> {name,played,wins,gamesWon,gamesLost}
+let playerStats = {};
+let currentSbTab = 'couples';
+let currentStep = 1;
+
+const COLORS = ['c0','c1','c2','c3','c4','c5','c6','c7','cm','cf'];
+const DOTS   = ['d0','d1','d2','d3','d4','d5','d6','d7','dm','df'];
+
+// ══════════════════════════════════════════════════════
+// SETUP UI
+// ══════════════════════════════════════════════════════
+function initSetupUI() {
+  const sd = document.getElementById('sel-doubles');
+  sd.innerHTML = '';
+  for (let i = 3; i <= 8; i++) {
+    const b = document.createElement('button');
+    b.className = 'sel-btn' + (i===cfg.numDoubles?' active':'');
+    b.textContent = i;
+    b.onclick = () => { cfg.numDoubles=i; highlight('sel-doubles',b); validateCourts(); updateEstimate(); };
+    sd.appendChild(b);
+  }
+  const sc = document.getElementById('sel-courts');
+  sc.innerHTML = '';
+  for (let i = 1; i <= 4; i++) {
+    const b = document.createElement('button');
+    b.className = 'sel-btn' + (i===cfg.numCourts?' active':'');
+    b.textContent = i;
+    b.onclick = () => { cfg.numCourts=i; highlight('sel-courts',b); validateCourts(); updateEstimate(); };
+    sc.appendChild(b);
+  }
+  validateCourts();
+  renderStepIndicator();
+}
+
+function highlight(pid, btn) {
+  document.getElementById(pid).querySelectorAll('.sel-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function validateCourts() {
+  const hint = document.getElementById('hint-courts');
+  const min = cfg.numCourts * 2;
+  if (cfg.numDoubles < min) {
+    hint.textContent = `⚠ Need at least ${min} doubles for ${cfg.numCourts} court${cfg.numCourts>1?'s':''}. Currently: ${cfg.numDoubles}.`;
+    hint.className = 'field-hint warn';
+  } else {
+    const sitOut = cfg.numDoubles - cfg.numCourts * 2;
+    hint.textContent = `✓ ${cfg.numDoubles} doubles · ${cfg.numCourts} court${cfg.numCourts>1?'s':''}${sitOut>0?' — '+sitOut+' sit out each round':' — no sit-outs'}.`;
+    hint.className = 'field-hint ok';
+  }
+}
+
+function selectMode(m) {
+  cfg.mode = m;
+  document.getElementById('mode-classic').classList.toggle('active', m==='classic');
+  document.getElementById('mode-mixed').classList.toggle('active', m==='mixed');
+  document.getElementById('mode-sub').classList.toggle('show', m==='mixed');
+  buildTeamRows();
+  updateEstimate();
+}
+
+function selectSubMode(sm) {
+  cfg.subMode = sm;
+  document.getElementById('sub-interleaved').classList.toggle('active', sm==='interleaved');
+  document.getElementById('sub-sequential').classList.toggle('active', sm==='sequential');
+  updateEstimate();
+}
+
+function selectSetLen(n) {
+  cfg.setLen = n;
+  document.getElementById('fmt-3').classList.toggle('active', n===3);
+  document.getElementById('fmt-6').classList.toggle('active', n===6);
+  updateEstimate();
+}
+
+function selectBookedTime(t) {
+  cfg.bookedTime = t;
+  ['60','90','120'].forEach(v=>document.getElementById('time-'+v).classList.toggle('active', parseInt(v)===t));
+  updateEstimate();
+}
+
+function buildTeamRows() {
+  const container = document.getElementById('team-rows');
+  const showGender = cfg.mode === 'mixed';
+  container.innerHTML = '';
+  for (let i = 0; i < cfg.numDoubles; i++) {
+    const letter = String.fromCharCode(65+i);
+    const existing = teams[i] || {};
+    const g = existing.gender || 'mf';
+    container.innerHTML += `
+      <div class="team-row">
+        <div class="team-row-head">
+          <div class="team-dot ${DOTS[i]}"></div>
+          <div class="team-label ${COLORS[i]}">Double ${letter}</div>
+        </div>
+        <div class="team-inputs">
+          <div class="input-group">
+            <div class="input-sub-label">Player 1</div>
+            <input type="text" id="p1-${i}" placeholder="e.g. João" value="${existing.p1||''}">
+          </div>
+          <div class="input-group">
+            <div class="input-sub-label">Player 2</div>
+            <input type="text" id="p2-${i}" placeholder="e.g. Maria" value="${existing.p2||''}">
+          </div>
+        </div>
+        ${showGender ? `
+        <div>
+          <div class="input-sub-label" style="margin-bottom:6px">Gender pairing</div>
+          <div class="gender-row">
+            <button class="gender-btn ${g==='mf'?'active':''}" onclick="setGender(${i},'mf',this)">M + F</button>
+            <button class="gender-btn ${g==='mm'?'active':''}" onclick="setGender(${i},'mm',this)">M + M</button>
+            <button class="gender-btn ${g==='ff'?'active':''}" onclick="setGender(${i},'ff',this)">F + F</button>
+          </div>
+        </div>` : ''}
+      </div>`;
+  }
+}
+
+function setGender(idx, g, btn) {
+  btn.parentElement.querySelectorAll('.gender-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if (!teams[idx]) teams[idx] = {};
+  teams[idx].gender = g;
+}
+
+function collectTeams() {
+  teams = [];
+  for (let i = 0; i < cfg.numDoubles; i++) {
+    const p1 = (document.getElementById('p1-'+i)?.value||'').trim() || `P${i*2+1}`;
+    const p2 = (document.getElementById('p2-'+i)?.value||'').trim() || `P${i*2+2}`;
+    let gender = 'mf';
+    document.querySelectorAll(`#team-rows .team-row:nth-child(${i+1}) .gender-btn`).forEach(b=>{
+      if (b.classList.contains('active')) {
+        if (b.textContent.includes('M + M')) gender='mm';
+        else if (b.textContent.includes('F + F')) gender='ff';
+        else gender='mf';
+      }
+    });
+    teams.push({ name:`Double ${String.fromCharCode(65+i)}`, players:[p1,p2], gender, c:COLORS[i], d:DOTS[i] });
+  }
+}
+
+function goStep(n) {
+  if (n===3) buildTeamRows();
+  if (n===4) updateEstimate();
+  if (n===5) { collectTeams(); buildReview(); }
+  document.getElementById('step-'+currentStep).classList.remove('active');
+  currentStep = n;
+  document.getElementById('step-'+currentStep).classList.add('active');
+  renderStepIndicator();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderStepIndicator() {
+  const ind = document.getElementById('step-indicator');
+  ind.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot'+(i<currentStep?' done':i===currentStep?' active':'');
+    d.textContent = i < currentStep ? '✓' : i;
+    ind.appendChild(d);
+    if (i<5) { const l=document.createElement('div'); l.className='step-line'; ind.appendChild(l); }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SCHEDULE GENERATION
+// ══════════════════════════════════════════════════════
+function genRounds(teamIndices, numCourts) {
+  const n = teamIndices.length;
+  const allPairs = [];
+  for (let i = 0; i < n; i++)
+    for (let j = i+1; j < n; j++)
+      allPairs.push([teamIndices[i], teamIndices[j]]);
+
+  const rounds = [];
+  const used = new Array(allPairs.length).fill(false);
+  while (used.some(u=>!u)) {
+    const inRound = new Set();
+    const matches = [];
+    let courts = numCourts;
+    for (let pi = 0; pi < allPairs.length && courts > 0; pi++) {
+      if (used[pi]) continue;
+      const [a,b] = allPairs[pi];
+      if (!inRound.has(a) && !inRound.has(b)) {
+        matches.push({teamA:a, teamB:b});
+        inRound.add(a); inRound.add(b);
+        used[pi] = true;
+        courts--;
+      }
+    }
+    const sitOut = teamIndices.filter(ti=>!inRound.has(ti));
+    rounds.push({matches, sitOut});
+  }
+  return rounds;
+}
+
+function buildSchedule() {
+  const nd = cfg.numDoubles;
+  const nc = cfg.numCourts;
+  const dIdx = Array.from({length:nd},(_,i)=>i);
+
+  let doublesRounds = genRounds(dIdx, nc).map(r=>({...r, phase:'doubles'}));
+  let genderRounds = [];
+
+  if (cfg.mode === 'mixed') {
+    // Collect individual players by gender
+    const mPlayers=[], fPlayers=[];
+    teams.forEach((t,i)=>{
+      if (t.gender==='mm') {
+        mPlayers.push({name:t.players[0], srcTeam:i});
+        mPlayers.push({name:t.players[1], srcTeam:i});
+      } else if (t.gender==='ff') {
+        fPlayers.push({name:t.players[0], srcTeam:i});
+        fPlayers.push({name:t.players[1], srcTeam:i});
+      } else {
+        mPlayers.push({name:t.players[0], srcTeam:i});
+        fPlayers.push({name:t.players[1], srcTeam:i});
+      }
+    });
+
+    // Build all valid gender pairings and their match schedule.
+    // A "gender team" is 2 players. A match is team A vs team B.
+    // Constraint: no player appears in both team A and team B of the same match.
+    function buildGenderSchedule(players, label) {
+      const n = players.length % 2 === 0 ? players.length : players.length - 1;
+      const evened = players.slice(0, n);
+
+      // Generate all unique player pairs (potential teams)
+      const allTeamDefs = [];
+      for (let a = 0; a < n; a++) {
+        for (let b = a+1; b < n; b++) {
+          allTeamDefs.push([a, b]); // player indices
+        }
+      }
+
+      // Generate all valid matches: two teams with no shared player
+      const allMatches = []; // each: { pA:[i,j], pB:[k,l] }
+      for (let ti = 0; ti < allTeamDefs.length; ti++) {
+        for (let tj = ti+1; tj < allTeamDefs.length; tj++) {
+          const [a,b] = allTeamDefs[ti];
+          const [c,d] = allTeamDefs[tj];
+          // valid only if no player overlap
+          if (a!==c && a!==d && b!==c && b!==d) {
+            allMatches.push({pA:[a,b], pB:[c,d]});
+          }
+        }
+      }
+
+      // Arrange matches into rounds: each player appears at most once per round
+      const rounds = [];
+      const usedMatches = new Array(allMatches.length).fill(false);
+      while (usedMatches.some(u=>!u)) {
+        const roundPlayers = new Set();
+        const roundMatches = [];
+        for (let mi = 0; mi < allMatches.length; mi++) {
+          if (usedMatches[mi]) continue;
+          const {pA, pB} = allMatches[mi];
+          const allP = [...pA, ...pB];
+          if (allP.every(p=>!roundPlayers.has(p))) {
+            roundMatches.push(allMatches[mi]);
+            allP.forEach(p=>roundPlayers.add(p));
+            usedMatches[mi] = true;
+          }
+        }
+        rounds.push(roundMatches);
+      }
+
+      // Now convert player-index matches into actual team objects added to teams[]
+      // Each unique player pair becomes a named team
+      const teamCache = {}; // "a-b" -> teamIdx
+      const getOrCreateTeam = (pi, pj) => {
+        const key = `${pi}-${pj}`;
+        if (teamCache[key] !== undefined) return teamCache[key];
+        const idx = teams.length;
+        const genderCode = label==='M'?'mm':'ff';
+        teams.push({
+          name: `${label}${Object.keys(teamCache).length+1}`,
+          players: [evened[pi].name, evened[pj].name],
+          srcPlayers: [evened[pi], evened[pj]],
+          gender: genderCode,
+          c: label==='M'?'cm':'cf',
+          d: label==='M'?'dm':'df',
+          idx
+        });
+        stats[idx] = {played:0,wins:0,gamesWon:0,gamesLost:0};
+        teamCache[key] = idx;
+        return idx;
+      };
+
+      // Build schedule rounds with real team indices
+      return rounds.map(rMatches => ({
+        matches: rMatches.map(m => ({
+          teamA: getOrCreateTeam(m.pA[0], m.pA[1]),
+          teamB: getOrCreateTeam(m.pB[0], m.pB[1])
+        })),
+        sitOut: [],
+        phase: 'gender'
+      }));
+    }
+
+    const mRounds = buildGenderSchedule(mPlayers, 'M');
+    const fRounds = buildGenderSchedule(fPlayers, 'F');
+
+    // Merge m and f rounds: each gender round puts one m match + one f match on the courts
+    const maxGR = Math.max(mRounds.length, fRounds.length);
+    for (let i = 0; i < maxGR; i++) {
+      const mMatches = i < mRounds.length ? mRounds[i].matches : [];
+      const fMatches = i < fRounds.length ? fRounds[i].matches : [];
+      // Each gender "round" may have multiple matches if many players;
+      // split them across courts respecting nc
+      const combined = [...mMatches, ...fMatches];
+      // chunk into court-sized rounds
+      for (let start = 0; start < combined.length; start += nc) {
+        genderRounds.push({
+          matches: combined.slice(start, start+nc),
+          sitOut: [],
+          phase: 'gender'
+        });
+      }
+    }
+  }
+
+  let onePass;
+  if (cfg.mode==='classic') { onePass = doublesRounds; }
+  else if (cfg.subMode==='interleaved') {
+    onePass = [];
+    const maxL = Math.max(doublesRounds.length, genderRounds.length);
+    for (let i = 0; i < maxL; i++) {
+      if (i < doublesRounds.length) onePass.push(doublesRounds[i]);
+      if (i < genderRounds.length) onePass.push(genderRounds[i]);
+    }
+  } else { onePass = [...doublesRounds, ...genderRounds]; }
+
+  const matchDur = cfg.matchTimer || (cfg.setLen===3 ? 11 : 24);
+  const timePerRound = matchDur + 3;
+  let cycles = 1;
+  while (cycles * onePass.length * timePerRound < cfg.bookedTime) cycles++;
+
+  schedule = [];
+  for (let c = 0; c < cycles; c++) {
+    onePass.forEach(r => {
+      const totalMatchesBefore = schedule.reduce((s,rr)=>s+rr.matches.length, 0);
+      schedule.push({
+        roundNum: schedule.length+1,
+        cycle: c+1,
+        phase: r.phase,
+        matches: r.matches.map((m,mi)=>({
+          ...m, court:mi,
+          matchIdx: totalMatchesBefore+mi,
+          scores:[0,0], done:false, winner:null,
+          timerExpired:false
+        })),
+        sitOut: r.sitOut||[],
+        done:false, active:false
+      });
+    });
+  }
+  if (schedule.length > 0) schedule[0].active = true;
+}
+
+// ══════════════════════════════════════════════════════
+// ESTIMATE
+// ══════════════════════════════════════════════════════
+function computeEstimate() {
+  const nd = cfg.numDoubles, nc = cfg.numCourts;
+  const dPairs = nd*(nd-1)/2;
+  let gMatches = 0;
+  if (cfg.mode==='mixed') { const h=Math.floor(nd/2); gMatches=h*(h-1)/2*2; }
+  const totalOneCycle = dPairs + gMatches;
+  const dRounds = Math.ceil(dPairs/nc);
+  const gRounds = cfg.mode==='mixed' ? Math.ceil(gMatches/nc) : 0;
+  const roundsPerCycle = dRounds + gRounds;
+  const matchDur = cfg.matchTimer || (cfg.setLen===3 ? 11 : 24);
+  const timePerRound = matchDur + 3;
+  let cycles = 1;
+  while (cycles * roundsPerCycle * timePerRound < cfg.bookedTime) cycles++;
+  const totalRounds = cycles * roundsPerCycle;
+  const totalMatches = cycles * totalOneCycle;
+  const totalMin = totalRounds * timePerRound;
+  const h = Math.floor(totalMin/60), m = totalMin%60;
+  return { totalMatches, totalRounds, cycles, totalMin, timeStr: h>0?`~${h}h ${m}min`:`~${m}min` };
+}
+
+function updateEstimate() {
+  cfg.matchTimer = parseInt(document.getElementById('match-timer-input')?.value)||null;
+  const est = computeEstimate();
+  const cycleStr = est.cycles>1?` (${est.cycles} cycles)`:'';
+  document.getElementById('est-line').textContent =
+    `${est.totalMatches} matches · ${est.totalRounds} rounds${cycleStr}${est.totalMin?' · '+est.timeStr:''}`;
+  document.getElementById('est-detail').textContent =
+    `${cfg.setLen}-game sets · ${cfg.matchTimer?cfg.matchTimer+'min timer':'no timer'} · 3min break estimate`;
+  const warn = document.getElementById('est-warn');
+  warn.textContent = est.totalMin > cfg.bookedTime*1.2
+    ? `⚠ Estimated time exceeds booked time by ~${est.totalMin-cfg.bookedTime}min` : '';
+}
+
+function buildReview() {
+  collectTeams();
+  const est = computeEstimate();
+  document.getElementById('review-grid').innerHTML = `
+    <div class="review-cell"><div class="review-cell-label">Doubles</div><div class="review-cell-val">${cfg.numDoubles}</div></div>
+    <div class="review-cell"><div class="review-cell-label">Courts</div><div class="review-cell-val">${cfg.numCourts}</div></div>
+    <div class="review-cell"><div class="review-cell-label">Mode</div><div class="review-cell-val" style="font-size:15px">${cfg.mode==='classic'?'Classic':'Mixed — '+cfg.subMode}</div></div>
+    <div class="review-cell"><div class="review-cell-label">Set length</div><div class="review-cell-val">First to ${cfg.setLen}</div></div>
+    <div class="review-cell"><div class="review-cell-label">Schedule</div><div class="review-cell-val">${est.totalMatches} matches</div><div class="review-cell-sub">${est.totalRounds} rounds${est.cycles>1?' × '+est.cycles+' cycles':''}</div></div>
+    <div class="review-cell"><div class="review-cell-label">Est. time</div><div class="review-cell-val">${est.timeStr}</div><div class="review-cell-sub">${cfg.bookedTime}min booked${est.totalMin>cfg.bookedTime*1.2?' ⚠':''}</div></div>
+    <div class="review-cell" style="grid-column:1/-1"><div class="review-cell-label">Teams</div>
+      <div class="review-team-list">${teams.map(t=>`
+        <div class="review-team-item">
+          <div class="team-dot ${t.d}"></div>
+          <span class="${t.c}" style="font-family:var(--font-display);font-size:16px;letter-spacing:1px">${t.name}</span>
+          <span style="color:var(--muted)">— ${t.players.join(' & ')}${cfg.mode==='mixed'?' ('+t.gender.toUpperCase()+')':''}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// START SESSION
+// ══════════════════════════════════════════════════════
+function startSession() {
+  collectTeams();
+  stats = {};
+  playerStats = {};
+  teams.forEach((t,i) => {
+    stats[i] = {played:0,wins:0,gamesWon:0,gamesLost:0};
+    // init individual player stats
+    t.players.forEach(pName => {
+      const key = `${i}_${pName}`;
+      playerStats[key] = {name:pName,teamIdx:i,played:0,wins:0,gamesWon:0,gamesLost:0};
+    });
+  });
+  matchLog = []; totalMatchesPlayed = 0; currentRoundIdx = 0;
+  buildSchedule();
+  // ensure stats exist for gender teams added during buildSchedule
+  teams.forEach((_,i) => { if (!stats[i]) stats[i]={played:0,wins:0,gamesWon:0,gamesLost:0}; });
+
+  currentSbTab = 'couples';
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('game').style.display = 'flex';
+  renderSbTabs();
+  renderGame();
+}
+
+// ══════════════════════════════════════════════════════
+// GAME RENDERING
+// ══════════════════════════════════════════════════════
+function renderGame() {
+  const round = schedule[currentRoundIdx];
+  if (!round) { checkSessionComplete(); return; }
+
+  // Strip
+  document.getElementById('g-round').textContent = round.roundNum;
+  const totalM = schedule.reduce((s,r)=>s+r.matches.length,0);
+  const doneBefore = schedule.slice(0,currentRoundIdx).reduce((s,r)=>s+r.matches.length,0);
+  document.getElementById('g-match').textContent = `${doneBefore+1}–${doneBefore+round.matches.length}`;
+  const rem = totalM - doneBefore - round.matches.length;
+  document.getElementById('g-remaining').textContent = `${rem} after`;
+
+  // Phase badge
+  const badge = document.getElementById('g-phase-badge');
+  if (round.phase==='gender') {
+    badge.textContent='Gender Phase';
+    badge.style.cssText='background:rgba(74,159,212,0.15);color:var(--blue);border-color:rgba(74,159,212,0.3)';
+  } else {
+    badge.textContent=`Round ${round.roundNum} — Doubles${round.cycle>1?' (Cycle '+round.cycle+')':''}`;
+    badge.style.cssText='';
+  }
+
+  renderCourts(round);
+  updateSubmitButton();
+  renderSchedule();
+  renderScoreboard();
+  renderLog();
+}
+
+function renderCourts(round) {
+  const grid = document.getElementById('courts-grid');
+  grid.className = `courts-grid courts-${round.matches.length}`;
+  grid.innerHTML = '';
+
+  round.matches.forEach((match,ci) => {
+    const tA = teams[match.teamA], tB = teams[match.teamB];
+
+    let timerHtml = '';
+    if (cfg.matchTimer) {
+      const secs = courtTimeLeft[ci] !== undefined ? courtTimeLeft[ci] : cfg.matchTimer*60;
+      const m=Math.floor(secs/60), s=secs%60;
+      timerHtml = `<div class="court-timer${secs<60?' warn':''}" id="timer-${ci}">${pad(m)}:${pad(s)}</div>`;
+    }
+
+    if (match.done) {
+      grid.innerHTML += `
+        <div class="court-card match-done">
+          <div class="court-num">COURT ${ci+1}</div>
+          <div class="court-match-num">Match ${match.matchIdx+1}</div>
+          <div class="matchup-row">
+            <div class="team-header">
+              <div class="team-header-label">${tA.name}</div>
+              <div class="team-header-names ${tA.c}">
+                <span class="p1">${tA.players[0]}</span><span class="p2">${tA.players[1]}</span>
+              </div>
+            </div>
+            <div class="m-vs">VS</div>
+            <div class="team-header m-right">
+              <div class="team-header-label">${tB.name}</div>
+              <div class="team-header-names ${tB.c}">
+                <span class="p1">${tB.players[0]}</span><span class="p2">${tB.players[1]}</span>
+              </div>
+            </div>
+          </div>
+          <div class="match-result-done">
+            <div class="match-result-score">${match.scores[0]} – ${match.scores[1]}</div>
+            <div class="match-result-label">${teams[match.winner].name} wins</div>
+          </div>
+        </div>`;
+    } else {
+      grid.innerHTML += `
+        <div class="court-card" id="court-card-${ci}">
+          <div class="court-num">COURT ${ci+1}</div>
+          <div class="court-match-num">Match ${match.matchIdx+1}</div>
+          ${timerHtml}
+          <div class="matchup-row">
+            <div class="team-header">
+              <div class="team-header-label">${tA.name}</div>
+              <div class="team-header-names ${tA.c}">
+                <span class="p1">${tA.players[0]}</span><span class="p2">${tA.players[1]}</span>
+              </div>
+            </div>
+            <div class="m-vs">VS</div>
+            <div class="team-header m-right">
+              <div class="team-header-label">${tB.name}</div>
+              <div class="team-header-names ${tB.c}">
+                <span class="p1">${tB.players[0]}</span><span class="p2">${tB.players[1]}</span>
+              </div>
+            </div>
+          </div>
+          <div class="score-inputs">
+            <div class="score-input-wrap">
+              <input class="score-input ${tA.c}" type="number" id="si-${ci}-0"
+                min="0" max="${cfg.setLen}" value="${match.scores[0]}"
+                oninput="onScoreInput(${ci},0)" placeholder="0">
+            </div>
+            <div class="sc-sep">–</div>
+            <div class="score-input-wrap">
+              <input class="score-input ${tB.c}" type="number" id="si-${ci}-1"
+                min="0" max="${cfg.setLen}" value="${match.scores[1]}"
+                oninput="onScoreInput(${ci},1)" placeholder="0">
+            </div>
+            <div class="score-error" id="serr-${ci}"></div>
+          </div>
+        </div>`;
+
+      if (cfg.matchTimer && courtTimers[ci]===undefined && !match.done) startCourtTimer(ci);
+    }
+  });
+}
+
+function onScoreInput(ci, side) {
+  const round = schedule[currentRoundIdx];
+  const match = round.matches[ci];
+  const val = parseInt(document.getElementById(`si-${ci}-${side}`)?.value)||0;
+  match.scores[side] = val;
+  updateSubmitButton();
+}
+
+function updateSubmitButton() {
+  const round = schedule[currentRoundIdx];
+  if (!round) return;
+  const btn = document.getElementById('btn-submit-round');
+  const allDone = round.matches.every(m=>m.done);
+  if (allDone) { btn.disabled=true; btn.textContent='ROUND COMPLETE'; return; }
+  btn.disabled = false;
+  btn.textContent = 'SUBMIT ROUND';
+}
+
+function submitRound() {
+  const round = schedule[currentRoundIdx];
+  let hasError = false;
+
+  round.matches.forEach((match,ci) => {
+    if (match.done) return;
+    const s0 = parseInt(document.getElementById(`si-${ci}-0`)?.value)||0;
+    const s1 = parseInt(document.getElementById(`si-${ci}-1`)?.value)||0;
+    match.scores = [s0, s1];
+
+    const errEl = document.getElementById(`serr-${ci}`);
+    const card = document.getElementById(`court-card-${ci}`);
+    const timerExpired = match.timerExpired;
+
+    // validation: if timer not expired, one side must equal setLen
+    let valid = false;
+    if (timerExpired) {
+      valid = (s0 !== s1); // at least different if timer expired; allow any score
+      if (s0 === 0 && s1 === 0) valid = false; // must have some score
+    } else {
+      valid = (s0 === cfg.setLen || s1 === cfg.setLen) && s0 !== s1;
+    }
+
+    if (!valid) {
+      const msg = timerExpired
+        ? 'Enter a score (scores must differ)'
+        : `One side must reach ${cfg.setLen} games`;
+      if (errEl) errEl.textContent = msg;
+      if (card) card.classList.add('has-error');
+      document.getElementById(`si-${ci}-0`)?.classList.add('error');
+      document.getElementById(`si-${ci}-1`)?.classList.add('error');
+      hasError = true;
+    } else {
+      if (errEl) errEl.textContent = '';
+      if (card) card.classList.remove('has-error');
+      document.getElementById(`si-${ci}-0`)?.classList.remove('error');
+      document.getElementById(`si-${ci}-1`)?.classList.remove('error');
+    }
+  });
+
+  if (hasError) return;
+
+  // commit all matches
+  round.matches.forEach((match,ci) => {
+    if (match.done) return;
+    const winSide = match.scores[0] > match.scores[1] ? 0 : 1;
+    commitMatch(match, ci, winSide);
+  });
+
+  round.done = true;
+  clearCourtTimers();
+
+  if (currentRoundIdx+1 < schedule.length) {
+    currentRoundIdx++;
+    schedule[currentRoundIdx].active = true;
+    showToast(`Round ${schedule[currentRoundIdx].roundNum} — go!`, true);
+  } else {
+    checkSessionComplete();
+  }
+  renderGame();
+}
+
+function commitMatch(match, courtIdx, winSide) {
+  const wTeam = winSide===0 ? match.teamA : match.teamB;
+  const lTeam = winSide===0 ? match.teamB : match.teamA;
+  match.done = true;
+  match.winner = wTeam;
+
+  stats[wTeam].wins++;
+  stats[wTeam].played++;
+  stats[lTeam].played++;
+  stats[wTeam].gamesWon  += match.scores[winSide];
+  stats[wTeam].gamesLost += match.scores[winSide===0?1:0];
+  stats[lTeam].gamesWon  += match.scores[winSide===0?1:0];
+  stats[lTeam].gamesLost += match.scores[winSide];
+
+  // Individual player stats — both players in a team share the team's result
+  const updatePlayer = (teamIdx, isWinner, gw, gl) => {
+    const t = teams[teamIdx];
+    if (!t) return;
+    t.players.forEach(pName => {
+      const key = `${teamIdx}_${pName}`;
+      if (!playerStats[key]) playerStats[key]={name:pName,teamIdx,played:0,wins:0,gamesWon:0,gamesLost:0};
+      playerStats[key].played++;
+      if (isWinner) playerStats[key].wins++;
+      playerStats[key].gamesWon  += gw;
+      playerStats[key].gamesLost += gl;
+    });
+  };
+  updatePlayer(wTeam, true,  match.scores[winSide], match.scores[winSide===0?1:0]);
+  updatePlayer(lTeam, false, match.scores[winSide===0?1:0], match.scores[winSide]);
+
+  totalMatchesPlayed++;
+  matchLog.unshift({
+    n: totalMatchesPlayed,
+    txt: `${teams[wTeam].name} beat ${teams[lTeam].name} — ${match.scores[0]}–${match.scores[1]}`,
+    court: `Court ${courtIdx+1}`
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════════════════
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function startCourtTimer(ci) {
+  if (courtTimeLeft[ci]===undefined) courtTimeLeft[ci] = cfg.matchTimer*60;
+  courtTimers[ci] = setInterval(()=>{
+    if (courtTimeLeft[ci] > 0) {
+      courtTimeLeft[ci]--;
+      const secs = courtTimeLeft[ci];
+      const el = document.getElementById(`timer-${ci}`);
+      if (el) { el.textContent=`${pad(Math.floor(secs/60))}:${pad(secs%60)}`; el.className=`court-timer${secs<60?' warn':''}`; }
+      if (secs===0) {
+        clearInterval(courtTimers[ci]); delete courtTimers[ci];
+        const round = schedule[currentRoundIdx];
+        if (round && round.matches[ci]) round.matches[ci].timerExpired = true;
+        showToast(`Court ${ci+1} — Time!`, true);
+      }
+    }
+  },1000);
+}
+
+function clearCourtTimers() {
+  Object.values(courtTimers).forEach(id=>clearInterval(id));
+  courtTimers={}; courtTimeLeft={};
+}
+
+// ══════════════════════════════════════════════════════
+// SCHEDULE RENDER
+// ══════════════════════════════════════════════════════
+function renderSchedule() {
+  document.getElementById('schedule-section').innerHTML = schedule.map((round,ri)=>{
+    const isActive = ri===currentRoundIdx;
+    const statusClass = round.done?'done':isActive?'active':'';
+    const statusLabel = round.done?'Done':isActive?'In Progress':'Pending';
+    const cycleLabel = round.cycle>1?` · Cycle ${round.cycle}`:'';
+    const phaseLabel = round.phase==='gender'?'Gender':'Doubles';
+    const matchRows = round.matches.map(m=>{
+      const tA=teams[m.teamA], tB=teams[m.teamB];
+      return `<div class="schedule-match">
+        <div class="sched-court">Court ${m.court+1}</div>
+        <div class="sched-teams">
+          <span class="sched-team ${tA.c}">${tA.players.join(' & ')}</span>
+          <span class="sched-vs">vs</span>
+          <span class="sched-team ${tB.c}">${tB.players.join(' & ')}</span>
+        </div>
+        <div class="sched-score ${m.done?'done':''}">${m.done?m.scores[0]+'–'+m.scores[1]:'·–·'}</div>
+      </div>`;
+    }).join('');
+    const sitStr = round.sitOut.length
+      ? `<div class="sched-sit">Sit out: ${round.sitOut.map(i=>teams[i].players.join(' & ')).join(' · ')}</div>` : '';
+    return `<div class="round-block">
+      <div class="round-head">
+        <div class="round-head-label">Round ${round.roundNum} — ${phaseLabel}${cycleLabel}</div>
+        <div class="round-head-status ${statusClass}">${statusLabel}</div>
+      </div>
+      ${matchRows}${sitStr}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// SCOREBOARD — TABS
+// ══════════════════════════════════════════════════════
+function renderSbTabs() {
+  const tabs = document.getElementById('sb-tabs');
+  const hasMixed = cfg.mode === 'mixed';
+  const options = [
+    {id:'couples', label:'Couples'},
+    ...(hasMixed ? [{id:'individual',label:'Individual'},{id:'mix',label:'Mix'}] : [{id:'individual',label:'Individual'}])
+  ];
+  tabs.innerHTML = options.map(o=>`
+    <button class="sb-tab${currentSbTab===o.id?' active':''}" onclick="switchSbTab('${o.id}')">${o.label}</button>`
+  ).join('');
+}
+
+function switchSbTab(tab) {
+  currentSbTab = tab;
+  renderSbTabs();
+  renderScoreboard();
+}
+
+function netClass(n) { return n>0?'pos':n<0?'neg':'zero'; }
+
+function renderScoreboard() {
+  const sbBody = document.getElementById('sb-body');
+
+  if (currentSbTab === 'couples') {
+    // Only original doubles (idx 0..numDoubles-1)
+    const rows = Array.from({length:cfg.numDoubles},(_,i)=>i)
+      .map(i=>({t:teams[i],i,s:stats[i]}))
+      .filter(({s})=>s)
+      .sort((a,b)=>{
+        const na=a.s.gamesWon-a.s.gamesLost, nb=b.s.gamesWon-b.s.gamesLost;
+        return nb-na||b.s.wins-a.s.wins;
+      });
+    sbBody.innerHTML = rows.map(({t,i,s},rank)=>{
+      const net = s.gamesWon-s.gamesLost;
+      return `<div class="sb-row">
+        <div>
+          <div class="sb-team-name ${t.c}"><span class="sb-rank">${rank+1}.</span>${t.players.join(' & ')}</div>
+          <div class="sb-team-players">${t.name}</div>
+        </div>
+        <div class="sb-n" style="color:var(--muted)">${s.played}</div>
+        <div class="sb-n ${t.c}">${s.wins}</div>
+        <div class="sb-n" style="color:var(--muted);font-size:16px">${s.gamesWon}</div>
+        <div class="sb-n" style="color:var(--muted);font-size:16px">${s.gamesLost}</div>
+        <div class="sb-net ${netClass(net)}">${net>0?'+':''}${net}</div>
+      </div>`;
+    }).join('');
+
+  } else if (currentSbTab === 'individual') {
+    const players = Object.values(playerStats)
+      .sort((a,b)=>{
+        const na=a.gamesWon-a.gamesLost, nb=b.gamesWon-b.gamesLost;
+        return nb-na||b.wins-a.wins;
+      });
+    const tc = i=>teams[i]?.c||'';
+    sbBody.innerHTML = players.map((p,rank)=>{
+      const net = p.gamesWon-p.gamesLost;
+      const t = teams[p.teamIdx];
+      return `<div class="sb-row">
+        <div>
+          <div class="sb-team-name ${tc(p.teamIdx)}"><span class="sb-rank">${rank+1}.</span>${p.name}</div>
+          <div class="sb-team-players">${t?t.name:''}</div>
+        </div>
+        <div class="sb-n" style="color:var(--muted)">${p.played}</div>
+        <div class="sb-n ${tc(p.teamIdx)}">${p.wins}</div>
+        <div class="sb-n" style="color:var(--muted);font-size:16px">${p.gamesWon}</div>
+        <div class="sb-n" style="color:var(--muted);font-size:16px">${p.gamesLost}</div>
+        <div class="sb-net ${netClass(net)}">${net>0?'+':''}${net}</div>
+      </div>`;
+    }).join('');
+
+  } else if (currentSbTab === 'mix') {
+    // Gender teams only (idx >= numDoubles)
+    const rows = teams.slice(cfg.numDoubles)
+      .map((t,i)=>({t, i:cfg.numDoubles+i, s:stats[cfg.numDoubles+i]}))
+      .filter(({s})=>s)
+      .sort((a,b)=>{
+        const na=a.s.gamesWon-a.s.gamesLost, nb=b.s.gamesWon-b.s.gamesLost;
+        return nb-na||b.s.wins-a.s.wins;
+      });
+    sbBody.innerHTML = rows.length ? rows.map(({t,s},rank)=>{
+      const net = s.gamesWon-s.gamesLost;
+      return `<div class="sb-row">
+        <div>
+          <div class="sb-team-name ${t.c}"><span class="sb-rank">${rank+1}.</span>${t.players.join(' & ')}</div>
+          <div class="sb-team-players">${t.gender==='mm'?'Boys':'Girls'}</div>
+        </div>
+        <div class="sb-n" style="color:var(--muted)">${s.played}</div>
+        <div class="sb-n ${t.c}">${s.wins}</div>
+        <div class="sb-n" style="color:var(--muted);font-size:16px">${s.gamesWon}</div>
+        <div class="sb-n" style="color:var(--muted);font-size:16px">${s.gamesLost}</div>
+        <div class="sb-net ${netClass(net)}">${net>0?'+':''}${net}</div>
+      </div>`;
+    }).join('') : '<div class="log-empty">No gender rounds played yet</div>';
+  }
+}
+
+function renderLog() {
+  document.getElementById('log-count').textContent = `${totalMatchesPlayed} match${totalMatchesPlayed!==1?'es':''}`;
+  document.getElementById('log-entries').innerHTML = matchLog.length
+    ? matchLog.map((e,idx)=>`
+        <div class="log-entry ${idx===0?'latest':''}">
+          <span class="log-num">#${e.n}</span>
+          <span class="log-txt">${e.txt}</span>
+          <span class="log-court">${e.court}</span>
+        </div>`).join('')
+    : '<div class="log-empty">No matches played yet...</div>';
+}
+
+// ══════════════════════════════════════════════════════
+// SESSION COMPLETE & EXPORT
+// ══════════════════════════════════════════════════════
+function checkSessionComplete() {
+  if (schedule.length && schedule.every(r=>r.done)) {
+    document.getElementById('session-complete').style.display = 'block';
+  }
+}
+
+function exportSummary() {
+  const net = s => s.gamesWon - s.gamesLost;
+  const fmtRow = (rank,name,sub,s) =>
+    `${String(rank).padEnd(4)}${name.padEnd(22)}${String(s.played).padEnd(5)}${String(s.wins).padEnd(5)}${String(s.gamesWon).padEnd(5)}${String(s.gamesLost).padEnd(5)}${(net(s)>0?'+':'')+net(s)}\n`;
+
+  let txt = `PADEL RR — SESSION SUMMARY\n${'='.repeat(48)}\n`;
+  txt += `Date: ${new Date().toLocaleDateString()}  |  Mode: ${cfg.mode}  |  Sets: ${cfg.setLen}  |  Courts: ${cfg.numCourts}\n\n`;
+
+  txt += `COUPLES RANKING\n${'-'.repeat(48)}\n`;
+  txt += `${'#'.padEnd(4)}${'Players'.padEnd(22)}${'P'.padEnd(5)}${'W'.padEnd(5)}${'GW'.padEnd(5)}${'GL'.padEnd(5)}NET\n`;
+  Array.from({length:cfg.numDoubles},(_,i)=>({i,s:stats[i],t:teams[i]}))
+    .sort((a,b)=>net(b.s)-net(a.s)||b.s.wins-a.s.wins)
+    .forEach(({i,s,t},rank)=>{ txt+=fmtRow(rank+1,t.players.join(' & '),t.name,s); });
+
+  txt += `\nINDIVIDUAL RANKING\n${'-'.repeat(48)}\n`;
+  txt += `${'#'.padEnd(4)}${'Player'.padEnd(22)}${'P'.padEnd(5)}${'W'.padEnd(5)}${'GW'.padEnd(5)}${'GL'.padEnd(5)}NET\n`;
+  Object.values(playerStats)
+    .sort((a,b)=>net(b)-net(a)||b.wins-a.wins)
+    .forEach((p,rank)=>{ txt+=fmtRow(rank+1,p.name,'',p); });
+
+  if (cfg.mode==='mixed') {
+    txt += `\nGENDER MIX RANKING\n${'-'.repeat(48)}\n`;
+    txt += `${'#'.padEnd(4)}${'Players'.padEnd(22)}${'P'.padEnd(5)}${'W'.padEnd(5)}${'GW'.padEnd(5)}${'GL'.padEnd(5)}NET\n`;
+    teams.slice(cfg.numDoubles)
+      .map((t,i)=>({t,i:cfg.numDoubles+i,s:stats[cfg.numDoubles+i]}))
+      .filter(({s})=>s)
+      .sort((a,b)=>net(b.s)-net(a.s)||b.s.wins-a.s.wins)
+      .forEach(({t,s},rank)=>{ txt+=fmtRow(rank+1,t.players.join(' & '),t.gender==='mm'?'Boys':'Girls',s); });
+  }
+
+  txt += `\nMATCH LOG\n${'-'.repeat(48)}\n`;
+  [...matchLog].reverse().forEach(e=>{ txt+=`#${e.n} [${e.court}] ${e.txt}\n`; });
+
+  const blob = new Blob([txt],{type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `padel-${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+}
+
+function exportCSV() {
+  const esc = v => `"${String(v).replace(/"/g,'""')}"`;
+  const row = cols => cols.map(esc).join(',') + '\n';
+  const net = s => s.gamesWon - s.gamesLost;
+  const netStr = s => (net(s)>0?'+':'')+net(s);
+  let csv = '';
+
+  // ── Couples ranking ──
+  csv += row(['COUPLES RANKING']);
+  csv += row(['Rank','Players','Double','Played','Wins','Games Won','Games Lost','Net Games']);
+  Array.from({length:cfg.numDoubles},(_,i)=>({i,s:stats[i],t:teams[i]}))
+    .sort((a,b)=>net(b.s)-net(a.s)||b.s.wins-a.s.wins)
+    .forEach(({i,s,t},rank)=>{
+      csv += row([rank+1, t.players.join(' & '), t.name, s.played, s.wins, s.gamesWon, s.gamesLost, netStr(s)]);
+    });
+
+  csv += '\n';
+
+  // ── Individual ranking ──
+  csv += row(['INDIVIDUAL RANKING']);
+  csv += row(['Rank','Player','Double','Played','Wins','Games Won','Games Lost','Net Games']);
+  Object.values(playerStats)
+    .sort((a,b)=>net(b)-net(a)||b.wins-a.wins)
+    .forEach((p,rank)=>{
+      const t = teams[p.teamIdx];
+      csv += row([rank+1, p.name, t?t.name:'', p.played, p.wins, p.gamesWon, p.gamesLost, netStr(p)]);
+    });
+
+  csv += '\n';
+
+  // ── Gender mix ranking (if applicable) ──
+  if (cfg.mode==='mixed') {
+    csv += row(['GENDER MIX RANKING']);
+    csv += row(['Rank','Players','Group','Played','Wins','Games Won','Games Lost','Net Games']);
+    teams.slice(cfg.numDoubles)
+      .map((t,i)=>({t,i:cfg.numDoubles+i,s:stats[cfg.numDoubles+i]}))
+      .filter(({s})=>s)
+      .sort((a,b)=>net(b.s)-net(a.s)||b.s.wins-a.s.wins)
+      .forEach(({t,s},rank)=>{
+        csv += row([rank+1, t.players.join(' & '), t.gender==='mm'?'Boys':'Girls', s.played, s.wins, s.gamesWon, s.gamesLost, netStr(s)]);
+      });
+    csv += '\n';
+  }
+
+  // ── Match log ──
+  csv += row(['MATCH LOG']);
+  csv += row(['#','Court','Winner','Loser','Score']);
+  [...matchLog].reverse().forEach(e=>{
+    // parse "X beat Y — a–b"
+    const m = e.txt.match(/^(.+) beat (.+) — (.+)$/);
+    if (m) csv += row([e.n, e.court, m[1], m[2], m[3]]);
+    else csv += row([e.n, e.court, e.txt, '', '']);
+  });
+
+  // ── Session info ──
+  csv += '\n';
+  csv += row(['SESSION INFO']);
+  csv += row(['Date', new Date().toLocaleDateString()]);
+  csv += row(['Mode', cfg.mode]);
+  csv += row(['Set length', `First to ${cfg.setLen}`]);
+  csv += row(['Courts', cfg.numCourts]);
+  csv += row(['Total matches played', totalMatchesPlayed]);
+
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `padel-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ══════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════
+function showToast(msg, alt) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className='toast'+(alt?' alt':'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+function resetAll() {
+  clearCourtTimers();
+  teams=[]; schedule=[]; matchLog=[]; stats={}; playerStats={};
+  totalMatchesPlayed=0; currentRoundIdx=0; currentSbTab='couples';
+  cfg={numDoubles:4,numCourts:2,mode:'classic',subMode:'interleaved',setLen:3,bookedTime:90,matchTimer:null};
+  document.getElementById('game').style.display='none';
+  document.getElementById('session-complete').style.display='none';
+  document.getElementById('setup').style.display='block';
+  currentStep=1;
+  for(let s=1;s<=5;s++) document.getElementById('step-'+s).classList.toggle('active',s===1);
+  initSetupUI(); updateEstimate();
+}
+
+// INIT
+initSetupUI();
+updateEstimate();
+</script>
+</body>
+</html>
