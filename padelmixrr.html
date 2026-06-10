@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PADEL Tracker</title>
+<meta name="description" content="Padel doubles rotation tracker with round robin scheduling, multi-court scoring, mixed gender shuffle, and session export.">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1062,6 +1063,7 @@ function submitRound() {
   } else {
     checkSessionComplete();
   }
+  saveState();
   renderGame();
 }
 
@@ -1407,6 +1409,7 @@ function showToast(msg, alt) {
 
 function resetAll() {
   clearCourtTimers();
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
   teams=[]; schedule=[]; matchLog=[]; stats={}; playerStats={};
   totalMatchesPlayed=0; currentRoundIdx=0; currentSbTab='couples';
   cfg={numDoubles:4,numCourts:2,mode:'classic',subMode:'interleaved',setLen:3,bookedTime:90,matchTimer:null};
@@ -1418,9 +1421,46 @@ function resetAll() {
   initSetupUI(); updateEstimate();
 }
 
+// ══════════════════════════════════════════════════════
+// PERSIST — save/restore to localStorage
+// ══════════════════════════════════════════════════════
+const SAVE_KEY = 'padelrr_session';
+
+function saveState() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      cfg, teams, schedule, matchLog,
+      totalMatchesPlayed, currentRoundIdx,
+      stats, playerStats, currentSbTab,
+      savedAt: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function restoreState() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    if (Date.now() - s.savedAt > 86400000) { localStorage.removeItem(SAVE_KEY); return false; }
+    cfg = s.cfg; teams = s.teams; schedule = s.schedule; matchLog = s.matchLog;
+    totalMatchesPlayed = s.totalMatchesPlayed; currentRoundIdx = s.currentRoundIdx;
+    stats = s.stats; playerStats = s.playerStats; currentSbTab = s.currentSbTab || 'couples';
+    return true;
+  } catch(e) { return false; }
+}
+
 // INIT
 initSetupUI();
 updateEstimate();
+
+if (restoreState()) {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('game').style.display = 'flex';
+  renderSbTabs();
+  renderGame();
+  showToast('Session restored!');
+}
 </script>
 </body>
 </html>
