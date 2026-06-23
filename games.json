@@ -1,6 +1,13 @@
 {
   "games": [
     {
+      "file": "padel_rr_vbeta.html",
+      "name": "Padel RR — Session Tracker",
+      "description": "",
+      "emoji": "🎮",
+      "tags": []
+    },
+    {
       "file": "padeldoublesrr.html",
       "name": "PADEL Doubles Tracker",
       "description": "Easy way for you to track fun Padel matches with your friends ensurign all play and rest properly",
