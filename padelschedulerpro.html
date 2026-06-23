@@ -1044,8 +1044,7 @@
                     <p>Available at any point during the session.</p>
                 </div>
                 <div class="export-btns">
-                    <button class="btn-export btn-export-txt" onclick="exportData('txt')">TXT Summary</button>
-                    <button class="btn-export btn-export-csv" onclick="exportData('csv')">CSV / Excel</button>
+                    <button class="btn-export btn-export-csv" onclick="exportData()">Export CSV</button>
                 </div>
             </div>
 
@@ -1746,30 +1745,99 @@
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
 
-        function exportData(type) {
+        function exportData() {
             const ds = calculateStats();
             const dateStr = getSessionDateString();
             const sc = [...ds.couples].sort((a, b) => b.net - a.net || b.wins - a.wins);
             const si = [...ds.individual].sort((a, b) => b.net - a.net || b.wins - a.wins);
-            if (type === 'txt') {
-                let out = `PADEL RR SUMMARY — ${dateStr}\n\nCOUPLES STANDINGS:\n`;
-                sc.forEach((r, i) => { const c = state.couples.find(it => it.id === r.id); out += `${i + 1} | ${r.id} (${c.p1}/${c.p2}) | P:${r.played} W:${r.wins} Net:${r.net}\n`; });
-                out += `\nINDIVIDUAL STANDINGS:\n`;
-                si.forEach((r, i) => { out += `${i + 1} | ${r.name} | P:${r.played} W:${r.wins} Net:${r.net}\n`; });
-                out += `\nMATCH LOGS:\n`;
-                state.matchLog.forEach((m, i) => {
-                    let l1 = typeof m.t1 === 'string' ? m.t1 : `[${m.t1.tag}] ${m.t1.p1}+${m.t1.p2}`;
-                    let l2 = typeof m.t2 === 'string' ? m.t2 : `[${m.t2.tag}] ${m.t2.p1}+${m.t2.p2}`;
-                    out += `Match ${i + 1} (R${m.roundIndex + 1}): ${l1} vs ${l2} -> ${m.score1}-${m.score2}\n`;
+
+            const S = ';'; // semicolon separator
+            const NL = '\n';
+            let csv = '\uFEFF'; // UTF-8 BOM for Excel
+
+            // ── Section 1: Session Info ──
+            csv += `SESSION INFO${NL}`;
+            csv += `Date${S}${dateStr}${NL}`;
+            csv += `Mode${S}${state.mode.toUpperCase()}${NL}`;
+            csv += `Doubles${S}${state.doublesCount}${NL}`;
+            csv += `Courts${S}${state.courtsCount}${NL}`;
+            csv += `Set Length${S}First to ${state.setLength}${NL}`;
+            csv += NL;
+
+            // ── Section 2: Couples Standings ──
+            csv += `COUPLES STANDINGS${NL}`;
+            csv += `Rank${S}Double${S}Player 1${S}Player 2${S}Played${S}Wins${S}Games Won${S}Games Lost${S}Net${NL}`;
+            sc.forEach((r, i) => {
+                const c = state.couples.find(it => it.id === r.id);
+                csv += `${i + 1}${S}${c.id}${S}${c.p1}${S}${c.p2}${S}${r.played}${S}${r.wins}${S}${r.gw}${S}${r.gl}${S}${r.net}${NL}`;
+            });
+            csv += NL;
+
+            // ── Section 3: Individual Standings ──
+            csv += `INDIVIDUAL STANDINGS${NL}`;
+            csv += `Rank${S}Name${S}Double${S}Played${S}Wins${S}Games Won${S}Games Lost${S}Net${NL}`;
+            si.forEach((r, i) => {
+                const couple = state.couples.find(c => c.p1 === r.name || c.p2 === r.name);
+                const doubleId = couple ? couple.id : '';
+                csv += `${i + 1}${S}${r.name}${S}${doubleId}${S}${r.played}${S}${r.wins}${S}${r.gw}${S}${r.gl}${S}${r.net}${NL}`;
+            });
+            csv += NL;
+
+            // ── Section 4: Mix Standings (Mixed mode only) ──
+            if (state.mode === 'mixed' && ds.mix.length > 0) {
+                const sm = [...ds.mix].sort((a, b) => b.net - a.net || b.wins - a.wins);
+                csv += `MIX STANDINGS${NL}`;
+                csv += `Rank${S}Gender${S}Players${S}Played${S}Wins${S}Games Won${S}Games Lost${S}Net${NL}`;
+                sm.forEach((r, i) => {
+                    csv += `${i + 1}${S}${r.tag}${S}${r.label}${S}${r.played}${S}${r.wins}${S}${r.gw}${S}${r.gl}${S}${r.net}${NL}`;
                 });
-                triggerDownload(out, `padel-${dateStr}.txt`, 'text/plain;charset=utf-8');
-            } else {
-                let csv = "\uFEFF\"SESSION METADATA\"\n\"Date\",\"" + dateStr + "\"\n\"Mode\",\"" + state.mode.toUpperCase() + "\"\n\n\"COUPLES\"\n\"Rank\",\"ID\",\"Players\",\"Played\",\"Wins\",\"Net\"\n";
-                sc.forEach((r, i) => { const c = state.couples.find(it => it.id === r.id); csv += `${i + 1},"${r.id}","${c.p1}/${c.p2}",${r.played},${r.wins},${r.net}\n`; });
-                csv += `\n\"INDIVIDUALS\"\n\"Rank\",\"Name\",\"Played\",\"Wins\",\"Net\"\n`;
-                si.forEach((r, i) => { csv += `${i + 1},"${r.name}",${r.played},${r.wins},${r.net}\n`; });
-                triggerDownload(csv, `padel-${dateStr}.csv`, 'text/csv;charset=utf-8');
+                csv += NL;
             }
+
+            // ── Section 5: Full Schedule ──
+            csv += `FULL SCHEDULE${NL}`;
+            csv += `Round${S}Court${S}Type${S}Team 1${S}Team 2${S}Score T1${S}Score T2${S}Status${NL}`;
+            state.rounds.forEach((round, rIdx) => {
+                const isPast = rIdx < state.currentRoundIndex;
+                const isActive = rIdx === state.currentRoundIndex;
+                const status = isPast ? 'Done' : isActive ? 'In Progress' : 'Scheduled';
+                round.courts.forEach(court => {
+                    let team1, team2;
+                    if (typeof court.t1 === 'string') {
+                        const c = state.couples.find(x => x.id === court.t1);
+                        team1 = c ? `${c.p1} & ${c.p2}` : court.t1;
+                    } else {
+                        team1 = `${court.t1.p1} & ${court.t1.p2}`;
+                    }
+                    if (typeof court.t2 === 'string') {
+                        const c = state.couples.find(x => x.id === court.t2);
+                        team2 = c ? `${c.p1} & ${c.p2}` : court.t2;
+                    } else {
+                        team2 = `${court.t2.p1} & ${court.t2.p2}`;
+                    }
+                    const type = round.type === 'gender' ? 'Mixed' : 'Doubles';
+                    const s1 = court.done ? court.score1 : '';
+                    const s2 = court.done ? court.score2 : '';
+                    csv += `${rIdx + 1}${S}${court.courtId}${S}${type}${S}${team1}${S}${team2}${S}${s1}${S}${s2}${S}${status}${NL}`;
+                });
+            });
+            csv += NL;
+
+            // ── Section 6: Sit-outs ──
+            const sitoutRounds = state.rounds.filter(r => r.sitOut && r.sitOut.length > 0);
+            if (sitoutRounds.length > 0) {
+                csv += `SIT-OUTS${NL}`;
+                csv += `Round${S}Double${S}Player 1${S}Player 2${NL}`;
+                sitoutRounds.forEach((round, rIdx) => {
+                    const roundNum = state.rounds.indexOf(round) + 1;
+                    round.sitOut.forEach(id => {
+                        const c = state.couples.find(x => x.id === id);
+                        if (c) csv += `${roundNum}${S}${c.id}${S}${c.p1}${S}${c.p2}${NL}`;
+                    });
+                });
+            }
+
+            triggerDownload(csv, `padel-${dateStr}.csv`, 'text/csv;charset=utf-8');
         }
 
         function triggerDownload(content, file, mime) {
