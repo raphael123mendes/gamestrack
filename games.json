@@ -26,9 +26,14 @@
     {
       "file": "padelschedulerpro.html",
       "name": "Padel RR — Session Tracker",
-      "description": "",
+      "description": "Pro Scheduler for Padel games with mix gender and crazy rounds",
       "emoji": "🎮",
-      "tags": []
+      "tags": [
+        "Padel",
+        "couples",
+        "gender",
+        "multiple courts"
+      ]
     },
     {
       "file": "presidentcard.html",
