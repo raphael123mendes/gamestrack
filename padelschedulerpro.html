@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Padel RR — Session Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ── Reset ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        /* ── Tokens ── */
+        :root {
+            --bg:        #121212;
+            --bg-card:   #1E293B;
+            --bg-deep:   #0D1520;
+            --bg-input:  #0a1018;
+            --border:    #273647;
+            --border-hi: #3a4f66;
+            --lime:      #DFFF00;
+            --lime-dim:  rgba(223,255,0,0.08);
+            --lime-glow: rgba(223,255,0,0.15);
+            --text-1:    #D4E4FA;
+            --text-2:    #8BA3BE;
+            --text-3:    #4A6580;
+            --error:     #FF4B4B;
+            --error-dim: rgba(255,75,75,0.12);
+            --amber:     #F59E0B;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+        }
+
+        /* ── Base ── */
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Typography helpers ── */
+        .bc { font-family: 'Barlow Condensed', sans-serif; }
+        .label-xs {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-3);
+        }
+        .label-lime {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--lime);
+        }
+
+        /* ── Toast ── */
+        #toast {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150%);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+            background: rgba(30,41,59,0.95);
+            border: 1px solid var(--border-hi);
+            border-radius: var(--radius-lg);
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-1);
+            backdrop-filter: blur(12px);
+            white-space: nowrap;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+        #toast svg { color: var(--lime); flex-shrink: 0; }
+
+        /* ── Header ── */
+        header {
+            background: rgba(18,18,18,0.9);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            backdrop-filter: blur(12px);
+        }
+        .header-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-badge {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            color: var(--lime);
+            text-transform: uppercase;
+        }
+        .brand-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-3);
+            letter-spacing: 0.02em;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-lime {
+            background: var(--lime);
+            color: #121212;
+            border-radius: var(--radius-xl);
+            padding: 14px 20px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            width: 100%;
+            justify-content: center;
+            min-height: 52px;
+        }
+        .btn-lime:hover { opacity: 0.9; }
+        .btn-lime:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            border-radius: var(--radius-full);
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .btn-ghost:hover { border-color: var(--border-hi); color: var(--text-1); }
+        .btn-danger {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-3);
+            border-radius: var(--radius-md);
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .btn-danger:hover { border-color: var(--error); color: var(--error); }
+        .btn-icon {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-icon:hover { border-color: var(--border-hi); }
+        .btn-icon:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+        .card-deep {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        /* ── Form elements ── */
+        select, input[type="text"] {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-1);
+            font-size: 14px;
+            padding: 10px 14px;
+            width: 100%;
+            transition: border-color 0.15s;
+            outline: none;
+        }
+        .config-stack input[type="number"] {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-1);
+            font-size: 14px;
+            padding: 10px 14px;
+            width: 100%;
+            transition: border-color 0.15s;
+            outline: none;
+        }
+        select:focus, input[type="text"]:focus, .config-stack input[type="number"]:focus {
+            border-color: var(--lime);
+        }
+        select option { background: #1E293B; }
+        input::placeholder { color: var(--text-3); }
+        .field-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* ── Step label ── */
+        .step-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--lime);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        /* ── Mode toggle buttons ── */
+        .mode-btn {
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            width: 100%;
+        }
+        .mode-btn.active {
+            border-color: var(--lime);
+            background: var(--lime-dim);
+        }
+        .mode-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .mode-btn-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-1);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .mode-btn.active .mode-btn-title { color: var(--lime); }
+        .mode-btn-desc {
+            font-size: 11px;
+            color: var(--text-3);
+            line-height: 1.4;
+        }
+
+        /* ── Main layout ── */
+        main {
+            flex-grow: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        /* ── Config screen ── */
+        #config-screen { max-width: 560px; margin: 0 auto; }
+        .config-hero { margin-bottom: 28px; }
+        .config-hero h2 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--lime);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            line-height: 1;
+        }
+        .config-hero p {
+            font-size: 13px;
+            color: var(--text-3);
+            margin-top: 6px;
+        }
+        .config-stack { display: flex; flex-direction: column; gap: 16px; }
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        @media(max-width: 480px) {
+            .form-grid-3 { grid-template-columns: 1fr; }
+        }
+        .divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+        /* ── Estimate matrix ── */
+        .estimate-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        @media(max-width: 400px) { .estimate-grid { grid-template-columns: repeat(2, 1fr); } }
+        .est-cell { background: var(--bg-input); border-radius: var(--radius-sm); padding: 10px; }
+        .est-cell-label { font-size: 10px; color: var(--text-3); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+        .est-cell-val {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--lime);
+            margin-top: 2px;
+        }
+
+        /* ── Team inputs ── */
+        .team-row {
+            display: grid;
+            grid-template-columns: 56px 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .team-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .team-badge {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--lime);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        /* ── Error box ── */
+        .error-msg {
+            font-size: 12px;
+            color: var(--error);
+            font-weight: 500;
+            padding: 10px 14px;
+            background: var(--error-dim);
+            border: 1px solid rgba(255,75,75,0.3);
+            border-radius: var(--radius-sm);
+            margin-top: 8px;
+        }
+
+        /* ── Game screen ── */
+        #game-screen { display: flex; flex-direction: column; gap: 20px; }
+
+        /* ── Round header ── */
+        .round-header-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .round-header-left { display: flex; align-items: center; gap: 12px; }
+        .round-title-block {}
+        .round-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .round-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-1);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            line-height: 1;
+            margin-top: 2px;
+        }
+        .round-subtitle {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 3px;
+        }
+
+        /* ── Sit-out chip ── */
+        .sitout-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--lime);
+            border-radius: var(--radius-full);
+            padding: 5px 12px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--lime);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .sitout-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .sitout-lbl { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+
+        /* ── King queue ── */
+        #king-queue-box {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+        }
+        #king-queue-list {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: var(--text-2);
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-top: 4px;
+        }
+
+        /* ── Courts grid ── */
+        #courts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        /* ── Court card ── */
+        .court-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .court-card.error-state {
+            border-color: var(--error);
+            background: var(--error-dim);
+        }
+        .court-card-wm {
+            position: absolute;
+            right: 12px;
+            top: 6px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 64px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.03);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+        }
+        .court-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+        .court-number {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--lime);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* ── Match teams + scores ── */
+        .match-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .match-team-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .team-info {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .team-players {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-1);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            line-height: 1.25;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+        .team-id-line {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .team-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-1);
+            flex: 1;
+            min-width: 0;
+        }
+        .team-id-badge {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--bg-input);
+            color: var(--text-3);
+            border-radius: 6px;
+            padding: 2px 6px;
+            margin-right: 6px;
+            letter-spacing: 0.04em;
+        }
+        .team-id-badge.gender { color: var(--lime); }
+        .score-input {
+            width: 60px !important;
+            height: 60px !important;
+            padding: 0 !important;
+            flex-shrink: 0;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--text-1);
+            outline: none;
+            transition: border-color 0.15s, background 0.15s, color 0.15s;
+        }
+        .score-input:focus { border-color: var(--lime); }
+        .score-input.winning { border-color: var(--lime); background: var(--lime-glow); color: var(--lime); }
+        .vs-sep {
+            text-align: center;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-3);
+            letter-spacing: 0.12em;
+            padding: 2px 0;
+        }
+
+        /* ── Submit row ── */
+        .submit-row { display: flex; justify-content: flex-end; }
+
+        /* ── Leaderboard ── */
+        .leaderboard-wrap {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .tab-btn.active { color: var(--lime); border-bottom-color: var(--lime); }
+        .tab-btn:hover:not(.active) { color: var(--text-2); }
+        .lb-table-wrap { padding: 4px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead tr { border-bottom: 1px solid var(--border); }
+        th { padding: 10px 12px; font-weight: 600; color: var(--text-3); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+        th:first-child { text-align: center; width: 44px; }
+        td { padding: 10px 12px; color: var(--text-2); }
+        td:first-child { text-align: center; font-weight: 700; color: var(--text-3); }
+        tbody tr { border-bottom: 1px solid rgba(39,54,71,0.5); }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+        .td-net { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; color: var(--text-1); }
+        .td-net.pos { color: var(--lime); }
+        .td-net.neg { color: var(--error); }
+        .td-gw { color: #4ade80; }
+        .td-gl { color: var(--error); }
+        .empty-row td { text-align: center; color: var(--text-3); font-style: italic; padding: 24px; }
+
+        /* ── Timeline ── */
+        .timeline-wrap {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .timeline-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .timeline-header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-1);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .timeline-header-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .timeline-scroll { padding: 14px; max-height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+
+        /* Custom scrollbar */
+        .timeline-scroll::-webkit-scrollbar { width: 4px; }
+        .timeline-scroll::-webkit-scrollbar-track { background: transparent; }
+        .timeline-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .tl-round-card {
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            transition: opacity 0.2s;
+        }
+        .tl-round-card.past { background: rgba(30,41,59,0.4); opacity: 0.7; }
+        .tl-round-card.active { background: rgba(223,255,0,0.04); border-color: rgba(223,255,0,0.4); opacity: 1; }
+        .tl-round-card.upcoming { background: transparent; opacity: 0.35; }
+
+        .tl-round-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .tl-round-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-1);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .tl-round-type { font-size: 11px; color: var(--text-3); margin-left: 6px; }
+        .tl-sitout { font-size: 11px; color: var(--amber); margin-left: 6px; }
+        .tl-status-badge {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: var(--radius-full);
+        }
+        .tl-status-badge.done { background: rgba(30,41,59,0.8); color: var(--text-3); }
+        .tl-status-badge.active { background: rgba(223,255,0,0.12); color: var(--lime); }
+        .tl-status-badge.upcoming { background: rgba(30,41,59,0.4); color: var(--text-3); }
+
+        .tl-court-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-top: 1px solid rgba(39,54,71,0.5);
+            font-size: 12px;
+        }
+        .tl-court-match { color: var(--text-3); }
+        .tl-court-match em { color: var(--text-2); font-style: normal; font-weight: 600; }
+        .tl-score { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; color: var(--lime); }
+        .tl-pending { font-size: 11px; color: var(--text-3); }
+
+        /* ── Export bar ── */
+        .export-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .export-bar-info p:first-child { font-size: 13px; font-weight: 600; color: var(--text-1); }
+        .export-bar-info p:last-child { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .export-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-export {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .btn-export-txt { background: var(--bg-input); color: var(--text-2); }
+        .btn-export-txt:hover { border-color: var(--border-hi); color: var(--text-1); }
+        .btn-export-csv { background: var(--lime-dim); color: var(--lime); border-color: rgba(223,255,0,0.3); }
+        .btn-export-csv:hover { background: var(--lime-glow); }
+
+        /* ── Footer ── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-3);
+            letter-spacing: 0.04em;
+        }
+
+        /* ── Stress test ── */
+        .stress-wrap {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-top: 24px;
+        }
+        .stress-toggle {
+            width: 100%;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--amber);
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .stress-toggle:hover { background: rgba(255,255,255,0.02); }
+        .stress-toggle span:last-child { font-size: 11px; color: var(--text-3); }
+        .stress-body { display: none; padding: 16px 18px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2); }
+        .stress-body.open { display: block; }
+        .stress-log {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+        .stress-log .pass { color: var(--text-2); }
+        .stress-log .fail { color: var(--error); font-weight: 700; }
+        .stress-log .summary { color: var(--lime); font-weight: 700; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+
+        /* ── Mixed sub-options ── */
+        .mixed-sub {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            margin-top: 10px;
+        }
+
+        /* ── Responsive ── */
+        @media(max-width: 520px) {
+            main { padding: 16px 14px; }
+            .round-header-bar { padding: 12px 14px; }
+            .court-card { padding: 14px; }
+            .score-input { width: 52px; height: 48px; font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast -->
+    <div id="toast" role="status" aria-live="polite">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        <span id="toast-message">Session restored!</span>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-inner">
+            <div class="brand">
+                <span class="brand-badge">Padel RR</span>
+                <span class="brand-title">Session Tracker</span>
+            </div>
+            <button id="btn-global-reset" class="btn btn-danger" style="display:none;" onclick="resetSession()">
+                Reset
+            </button>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- ═══════════════════════════════════════════
+             CONFIG SCREEN
+        ═══════════════════════════════════════════ -->
+        <section id="config-screen">
+            <div class="config-hero">
+                <h2>Setup Session</h2>
+                <p>Configure format, mode, teams and timing.</p>
+            </div>
+
+            <div class="config-stack">
+
+                <!-- Step 1 & 2 -->
+                <div class="card">
+                    <span class="step-label">Step 1 — Format</span>
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="field-label" for="cfg-doubles">Doubles</label>
+                            <select id="cfg-doubles" onchange="validateConfigForm()">
+                                <option value="3">3 Couples</option>
+                                <option value="4" selected>4 Couples</option>
+                                <option value="5">5 Couples</option>
+                                <option value="6">6 Couples</option>
+                                <option value="7">7 Couples</option>
+                                <option value="8">8 Couples</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="field-label" for="cfg-courts">Courts</label>
+                            <select id="cfg-courts" onchange="validateConfigForm()">
+                                <option value="1">1 Court (King)</option>
+                                <option value="2" selected>2 Courts</option>
+                                <option value="3">3 Courts</option>
+                                <option value="4">4 Courts</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="cfg-format-error" style="display:none;" class="error-msg"></div>
+
+                    <hr class="divider" style="margin-top:18px; margin-bottom:18px;">
+
+                    <span class="step-label">Step 2 — Session Mode</span>
+                    <div class="form-grid-2">
+                        <button id="mode-classic" type="button" class="mode-btn active" onclick="setSessionMode('classic')">
+                            <span class="mode-btn-title">Classic</span>
+                            <span class="mode-btn-desc">Doubles stay fixed throughout the session.</span>
+                        </button>
+                        <button id="mode-mixed" type="button" class="mode-btn" onclick="setSessionMode('mixed')">
+                            <span class="mode-btn-title">Mixed Shuffle</span>
+                            <span class="mode-btn-desc">Includes same-gender pairings alternated in.</span>
+                        </button>
+                    </div>
+                    <div id="mixed-sub-options" style="display:none;" class="mixed-sub">
+                        <label class="field-label" for="cfg-mixed-order">Shuffle Order</label>
+                        <select id="cfg-mixed-order">
+                            <option value="interleaved">Interleaved — alternate doubles &amp; gender rounds</option>
+                            <option value="sequential" selected>Sequential — all doubles first, then gender rounds</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="card">
+                    <span class="step-label">Step 3 — Teams</span>
+                    <div id="teams-inputs-container"></div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="card">
+                    <span class="step-label">Step 4 — Match Format &amp; Timing</span>
+                    <div class="form-grid-3" style="margin-bottom:16px;">
+                        <div>
+                            <label class="field-label" for="cfg-set-length">Set Length</label>
+                            <select id="cfg-set-length">
+                                <option value="3">First to 3</option>
+                                <option value="6" selected>First to 6</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="field-label" for="cfg-booked-time">Court Time</label>
+                            <select id="cfg-booked-time" onchange="updateLiveEstimate()">
+                                <option value="60">60 min</option>
+                                <option value="90" selected>90 min</option>
+                                <option value="120">120 min</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="field-label" for="cfg-match-timer">Match Timer</label>
+                            <input type="number" id="cfg-match-timer" placeholder="None" oninput="updateLiveEstimate()">
+                        </div>
+                    </div>
+
+                    <div class="estimate-grid">
+                        <div class="est-cell">
+                            <div class="est-cell-label">Matches</div>
+                            <div class="est-cell-val" id="est-matches">—</div>
+                        </div>
+                        <div class="est-cell">
+                            <div class="est-cell-label">Rounds</div>
+                            <div class="est-cell-val" id="est-rounds">—</div>
+                        </div>
+                        <div class="est-cell">
+                            <div class="est-cell-label">Cycles</div>
+                            <div class="est-cell-val" id="est-cycles">—</div>
+                        </div>
+                        <div class="est-cell">
+                            <div class="est-cell-label">Est. Time</div>
+                            <div class="est-cell-val" id="est-duration">—</div>
+                        </div>
+                    </div>
+                    <p id="est-warning" style="display:none; color:var(--amber); font-size:12px; font-weight:600; margin-top:10px;">⚠ Estimate exceeds booked time.</p>
+                </div>
+
+                <!-- Step 5 -->
+                <button id="btn-start-session" type="button" class="btn btn-lime" onclick="startSession()">
+                    Start Session
+                </button>
+
+                <!-- Stress Test -->
+                <div class="stress-wrap">
+                    <button type="button" class="stress-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
+                        <span>⚡ Engine Validation &amp; Stress Test</span>
+                        <span>Click to expand</span>
+                    </button>
+                    <div class="stress-body">
+                        <p style="font-size:12px; color:var(--text-3); margin-bottom:14px; line-height:1.5;">Validates the core scheduling engine across all permutation pathways.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+                            <button type="button" class="btn-export btn-export-csv" onclick="runComprehensiveStressTest()" style="font-size:12px;">Run Stress Test</button>
+                            <button id="btn-download-stress-log" type="button" class="btn-export btn-export-txt" style="display:none;" onclick="downloadStressTestCSV()">Export Results CSV</button>
+                        </div>
+                        <div id="stress-test-results-panel" style="display:none;" class="stress-log"></div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             GAME SCREEN
+        ═══════════════════════════════════════════ -->
+        <section id="game-screen" style="display:none;">
+
+            <!-- Round header -->
+            <div class="round-header-bar">
+                <div class="round-header-left">
+                    <button id="btn-undo-round" class="btn btn-icon" title="Undo last round" onclick="undoLastRound()" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.334 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/></svg>
+                    </button>
+                    <div class="round-title-block">
+                        <div class="round-label">Active Round</div>
+                        <div class="round-title" id="display-round-title">Round 1</div>
+                        <div class="round-subtitle" id="display-round-subtitle">Fill game outcomes below.</div>
+                    </div>
+                </div>
+                <div id="king-queue-box" style="display:none;">
+                    <div class="label-lime">Queue Order</div>
+                    <div id="king-queue-list"></div>
+                </div>
+                <div id="sitout-box" style="display:none;" class="sitout-wrap">
+                    <span class="sitout-lbl">Sitting out:</span>
+                    <span id="sitout-names" class="sitout-chip"></span>
+                </div>
+            </div>
+
+            <!-- Courts -->
+            <div id="courts-grid"></div>
+
+            <!-- Submit -->
+            <div class="submit-row">
+                <button id="btn-submit-round" class="btn btn-lime" style="width:auto; padding:13px 32px;" onclick="submitRound()">Submit Round</button>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="leaderboard-wrap">
+                <div class="tabs">
+                    <button id="tab-couples" class="tab-btn active" onclick="switchTab('couples')">Couples</button>
+                    <button id="tab-individual" class="tab-btn" onclick="switchTab('individual')">Individual</button>
+                    <button id="tab-mix" class="tab-btn" style="display:none;" onclick="switchTab('mix')">Mix</button>
+                </div>
+                <div class="lb-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th style="text-align:left;">Team / Name</th>
+                                <th style="text-align:center;">P</th>
+                                <th style="text-align:center;">W</th>
+                                <th style="text-align:center;" class="td-gw">GW</th>
+                                <th style="text-align:center;" class="td-gl">GL</th>
+                                <th style="text-align:center;">Net</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline-wrap">
+                <div class="timeline-header">
+                    <div>
+                        <div class="timeline-header-title">Session Roadmap</div>
+                        <div class="timeline-header-sub">Full schedule and match history</div>
+                    </div>
+                </div>
+                <div class="timeline-scroll" id="timeline-scroll-container"></div>
+            </div>
+
+            <!-- Export -->
+            <div class="export-bar">
+                <div class="export-bar-info">
+                    <p>Export Session</p>
+                    <p>Available at any point during the session.</p>
+                </div>
+                <div class="export-btns">
+                    <button class="btn-export btn-export-txt" onclick="exportData('txt')">TXT Summary</button>
+                    <button class="btn-export btn-export-csv" onclick="exportData('csv')">CSV / Excel</button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer>Padel RR · State persisted via localStorage API · 24h session window</footer>
+
+    <script>
+        let state = {
+            mode: 'classic',
+            mixedOrder: 'sequential',
+            doublesCount: 4,
+            courtsCount: 2,
+            setLength: 6,
+            bookedTime: 90,
+            matchTimer: null,
+            couples: [],
+            currentRoundIndex: 0,
+            rounds: [],
+            kingQueue: [],
+            kingCourtState: [],
+            matchLog: [],
+            undoStack: []
+        };
+
+        const STORAGE_KEY = 'padelrr_session_v4';
+        let globalStressTestSummary = [];
+
+        window.onload = function() { initApp(); };
+
+        function initApp() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.timestamp && (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000)) {
+                        state = parsed.state;
+                        showToast("Session restored!");
+                        document.getElementById('btn-global-reset').style.display = '';
+                        if (state.rounds && state.rounds.length > 0) {
+                            renderGameScreen();
+                            return;
+                        }
+                    } else {
+                        localStorage.removeItem(STORAGE_KEY);
+                    }
+                } catch(e) { localStorage.removeItem(STORAGE_KEY); }
+            }
+            setSessionMode('classic');
+            buildTeamInputs();
+            validateConfigForm();
+            updateLiveEstimate();
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ timestamp: Date.now(), state: state }));
+            document.getElementById('btn-global-reset').style.display = '';
+        }
+
+        function resetSession() {
+            if (confirm("Reset current session? All data will be lost.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                window.location.reload();
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        function setSessionMode(mode) {
+            state.mode = mode;
+            const btnClassic = document.getElementById('mode-classic');
+            const btnMixed = document.getElementById('mode-mixed');
+            const subOptions = document.getElementById('mixed-sub-options');
+            if (mode === 'classic') {
+                btnClassic.classList.add('active');
+                btnMixed.classList.remove('active');
+                subOptions.style.display = 'none';
+            } else {
+                btnClassic.classList.remove('active');
+                btnMixed.classList.add('active');
+                subOptions.style.display = 'block';
+            }
+            updateLiveEstimate();
+        }
+
+        function validateConfigForm() {
+            const doubles = parseInt(document.getElementById('cfg-doubles').value);
+            const courts = parseInt(document.getElementById('cfg-courts').value);
+            const mixedBtn = document.getElementById('mode-mixed');
+            const errBox = document.getElementById('cfg-format-error');
+            const startBtn = document.getElementById('btn-start-session');
+            let valid = true, errMsg = "";
+            if (doubles < courts * 2) {
+                valid = false;
+                errMsg = `Minimum 2 doubles per court needed — ${courts} courts require at least ${courts * 2} doubles.`;
+            }
+            if (courts > 1) {
+                const sitoutEst = doubles - (courts * 2);
+                if (sitoutEst > 2) {
+                    valid = false;
+                    errMsg = `Configuration allows ${sitoutEst} doubles sitting out simultaneously (max 2 allowed).`;
+                }
+            }
+            const isMixedAvailable = (doubles === 4 && courts === 2) || (doubles === 5 && courts === 2);
+            mixedBtn.disabled = !isMixedAvailable;
+            if (!isMixedAvailable && state.mode === 'mixed') setSessionMode('classic');
+            if (!valid) {
+                errBox.textContent = errMsg;
+                errBox.style.display = 'block';
+                startBtn.disabled = true;
+            } else {
+                errBox.style.display = 'none';
+                startBtn.disabled = false;
+            }
+            state.doublesCount = doubles;
+            state.courtsCount = courts;
+            buildTeamInputs();
+            updateLiveEstimate();
+        }
+
+        function buildTeamInputs() {
+            const container = document.getElementById('teams-inputs-container');
+            const currentCount = container.children.length;
+            const targetCount = parseInt(document.getElementById('cfg-doubles').value);
+            if (currentCount === targetCount) return;
+            const existingData = [];
+            for (let i = 0; i < currentCount; i++) {
+                existingData.push({
+                    p1: document.getElementById(`p1-d${i}`)?.value || '',
+                    p2: document.getElementById(`p2-d${i}`)?.value || ''
+                });
+            }
+            container.innerHTML = '';
+            for (let i = 0; i < targetCount; i++) {
+                const letter = String.fromCharCode(65 + i);
+                const p1Val = existingData[i]?.p1 || `Player ${letter}1`;
+                const p2Val = existingData[i]?.p2 || `Player ${letter}2`;
+                const div = document.createElement('div');
+                div.className = 'team-row';
+                div.innerHTML = `
+                    <span class="team-badge">D${letter}</span>
+                    <input type="text" id="p1-d${i}" value="${p1Val}" placeholder="Player 1">
+                    <input type="text" id="p2-d${i}" value="${p2Val}" placeholder="Player 2">
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function updateLiveEstimate() {
+            const doubles = parseInt(document.getElementById('cfg-doubles').value);
+            const courts = parseInt(document.getElementById('cfg-courts').value);
+            const setLen = parseInt(document.getElementById('cfg-set-length').value);
+            const booked = parseInt(document.getElementById('cfg-booked-time').value);
+            const timerVal = parseInt(document.getElementById('cfg-match-timer').value) || null;
+            const baseDuration = setLen === 3 ? 20 : 35;
+            const durationUnit = timerVal ? Math.min(timerVal, baseDuration) : baseDuration;
+            let computed = computeScheduleMatrix(doubles, courts, state.mode, document.getElementById('cfg-mixed-order').value, booked, durationUnit);
+            document.getElementById('est-matches').innerText = computed.matchesCount;
+            document.getElementById('est-rounds').innerText = computed.roundsCount;
+            document.getElementById('est-cycles').innerText = courts === 1 ? 'N/A' : computed.cyclesCount;
+            document.getElementById('est-duration').innerText = `${computed.roundsCount * durationUnit}m`;
+            const warning = document.getElementById('est-warning');
+            warning.style.display = (computed.roundsCount * durationUnit) > booked ? 'block' : 'none';
+        }
+
+        function computeScheduleMatrix(doubles, courts, mode, mixedOrder, booked, durationUnit) {
+            if (courts === 1) {
+                let rounds = Math.floor(booked / durationUnit);
+                return { matchesCount: rounds, roundsCount: rounds, cyclesCount: 1 };
+            }
+            let baseRoundsInCycle = (doubles % 2 === 0) ? (doubles - 1) : doubles;
+            let matchesInCycle = (doubles * (doubles - 1)) / 2;
+            let genderRounds = 0;
+            if (mode === 'mixed') {
+                if (doubles === 4 && courts === 2) genderRounds = 3;
+                if (doubles === 5 && courts === 2) genderRounds = 5;
+            }
+            const totalRoundsPerCycle = baseRoundsInCycle + genderRounds;
+            let cycles = 1;
+            while (true) {
+                if ((cycles * totalRoundsPerCycle * durationUnit) >= booked || cycles >= 5) break;
+                cycles++;
+            }
+            let totalRounds = cycles * totalRoundsPerCycle;
+            let totalMatches = (cycles * matchesInCycle) + (genderRounds > 0 ? (cycles * genderRounds * 2) : 0);
+            return { matchesCount: totalMatches, roundsCount: totalRounds, cyclesCount: cycles };
+        }
+
+        function startSession() {
+            state.mixedOrder = document.getElementById('cfg-mixed-order').value;
+            state.doublesCount = parseInt(document.getElementById('cfg-doubles').value);
+            state.courtsCount = parseInt(document.getElementById('cfg-courts').value);
+            state.setLength = parseInt(document.getElementById('cfg-set-length').value);
+            state.bookedTime = parseInt(document.getElementById('cfg-booked-time').value);
+            state.matchTimer = parseInt(document.getElementById('cfg-match-timer').value) || null;
+            state.currentRoundIndex = 0;
+            state.matchLog = [];
+            state.undoStack = [];
+            state.couples = [];
+            for (let i = 0; i < state.doublesCount; i++) {
+                const letter = String.fromCharCode(65 + i);
+                state.couples.push({
+                    id: `D${letter}`, label: `Couple ${letter}`,
+                    p1: document.getElementById(`p1-d${i}`).value.trim() || `Player ${letter}1`,
+                    p2: document.getElementById(`p2-d${i}`).value.trim() || `Player ${letter}2`,
+                    p1Gender: 'M', p2Gender: 'F'
+                });
+            }
+            if (state.courtsCount === 1) initKingOfCourtEngine();
+            else generateMultiCourtSchedule();
+            saveState();
+            renderGameScreen();
+        }
+
+        function initKingOfCourtEngine() {
+            state.kingQueue = state.couples.map(c => c.id);
+            state.kingCourtState = [{
+                courtId: 1,
+                teams: [
+                    { id: state.kingQueue.shift(), consecutiveGames: 0 },
+                    { id: state.kingQueue.shift(), consecutiveGames: 0 }
+                ]
+            }];
+            state.rounds = [];
+            addNewKingRoundSlot();
+        }
+
+        function addNewKingRoundSlot() {
+            const nextIdx = state.rounds.length;
+            const activeC1 = state.kingCourtState[0].teams;
+            state.rounds.push({
+                type: 'doubles', index: nextIdx,
+                sitOut: [...state.kingQueue],
+                courts: [{ courtId: 1, t1: activeC1[0].id, t2: activeC1[1].id, score1: '', score2: '', done: false }]
+            });
+        }
+
+        function generateMultiCourtSchedule() {
+            const D = state.doublesCount;
+            const C = state.courtsCount;
+            const baseDuration = state.setLength === 3 ? 20 : 35;
+            const durationUnit = state.matchTimer ? Math.min(state.matchTimer, baseDuration) : baseDuration;
+            let computed = computeScheduleMatrix(D, C, state.mode, state.mixedOrder, state.bookedTime, durationUnit);
+            let poolTeams = [];
+            for (let i = 0; i < D; i++) poolTeams.push(`D${String.fromCharCode(65 + i)}`);
+            if (poolTeams.length % 2 !== 0) poolTeams.push('BYE');
+            let singleCycleRounds = [];
+            let totalRoundsInCycle = poolTeams.length - 1;
+            for (let r = 0; r < totalRoundsInCycle; r++) {
+                let roundMatches = [];
+                for (let i = 0; i < poolTeams.length / 2; i++) {
+                    let h = poolTeams[i], a = poolTeams[poolTeams.length - 1 - i];
+                    if (h !== 'BYE' && a !== 'BYE') roundMatches.push({ t1: h, t2: a });
+                }
+                let roundSitouts = [];
+                if (D % 2 !== 0 && poolTeams.includes('BYE')) {
+                    let idxOfBye = poolTeams.indexOf('BYE');
+                    let matchedToBye = poolTeams[poolTeams.length - 1 - idxOfBye];
+                    if (matchedToBye && matchedToBye !== 'BYE') roundSitouts.push(matchedToBye);
+                }
+                singleCycleRounds.push({ matches: roundMatches, sitOut: roundSitouts });
+                poolTeams.splice(1, 0, poolTeams.pop());
+            }
+            if (D === 5) {
+                singleCycleRounds.sort((a, b) => { let sA = a.sitOut[0] || 'DZ', sB = b.sitOut[0] || 'DZ'; return sA.localeCompare(sB); });
+            } else if (D === 6 && C === 2) {
+                let reordered = [], indices = [0, 2, 4, 1, 3];
+                indices.forEach(idx => { if (singleCycleRounds[idx]) reordered.push(singleCycleRounds[idx]); });
+                singleCycleRounds = reordered;
+            } else if (D === 8 && C === 3) {
+                let reordered = [], indices = [0, 2, 4, 6, 1, 3, 5];
+                indices.forEach(idx => { if (singleCycleRounds[idx]) reordered.push(singleCycleRounds[idx]); });
+                singleCycleRounds = reordered;
+            }
+            singleCycleRounds.forEach(r => {
+                let playing = new Set();
+                r.matches.forEach(m => { playing.add(m.t1); playing.add(m.t2); });
+                let actualSitouts = [];
+                for (let i = 0; i < D; i++) {
+                    let id = `D${String.fromCharCode(65 + i)}`;
+                    if (!playing.has(id)) actualSitouts.push(id);
+                }
+                r.sitOut = actualSitouts.sort();
+            });
+            let cycleGenderRounds = [];
+            if (state.mode === 'mixed') cycleGenderRounds = compileGenderRoundsPool(D);
+            let doublesTimelinePool = [];
+            for (let cy = 0; cy < computed.cyclesCount; cy++) doublesTimelinePool.push(...JSON.parse(JSON.stringify(singleCycleRounds)));
+            let genderTimelinePool = [];
+            if (state.mode === 'mixed') {
+                for (let cy = 0; cy < computed.cyclesCount; cy++) genderTimelinePool.push(...JSON.parse(JSON.stringify(cycleGenderRounds)));
+            }
+            state.rounds = [];
+            let totalRoundsTimelineCount = computed.roundsCount;
+            let dIdx = 0, gIdx = 0;
+            for (let r = 0; r < totalRoundsTimelineCount; r++) {
+                let targetRoundSource;
+                if (state.mode === 'mixed' && state.mixedOrder === 'interleaved') {
+                    if (r % 2 === 0 && dIdx < doublesTimelinePool.length) {
+                        targetRoundSource = doublesTimelinePool[dIdx++];
+                    } else if (gIdx < genderTimelinePool.length) {
+                        let targetGIdx = (gIdx + 2) % 5;
+                        let cycleOffset = Math.floor(gIdx / 5) * 5;
+                        let lookUpIdx = cycleOffset + targetGIdx;
+                        let sitoutArr = (D === 5) ? [`D${String.fromCharCode(65 + (lookUpIdx % 5))}`] : [];
+                        targetRoundSource = { type: 'gender', matches: genderTimelinePool[lookUpIdx], sitOut: sitoutArr };
+                        gIdx++;
+                    } else {
+                        targetRoundSource = doublesTimelinePool[dIdx++];
+                    }
+                } else {
+                    if (dIdx < doublesTimelinePool.length) {
+                        targetRoundSource = doublesTimelinePool[dIdx++];
+                    } else if (gIdx < genderTimelinePool.length) {
+                        let sitoutArr = (D === 5) ? [`D${String.fromCharCode(65 + (gIdx % 5))}`] : [];
+                        targetRoundSource = { type: 'gender', matches: genderTimelinePool[gIdx++], sitOut: sitoutArr };
+                    }
+                }
+                if (!targetRoundSource) continue;
+                let courtsList = [];
+                let matchesToDeploy = targetRoundSource.matches || [];
+                matchesToDeploy.forEach((m, cSlot) => {
+                    if (cSlot < C) courtsList.push({ courtId: cSlot + 1, t1: m.t1, t2: m.t2, score1: '', score2: '', done: false });
+                });
+                state.rounds.push({ type: targetRoundSource.type || 'doubles', index: r, courts: courtsList, sitOut: targetRoundSource.sitOut || [] });
+            }
+        }
+
+        function compileGenderRoundsPool(doublesCount) {
+            let collection = [];
+            const p = state.couples;
+            if (doublesCount === 4) {
+                collection.push([
+                    { t1: { p1: p[0].p1, p2: p[1].p1, isGender: true, tag: 'M' }, t2: { p1: p[2].p1, p2: p[3].p1, isGender: true, tag: 'M' } },
+                    { t1: { p1: p[0].p2, p2: p[2].p2, isGender: true, tag: 'F' }, t2: { p1: p[1].p2, p2: p[3].p2, isGender: true, tag: 'F' } }
+                ]);
+                collection.push([
+                    { t1: { p1: p[0].p1, p2: p[2].p1, isGender: true, tag: 'M' }, t2: { p1: p[1].p1, p2: p[3].p1, isGender: true, tag: 'M' } },
+                    { t1: { p1: p[0].p2, p2: p[3].p2, isGender: true, tag: 'F' }, t2: { p1: p[1].p2, p2: p[2].p2, isGender: true, tag: 'F' } }
+                ]);
+                collection.push([
+                    { t1: { p1: p[0].p1, p2: p[3].p1, isGender: true, tag: 'M' }, t2: { p1: p[1].p1, p2: p[2].p1, isGender: true, tag: 'M' } },
+                    { t1: { p1: p[0].p2, p2: p[1].p2, isGender: true, tag: 'F' }, t2: { p1: p[2].p2, p2: p[3].p2, isGender: true, tag: 'F' } }
+                ]);
+            } else if (doublesCount === 5) {
+                for (let i = 0; i < 5; i++) {
+                    let activePool = p.filter((_, idx) => idx !== i);
+                    let m1 = activePool[0].p1, m2 = activePool[1].p1, m3 = activePool[2].p1, m4 = activePool[3].p1;
+                    let f1 = activePool[0].p2, f2 = activePool[1].p2, f3 = activePool[2].p2, f4 = activePool[3].p2;
+                    if (i % 2 === 0) {
+                        collection.push([
+                            { t1: { p1: m1, p2: m2, isGender: true, tag: 'M' }, t2: { p1: m3, p2: m4, isGender: true, tag: 'M' } },
+                            { t1: { p1: f1, p2: f3, isGender: true, tag: 'F' }, t2: { p1: f2, p2: f4, isGender: true, tag: 'F' } }
+                        ]);
+                    } else {
+                        collection.push([
+                            { t1: { p1: m1, p2: m3, isGender: true, tag: 'M' }, t2: { p1: m2, p2: m4, isGender: true, tag: 'M' } },
+                            { t1: { p1: f1, p2: f4, isGender: true, tag: 'F' }, t2: { p1: f2, p2: f3, isGender: true, tag: 'F' } }
+                        ]);
+                    }
+                }
+            }
+            return collection;
+        }
+
+        function renderGameScreen() {
+            document.getElementById('config-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            const currentRound = state.rounds[state.currentRoundIndex];
+            document.getElementById('display-round-title').innerText = `Round ${state.currentRoundIndex + 1} of ${state.rounds.length}`;
+            document.getElementById('display-round-subtitle').innerText = currentRound.type === 'gender'
+                ? '✦ Mixed Shuffle — Same-Gender Matches' : 'Standard doubles matchups';
+            document.getElementById('btn-undo-round').disabled = state.undoStack.length === 0;
+            const sitoutBox = document.getElementById('sitout-box');
+            if (currentRound.sitOut && currentRound.sitOut.length > 0) {
+                sitoutBox.style.display = 'flex';
+                document.getElementById('sitout-names').innerText = currentRound.sitOut.map(id => {
+                    const c = state.couples.find(item => item.id === id);
+                    return c ? `${c.p1} & ${c.p2}` : id;
+                }).join('  ·  ');
+            } else {
+                sitoutBox.style.display = 'none';
+            }
+            if (state.courtsCount === 1) {
+                document.getElementById('king-queue-box').style.display = 'block';
+                document.getElementById('king-queue-list').innerText = state.kingQueue.map(id => {
+                    const c = state.couples.find(i => i.id === id);
+                    return c ? `${c.p1} & ${c.p2}` : id;
+                }).join(' → ');
+                document.getElementById('btn-submit-round').style.display = 'none';
+            } else {
+                document.getElementById('king-queue-box').style.display = 'none';
+                document.getElementById('btn-submit-round').style.display = '';
+            }
+            const grid = document.getElementById('courts-grid');
+            grid.innerHTML = '';
+            currentRound.courts.forEach((court) => {
+                const card = document.createElement('div');
+                card.id = `court-card-${court.courtId}`;
+                card.className = 'court-card';
+                let lbl1 = parseTeamLabel(court.t1);
+                let lbl2 = parseTeamLabel(court.t2);
+                let actions = state.courtsCount === 1
+                    ? `<button type="button" class="btn btn-lime" style="font-size:15px; min-height:46px;" onclick="submitKingMatch(${court.courtId})">Submit Match</button>`
+                    : '';
+                card.innerHTML = `
+                    <div class="court-card-wm">${court.courtId}</div>
+                    <div class="court-card-header">
+                        <span class="court-number">Court ${court.courtId}</span>
+                    </div>
+                    <div class="match-layout">
+                        <div class="match-team-row">
+                            ${teamHTML(lbl1)}
+                            <input type="number" id="score-c${court.courtId}-t1" value="${court.score1}" placeholder="0"
+                                class="score-input" min="0" max="9"
+                                oninput="onScoreInput(${court.courtId})">
+                        </div>
+                        <div class="vs-sep">VS</div>
+                        <div class="match-team-row">
+                            ${teamHTML(lbl2)}
+                            <input type="number" id="score-c${court.courtId}-t2" value="${court.score2}" placeholder="0"
+                                class="score-input" min="0" max="9"
+                                oninput="onScoreInput(${court.courtId})">
+                        </div>
+                    </div>
+                    ${actions}
+                `;
+                grid.appendChild(card);
+            });
+            document.getElementById('tab-mix').style.display = state.mode !== 'mixed' ? 'none' : '';
+            renderScoreboard();
+            renderTimelineRoadmap();
+        }
+
+        function parseTeamLabel(team) {
+            if (typeof team === 'string') {
+                const c = state.couples.find(i => i.id === team);
+                return { players: `${c.p1} &amp; ${c.p2}`, sub: c.id, isGender: false };
+            }
+            return { players: `${team.p1} &amp; ${team.p2}`, sub: team.tag, isGender: true };
+        }
+
+        function teamHTML(label) {
+            const badgeClass = label.isGender ? 'team-id-badge gender' : 'team-id-badge';
+            return `<div class="team-info">
+                <span class="team-players">${label.players}</span>
+                <span class="team-id-line"><span class="${badgeClass}">${label.sub}</span></span>
+            </div>`;
+        }
+
+        function onScoreInput(courtId) {
+            const card = document.getElementById(`court-card-${courtId}`);
+            if (card) card.classList.remove('error-state');
+            const s1 = parseInt(document.getElementById(`score-c${courtId}-t1`).value);
+            const s2 = parseInt(document.getElementById(`score-c${courtId}-t2`).value);
+            const i1 = document.getElementById(`score-c${courtId}-t1`);
+            const i2 = document.getElementById(`score-c${courtId}-t2`);
+            i1.classList.toggle('winning', s1 === state.setLength);
+            i2.classList.toggle('winning', s2 === state.setLength);
+        }
+
+        function validateCourtScores(s1, s2) {
+            if (isNaN(s1) || isNaN(s2) || s1 < 0 || s2 < 0 || s1 === s2) return false;
+            if (s1 === state.setLength || s2 === state.setLength) return true;
+            return state.matchTimer !== null && (s1 > 0 || s2 > 0);
+        }
+
+        function submitRound() {
+            const currentRound = state.rounds[state.currentRoundIndex];
+            let allValid = true;
+            currentRound.courts.forEach(court => {
+                const s1 = parseInt(document.getElementById(`score-c${court.courtId}-t1`).value);
+                const s2 = parseInt(document.getElementById(`score-c${court.courtId}-t2`).value);
+                if (!validateCourtScores(s1, s2)) {
+                    allValid = false;
+                    const card = document.getElementById(`court-card-${court.courtId}`);
+                    if (card) card.classList.add('error-state');
+                } else {
+                    court.score1 = s1; court.score2 = s2; court.done = true;
+                }
+            });
+            if (!allValid) { showToast("Invalid scores — check highlighted courts."); return; }
+            pushUndoSnapshot();
+            currentRound.courts.forEach(court => {
+                state.matchLog.push({ roundIndex: state.currentRoundIndex, type: currentRound.type, t1: court.t1, t2: court.t2, score1: court.score1, score2: court.score2 });
+            });
+            if (state.currentRoundIndex < state.rounds.length - 1) {
+                state.currentRoundIndex++;
+            } else {
+                showToast("🎉 Final round logged — session complete!");
+            }
+            saveState();
+            renderGameScreen();
+        }
+
+        function submitKingMatch(courtId) {
+            const currentRound = state.rounds[state.currentRoundIndex];
+            const court = currentRound.courts.find(c => c.courtId === courtId);
+            const s1 = parseInt(document.getElementById(`score-c${court.courtId}-t1`).value);
+            const s2 = parseInt(document.getElementById(`score-c${court.courtId}-t2`).value);
+            if (!validateCourtScores(s1, s2)) {
+                const card = document.getElementById(`court-card-${court.courtId}`);
+                if (card) card.classList.add('error-state');
+                return;
+            }
+            pushUndoSnapshot();
+            court.score1 = s1; court.score2 = s2; court.done = true;
+            state.matchLog.push({ roundIndex: state.currentRoundIndex, type: 'doubles', t1: court.t1, t2: court.t2, score1: s1, score2: s2 });
+            let active = state.kingCourtState[0].teams;
+            let winnerId = s1 > s2 ? court.t1 : court.t2;
+            let loserId = s1 > s2 ? court.t2 : court.t1;
+            active.find(t => t.id === winnerId).consecutiveGames++;
+            active.find(t => t.id === loserId).consecutiveGames++;
+            let nextTeams = [];
+            if (active.find(t => t.id === winnerId).consecutiveGames < 2) {
+                nextTeams.push({ id: winnerId, consecutiveGames: active.find(t => t.id === winnerId).consecutiveGames });
+            } else {
+                state.kingQueue.push(winnerId);
+            }
+            state.kingQueue.push(loserId);
+            while (nextTeams.length < 2) nextTeams.push({ id: state.kingQueue.shift(), consecutiveGames: 0 });
+            state.kingCourtState[0].teams = nextTeams;
+            addNewKingRoundSlot();
+            state.currentRoundIndex++;
+            saveState();
+            renderGameScreen();
+        }
+
+        function pushUndoSnapshot() {
+            state.undoStack.push(JSON.stringify({
+                currentRoundIndex: state.currentRoundIndex,
+                rounds: state.rounds,
+                kingQueue: state.kingQueue,
+                kingCourtState: state.kingCourtState,
+                matchLog: state.matchLog
+            }));
+            if (state.undoStack.length > 30) state.undoStack.shift();
+        }
+
+        function undoLastRound() {
+            if (state.undoStack.length === 0) return;
+            const snapshotStr = state.undoStack.pop();
+            try {
+                const snapshot = JSON.parse(snapshotStr);
+                state.currentRoundIndex = snapshot.currentRoundIndex;
+                state.rounds = snapshot.rounds;
+                state.kingQueue = snapshot.kingQueue;
+                state.kingCourtState = snapshot.kingCourtState;
+                state.matchLog = snapshot.matchLog;
+                state.rounds[state.currentRoundIndex].courts.forEach(c => { c.score1 = ''; c.score2 = ''; c.done = false; });
+                saveState();
+                renderGameScreen();
+                showToast("↩ Last round reverted.");
+            } catch(e) { showToast("Unable to roll back state."); }
+        }
+
+        let activeTab = 'couples';
+        function switchTab(tab) {
+            activeTab = tab;
+            ['couples', 'individual', 'mix'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                btn.classList.toggle('active', t === tab);
+            });
+            renderScoreboard();
+        }
+
+        function calculateStats() {
+            let couples = {}; state.couples.forEach(c => couples[c.id] = { id: c.id, played: 0, wins: 0, gw: 0, gl: 0, net: 0 });
+            let ind = {}; state.couples.forEach(c => {
+                ind[c.p1] = { name: c.p1, played: 0, wins: 0, gw: 0, gl: 0, net: 0 };
+                ind[c.p2] = { name: c.p2, played: 0, wins: 0, gw: 0, gl: 0, net: 0 };
+            });
+            let mix = {};
+            state.matchLog.forEach(m => {
+                const s1 = m.score1, s2 = m.score2, t1W = s1 > s2;
+                if (m.type === 'doubles') {
+                    if (couples[m.t1]) { couples[m.t1].played++; if (t1W) couples[m.t1].wins++; couples[m.t1].gw += s1; couples[m.t1].gl += s2; couples[m.t1].net = couples[m.t1].gw - couples[m.t1].gl; }
+                    if (couples[m.t2]) { couples[m.t2].played++; if (!t1W) couples[m.t2].wins++; couples[m.t2].gw += s2; couples[m.t2].gl += s1; couples[m.t2].net = couples[m.t2].gw - couples[m.t2].gl; }
+                    const c1 = state.couples.find(c => c.id === m.t1), c2 = state.couples.find(c => c.id === m.t2);
+                    if (c1) [c1.p1, c1.p2].forEach(p => { ind[p].played++; if (t1W) ind[p].wins++; ind[p].gw += s1; ind[p].gl += s2; ind[p].net = ind[p].gw - ind[p].gl; });
+                    if (c2) [c2.p1, c2.p2].forEach(p => { ind[p].played++; if (!t1W) ind[p].wins++; ind[p].gw += s2; ind[p].gl += s1; ind[p].net = ind[p].gw - ind[p].gl; });
+                } else {
+                    [m.t1.p1, m.t1.p2].forEach(p => { ind[p].played++; if (t1W) ind[p].wins++; ind[p].gw += s1; ind[p].gl += s2; ind[p].net = ind[p].gw - ind[p].gl; });
+                    [m.t2.p1, m.t2.p2].forEach(p => { ind[p].played++; if (!t1W) ind[p].wins++; ind[p].gw += s2; ind[p].gl += s1; ind[p].net = ind[p].gw - ind[p].gl; });
+                    const k1 = `${m.t1.p1} & ${m.t1.p2}`, k2 = `${m.t2.p1} & ${m.t2.p2}`;
+                    if (!mix[k1]) mix[k1] = { label: k1, tag: m.t1.tag, played: 0, wins: 0, gw: 0, gl: 0, net: 0 };
+                    if (!mix[k2]) mix[k2] = { label: k2, tag: m.t2.tag, played: 0, wins: 0, gw: 0, gl: 0, net: 0 };
+                    mix[k1].played++; if (t1W) mix[k1].wins++; mix[k1].gw += s1; mix[k1].gl += s2; mix[k1].net = mix[k1].gw - mix[k1].gl;
+                    mix[k2].played++; if (!t1W) mix[k2].wins++; mix[k2].gw += s2; mix[k2].gl += s1; mix[k2].net = mix[k2].gw - mix[k2].gl;
+                }
+            });
+            return { couples: Object.values(couples), individual: Object.values(ind), mix: Object.values(mix) };
+        }
+
+        function renderScoreboard() {
+            const ds = calculateStats();
+            const body = document.getElementById('leaderboard-body');
+            body.innerHTML = '';
+            let arr = [];
+            if (activeTab === 'couples') arr = ds.couples.sort((a, b) => b.net - a.net || b.wins - a.wins);
+            else if (activeTab === 'individual') arr = ds.individual.sort((a, b) => b.net - a.net || b.wins - a.wins);
+            else if (activeTab === 'mix') arr = ds.mix.sort((a, b) => b.net - a.net || b.wins - a.wins);
+            arr.forEach((row, i) => {
+                let name = "";
+                if (activeTab === 'couples') {
+                    const c = state.couples.find(item => item.id === row.id);
+                    name = `<span class="team-id-badge">${row.id}</span><strong style="color:var(--text-1);">${c.p1}</strong> <span style="color:var(--text-3);">/</span> <strong style="color:var(--text-1);">${c.p2}</strong>`;
+                } else if (activeTab === 'individual') {
+                    name = `<strong style="color:var(--text-1);">${row.name}</strong>`;
+                } else if (activeTab === 'mix') {
+                    name = `<span class="team-id-badge gender">${row.tag}</span><strong style="color:var(--text-1);">${row.label}</strong>`;
+                }
+                const netClass = row.net > 0 ? 'pos' : row.net < 0 ? 'neg' : '';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td style="color:var(--text-1); font-weight:500;">${name}</td>
+                    <td style="text-align:center;">${row.played}</td>
+                    <td style="text-align:center;">${row.wins}</td>
+                    <td style="text-align:center;" class="td-gw">${row.gw}</td>
+                    <td style="text-align:center;" class="td-gl">${row.gl}</td>
+                    <td style="text-align:center;" class="td-net ${netClass}">${row.net > 0 ? '+' + row.net : row.net}</td>
+                `;
+                body.appendChild(tr);
+            });
+            if (arr.length === 0) body.innerHTML = `<tr class="empty-row"><td colspan="7">No matches logged yet.</td></tr>`;
+        }
+
+        function renderTimelineRoadmap() {
+            const container = document.getElementById('timeline-scroll-container');
+            container.innerHTML = '';
+            state.rounds.forEach((round, rIdx) => {
+                const isActive = rIdx === state.currentRoundIndex;
+                const isPast = rIdx < state.currentRoundIndex;
+                const card = document.createElement('div');
+                card.className = `tl-round-card ${isActive ? 'active' : isPast ? 'past' : 'upcoming'}`;
+
+                const headerTag = round.type === 'gender' ? 'Mixed Shuffle' : 'Doubles';
+                const statusLabel = isActive ? 'In Progress' : isPast ? 'Done' : 'Scheduled';
+                const statusClass = isActive ? 'active' : isPast ? 'done' : 'upcoming';
+                const sitOutInfo = (round.sitOut && round.sitOut.length > 0)
+                    ? `<span class="tl-sitout">· Sit-out: ${round.sitOut.join(', ')}</span>` : '';
+
+                let courtsHtml = '';
+                round.courts.forEach(c => {
+                    let side1, side2;
+                    if (typeof c.t1 === 'string') {
+                        const couple1 = state.couples.find(x => x.id === c.t1);
+                        side1 = couple1 ? `${couple1.p1} &amp; ${couple1.p2}` : c.t1;
+                    } else {
+                        side1 = `[${c.t1.tag}] ${c.t1.p1} &amp; ${c.t1.p2}`;
+                    }
+                    if (typeof c.t2 === 'string') {
+                        const couple2 = state.couples.find(x => x.id === c.t2);
+                        side2 = couple2 ? `${couple2.p1} &amp; ${couple2.p2}` : c.t2;
+                    } else {
+                        side2 = `[${c.t2.tag}] ${c.t2.p1} &amp; ${c.t2.p2}`;
+                    }
+                    let scoreHtml = c.done
+                        ? `<span class="tl-score">${c.score1} – ${c.score2}</span>`
+                        : `<span class="tl-pending">—</span>`;
+                    courtsHtml += `
+                        <div class="tl-court-row">
+                            <span class="tl-court-match">Court ${c.courtId}: <em>${side1}</em> vs <em>${side2}</em></span>
+                            ${scoreHtml}
+                        </div>`;
+                });
+
+                card.innerHTML = `
+                    <div class="tl-round-header">
+                        <div>
+                            <span class="tl-round-label">Round ${rIdx + 1}</span>
+                            <span class="tl-round-type">(${headerTag})</span>
+                            ${sitOutInfo}
+                        </div>
+                        <span class="tl-status-badge ${statusClass}">${statusLabel}</span>
+                    </div>
+                    ${courtsHtml}
+                `;
+                container.appendChild(card);
+            });
+
+            // Scroll active round into view
+            const activeCard = container.querySelector('.tl-round-card.active');
+            if (activeCard) {
+                setTimeout(() => activeCard.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 100);
+            }
+        }
+
+        function getSessionDateString() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function exportData(type) {
+            const ds = calculateStats();
+            const dateStr = getSessionDateString();
+            const sc = [...ds.couples].sort((a, b) => b.net - a.net || b.wins - a.wins);
+            const si = [...ds.individual].sort((a, b) => b.net - a.net || b.wins - a.wins);
+            if (type === 'txt') {
+                let out = `PADEL RR SUMMARY — ${dateStr}\n\nCOUPLES STANDINGS:\n`;
+                sc.forEach((r, i) => { const c = state.couples.find(it => it.id === r.id); out += `${i + 1} | ${r.id} (${c.p1}/${c.p2}) | P:${r.played} W:${r.wins} Net:${r.net}\n`; });
+                out += `\nINDIVIDUAL STANDINGS:\n`;
+                si.forEach((r, i) => { out += `${i + 1} | ${r.name} | P:${r.played} W:${r.wins} Net:${r.net}\n`; });
+                out += `\nMATCH LOGS:\n`;
+                state.matchLog.forEach((m, i) => {
+                    let l1 = typeof m.t1 === 'string' ? m.t1 : `[${m.t1.tag}] ${m.t1.p1}+${m.t1.p2}`;
+                    let l2 = typeof m.t2 === 'string' ? m.t2 : `[${m.t2.tag}] ${m.t2.p1}+${m.t2.p2}`;
+                    out += `Match ${i + 1} (R${m.roundIndex + 1}): ${l1} vs ${l2} -> ${m.score1}-${m.score2}\n`;
+                });
+                triggerDownload(out, `padel-${dateStr}.txt`, 'text/plain;charset=utf-8');
+            } else {
+                let csv = "\uFEFF\"SESSION METADATA\"\n\"Date\",\"" + dateStr + "\"\n\"Mode\",\"" + state.mode.toUpperCase() + "\"\n\n\"COUPLES\"\n\"Rank\",\"ID\",\"Players\",\"Played\",\"Wins\",\"Net\"\n";
+                sc.forEach((r, i) => { const c = state.couples.find(it => it.id === r.id); csv += `${i + 1},"${r.id}","${c.p1}/${c.p2}",${r.played},${r.wins},${r.net}\n`; });
+                csv += `\n\"INDIVIDUALS\"\n\"Rank\",\"Name\",\"Played\",\"Wins\",\"Net\"\n`;
+                si.forEach((r, i) => { csv += `${i + 1},"${r.name}",${r.played},${r.wins},${r.net}\n`; });
+                triggerDownload(csv, `padel-${dateStr}.csv`, 'text/csv;charset=utf-8');
+            }
+        }
+
+        function triggerDownload(content, file, mime) {
+            const blob = new Blob([content], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = file;
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a); URL.revokeObjectURL(url);
+        }
+
+        /* ── Stress Test (unchanged logic) ── */
+        function runComprehensiveStressTest() {
+            const logBox = document.getElementById('stress-test-results-panel');
+            logBox.style.display = 'block';
+            logBox.innerHTML = '<p style="color:var(--lime);">Running validation scenarios…</p>';
+            globalStressTestSummary = [];
+            const doublesRange = [3, 4, 5, 6, 7, 8];
+            const courtsRange = [1, 2, 3, 4];
+            const modesRange = ['classic', 'mixed'];
+            const orderRange = ['sequential', 'interleaved'];
+            let totalExecuted = 0, totalPassed = 0;
+            setTimeout(() => {
+                logBox.innerHTML = '';
+                doublesRange.forEach(d => {
+                    courtsRange.forEach(c => {
+                        const configValid = (d >= c * 2) && (c === 1 || (d - (c * 2) <= 2));
+                        if (!configValid) return;
+                        modesRange.forEach(m => {
+                            const isMixedAvailable = (d === 4 && c === 2) || (d === 5 && c === 2);
+                            if (m === 'mixed' && !isMixedAvailable) return;
+                            const ordersToTest = (m === 'mixed') ? orderRange : ['classic-default'];
+                            ordersToTest.forEach(o => {
+                                totalExecuted++;
+                                let mockStateRounds = compileMockScheduleState(d, c, m, o);
+                                let report = evaluateGeneratedScheduleHealth(mockStateRounds, d, c, m, o);
+                                globalStressTestSummary.push(report);
+                                if (report.status === 'PASSED') totalPassed++;
+                                let p = document.createElement('p');
+                                p.className = report.status === 'PASSED' ? 'pass' : 'fail';
+                                p.textContent = `[${report.status}] D:${d} C:${c} ${m} ${o} → Rounds:${report.totalRounds} Sitouts:${report.sitoutValidation}`;
+                                logBox.appendChild(p);
+                            });
+                        });
+                    });
+                });
+                let summary = document.createElement('p');
+                summary.className = 'summary';
+                summary.textContent = `Complete — ${totalPassed}/${totalExecuted} passed.`;
+                logBox.appendChild(summary);
+                document.getElementById('btn-download-stress-log').style.display = '';
+            }, 300);
+        }
+
+        function compileMockScheduleState(doublesCount, courtsCount, mode, mixedOrder) {
+            let backup = JSON.stringify(state);
+            state.mode = mode; state.mixedOrder = mixedOrder;
+            state.doublesCount = doublesCount; state.courtsCount = courtsCount;
+            state.setLength = 6; state.bookedTime = 120; state.matchTimer = null;
+            state.currentRoundIndex = 0; state.matchLog = []; state.undoStack = [];
+            state.couples = [];
+            for (let i = 0; i < doublesCount; i++) {
+                const letter = String.fromCharCode(65 + i);
+                state.couples.push({ id: `D${letter}`, label: `Couple ${letter}`, p1: `P-${letter}1`, p2: `P-${letter}2`, p1Gender: 'M', p2Gender: 'F' });
+            }
+            if (courtsCount === 1) initKingOfCourtEngine();
+            else generateMultiCourtSchedule();
+            let compiledRoundsSnapshot = JSON.parse(JSON.stringify(state.rounds));
+            state = JSON.parse(backup);
+            return compiledRoundsSnapshot;
+        }
+
+        function evaluateGeneratedScheduleHealth(rounds, d, c, m, o) {
+            let report = { d, c, mode: m, order: o, totalRounds: rounds.length, status: 'PASSED', sitoutValidation: 'OK', errorDetails: '' };
+            if (!rounds || rounds.length === 0) { report.status = 'FAILED'; return report; }
+            let previousSitouts = new Set();
+            rounds.forEach((round) => {
+                let currentSitouts = round.sitOut || [];
+                if (m === 'mixed' && d === 4 && round.type === 'gender') currentSitouts = [];
+                if (c > 1 && currentSitouts.length > 2) { report.status = 'FAILED'; report.sitoutValidation = 'CRITICAL'; }
+                currentSitouts.forEach(teamId => {
+                    if (previousSitouts.has(teamId) && c > 1 && d > 4) { report.status = 'FAILED'; report.sitoutValidation = 'CONSECUTIVE_VIOLATION'; }
+                });
+                previousSitouts = new Set(currentSitouts);
+            });
+            return report;
+        }
+
+        function downloadStressTestCSV() {
+            if (globalStressTestSummary.length === 0) return;
+            let csv = "Couples,Courts,Mode,Order,Total Rounds,Sitout Code,Status\n";
+            globalStressTestSummary.forEach(r => { csv += `${r.d},${r.c},"${r.mode}","${r.order}",${r.totalRounds},"${r.sitoutValidation}","${r.status}"\n`; });
+            triggerDownload(csv, "padel_stress_test.csv", "text/csv;charset=utf-8");
+        }
+    </script>
+</body>
+</html>
