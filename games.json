@@ -2,14 +2,14 @@
   "games": [
     {
       "file": "padel_rr_vbeta.html",
-      "name": "Padel RR — Session Tracker",
-      "description": "",
+      "name": "Padel RR — big groups and couples",
+      "description": "padel game scheduler for big groups and couples",
       "emoji": "🎮",
       "tags": []
     },
     {
       "file": "padeldoublesrr.html",
-      "name": "PADEL Doubles Tracker",
+      "name": "padel doubles rr - PADEL Doubles Tracker",
       "description": "Easy way for you to track fun Padel matches with your friends ensurign all play and rest properly",
       "emoji": "🏸",
       "tags": [
@@ -20,7 +20,7 @@
     },
     {
       "file": "padelmixrr.html",
-      "name": "PADEL Super Mix Crazy rounds",
+      "name": "padel mix rrPADEL Super Mix Crazy rounds",
       "description": "Fun way to play padel with your friends, with some twists if you play mix doubles",
       "emoji": "🌀",
       "tags": [
@@ -32,7 +32,7 @@
     },
     {
       "file": "padelschedulerpro.html",
-      "name": "Padel RR — Session Tracker",
+      "name": "OLD - Padel RR — Session Tracker",
       "description": "Pro Scheduler for Padel games with mix gender and crazy rounds",
       "emoji": "🎮",
       "tags": [
