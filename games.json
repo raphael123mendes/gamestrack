@@ -8,6 +8,13 @@
       "tags": []
     },
     {
+      "file": "padeladek.html",
+      "name": "Padel Round Robin",
+      "description": "",
+      "emoji": "🎮",
+      "tags": []
+    },
+    {
       "file": "padeldoublesrr.html",
       "name": "Padel tradicional fix doubles scheduler for one court",
       "description": "when you have one court and several doubles to rotate with fun competitive championship",
