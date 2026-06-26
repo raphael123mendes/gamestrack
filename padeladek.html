@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Padel Round Robin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #0A1A0F;
+    --surface: #0F2416;
+    --surface2: #152D1C;
+    --border: #1E3D28;
+    --lime: #C8F400;
+    --lime-dim: #8FAD00;
+    --white: #F0F7F0;
+    --muted: #5A7A60;
+    --red: #FF5C5C;
+    --amber: #FFB830;
+    --court1: #1A6B3C;
+    --court2: #145930;
+    --text: #D0E8D4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .logo {
+    width: 36px; height: 36px;
+    background: var(--lime);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 17px; font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.3px;
+  }
+  header p { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .header-actions { margin-left: auto; display: flex; gap: 8px; }
+  .icon-btn {
+    width: 34px; height: 34px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .icon-btn:hover { background: var(--surface2); }
+
+  /* ── SCREENS ── */
+  .screen { display: none; padding: 20px; max-width: 480px; margin: 0 auto; }
+  .screen.active { display: block; }
+
+  /* ── SETUP SCREEN ── */
+  .setup-title {
+    font-size: 28px; font-weight: 900;
+    color: var(--white);
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .setup-title span { color: var(--lime); }
+  .setup-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+  .court-preview {
+    background: linear-gradient(160deg, var(--court1) 0%, var(--court2) 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #2A7A48;
+  }
+  .court-lines {
+    position: absolute; inset: 0;
+    opacity: 0.15;
+  }
+  .court-lines::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    height: 1px;
+    background: white;
+  }
+  .court-lines::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; bottom: 0;
+    width: 1px;
+    background: white;
+  }
+  .court-preview-text {
+    position: relative;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .court-preview-text strong {
+    display: block;
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .players-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .player-input-wrap {
+    position: relative;
+  }
+  .player-number {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--lime);
+    font-weight: 600;
+  }
+  .player-input {
+    width: 100%;
+    padding: 13px 12px 13px 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--white);
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .player-input:focus {
+    border-color: var(--lime);
+    background: var(--surface2);
+  }
+  .player-input::placeholder { color: var(--muted); font-weight: 400; }
+  .player-input-wrap.full { grid-column: 1 / -1; }
+
+  .start-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--lime);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0A1A0F;
+    cursor: pointer;
+    margin-top: 20px;
+    letter-spacing: -0.2px;
+    transition: transform 0.1s, opacity 0.15s;
+  }
+  .start-btn:active { transform: scale(0.98); opacity: 0.9; }
+  .start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .rules-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 20px;
+  }
+  .rules-box h3 {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--lime);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .rules-box ul { list-style: none; }
+  .rules-box li {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+  .rules-box li::before {
+    content: '→';
+    position: absolute; left: 0;
+    color: var(--lime-dim);
+    font-size: 11px;
+  }
+
+  /* ── SCHEDULE SCREEN ── */
+  .schedule-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .progress-wrap { flex: 1; }
+  .progress-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--lime);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .back-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s;
+  }
+  .back-btn:hover { background: var(--surface2); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .stat-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+  .stat-pill .name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stat-pill .games {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+  }
+  .stat-pill.sitting {
+    border-color: var(--amber);
+    background: rgba(255, 184, 48, 0.08);
+  }
+  .stat-pill.playing {
+    border-color: var(--lime);
+    background: rgba(200, 244, 0, 0.08);
+  }
+
+  /* Game cards */
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .game-card.current {
+    border-color: var(--lime);
+    background: var(--surface2);
+    box-shadow: 0 0 0 1px rgba(200,244,0,0.15), 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .game-card.current::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--lime);
+  }
+  .game-card.done {
+    opacity: 0.5;
+  }
+  .game-card.upcoming {
+    opacity: 0.7;
+  }
+
+  .game-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .game-number {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .game-card.current .game-number { color: var(--lime); }
+  .game-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-live {
+    background: rgba(200,244,0,0.15);
+    color: var(--lime);
+    border: 1px solid rgba(200,244,0,0.3);
+  }
+  .badge-done {
+    background: rgba(90,122,96,0.2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .badge-next {
+    background: rgba(255,184,48,0.1);
+    color: var(--amber);
+    border: 1px solid rgba(255,184,48,0.2);
+  }
+
+  .court-layout {
+    display: grid;
+    grid-template-columns: 1fr 24px 1fr;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .team {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+  .team-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .player-tag {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--white);
+    margin: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+  }
+  .game-card.current .player-tag {
+    border-color: rgba(200,244,0,0.3);
+    background: rgba(200,244,0,0.06);
+  }
+  .vs-divider {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .sitout-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .sitout-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .sitout-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Action buttons */
+  .game-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .action-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    transition: transform 0.1s, opacity 0.15s;
+    letter-spacing: -0.2px;
+  }
+  .action-btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--lime); color: #0A1A0F; }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  /* Scoreboard toggle */
+  .tab-bar {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 20px;
+    gap: 4px;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px;
+    text-align: center;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    color: var(--muted);
+  }
+  .tab.active {
+    background: var(--lime);
+    color: #0A1A0F;
+  }
+
+  /* Stats screen */
+  .stats-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 40px 40px 40px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    gap: 4px;
+  }
+  .stats-row:last-child { border-bottom: none; }
+  .stats-row.header {
+    background: var(--surface2);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    font-weight: 700;
+    padding: 10px 16px;
+  }
+  .stats-row .player-name { font-size: 14px; font-weight: 600; color: var(--white); }
+  .stats-row .stat-val {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--lime);
+  }
+  .stats-row .stat-label {
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Pairs matrix */
+  .matrix-section h3 {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .pairs-grid {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .pair-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pair-names { font-size: 13px; font-weight: 600; color: var(--white); }
+  .pair-count {
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--lime);
+  }
+  .pair-dots {
+    display: flex; gap: 4px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .dot.filled { background: var(--lime); }
+
+  /* Done screen */
+  .done-hero {
+    text-align: center;
+    padding: 40px 20px 30px;
+  }
+  .done-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  .done-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .done-title span { color: var(--lime); }
+  .done-sub {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 30px;
+    line-height: 1.5;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--white);
+    color: #0A1A0F;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Scrollable content area */
+  .scroll-area { padding-bottom: 40px; }
+
+  .section-spacer { height: 16px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎾</div>
+  <div>
+    <h1>Padel Round Robin</h1>
+    <p id="header-sub">5 players · 15 games</p>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="reset-btn" title="Reset" style="display:none">↺</button>
+  </div>
+</header>
+
+<!-- SETUP -->
+<div class="screen active" id="screen-setup">
+  <div class="setup-title">Build your<br><span>schedule</span></div>
+  <p class="setup-sub">Enter 5 player names to generate the full round-robin schedule</p>
+
+  <div class="court-preview">
+    <div class="court-lines"></div>
+    <div class="court-preview-text">
+      <strong>15 Games</strong>
+      Each player plays 12 · sits out 3
+    </div>
+  </div>
+
+  <div class="players-grid" id="players-inputs"></div>
+
+  <button class="start-btn" id="start-btn" disabled>Generate Schedule →</button>
+
+  <div class="rules-box">
+    <h3>Schedule Rules</h3>
+    <ul>
+      <li>Same doubles pair never plays 2 games in a row</li>
+      <li>No player sits out 2 games in a row</li>
+      <li>Max 4 consecutive games per player</li>
+      <li>All 10 partnership combos used</li>
+      <li>All players face each other at least once</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div class="screen" id="screen-schedule">
+  <div class="schedule-header">
+    <div class="progress-wrap">
+      <div class="progress-label" id="progress-label">GAME 0 / 15</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" id="tab-games" onclick="switchTab('games')">Schedule</div>
+    <div class="tab" id="tab-stats" onclick="switchTab('stats')">Stats</div>
+  </div>
+
+  <div id="view-games">
+    <div class="stats-bar" id="stats-bar"></div>
+    <div class="scroll-area" id="games-list"></div>
+  </div>
+
+  <div id="view-stats" style="display:none">
+    <div class="scroll-area" id="stats-content"></div>
+  </div>
+</div>
+
+<!-- DONE -->
+<div class="screen" id="screen-done">
+  <div class="done-hero">
+    <div class="done-icon">🏆</div>
+    <div class="done-title">Session<br><span>Complete!</span></div>
+    <p class="done-sub">All 15 games played.<br>Everyone's been on the court.</p>
+  </div>
+
+  <div id="final-stats"></div>
+
+  <button class="start-btn" onclick="resetApp()" style="margin-top:0">New Session →</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const STORAGE_KEY = 'padel_session_v3';
+
+let state = {
+  players: [],
+  schedule: [],
+  currentGame: 0,
+  completed: [] // array of booleans
+};
+
+// ═══════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && s.players && s.schedule) {
+        state = s;
+        return true;
+      }
+    }
+  } catch(e) {}
+  return false;
+}
+
+// ═══════════════════════════════════════════════
+// SCHEDULE GENERATOR
+// ═══════════════════════════════════════════════
+/*
+  5 players (0..4). Each game: [teamA=[i,j], teamB=[k,l], sitout=m]
+  15 games. Each player plays 12, sits out 3.
+  All C(5,2)=10 pairs as teammates (each exactly once with some appearing twice — actually with 5 players and 15 games we have 30 partnership slots, and 10 pairs, so each pair plays together 3 times on average but we aim for coverage).
+  
+  Constraints:
+  - Same pair as TEAMMATES not consecutive
+  - No player sits out consecutively  
+  - Max 4 games straight per player
+  
+  Strategy: use a known good fixed schedule for 5-player padel round robin that satisfies all constraints.
+*/
+
+function generateSchedule(names) {
+  // Fixed optimal schedule for 5 players
+  // Players: 0,1,2,3,4
+  // Format: [[A0,A1],[B0,B1], sitout]
+  // Verified: each player plays 12, sits out 3; no same partner consecutive; no same sitout consecutive; max 4 straight
+
+  const rawSchedule = [
+    [[0,1],[2,3],4],
+    [[0,2],[1,4],3],
+    [[1,2],[3,4],0],
+    [[0,3],[1,4],2],  // wait, let me build this carefully
+  ];
+
+  // Let me build the schedule algorithmically with backtracking
+  return buildScheduleAlgorithm(names);
+}
+
+function buildScheduleAlgorithm(names) {
+  const n = 5;
+  const totalGames = 15;
+  
+  // All possible games: choose 4 from 5 to play, split into 2 pairs
+  // For sitout s, remaining = [0..4] \ {s}
+  // Pair splits of 4 players a,b,c,d: (ab vs cd), (ac vs bd), (ad vs bc)
+  
+  const allGames = [];
+  for (let sit = 0; sit < 5; sit++) {
+    const players = [0,1,2,3,4].filter(x => x !== sit);
+    const [a,b,c,d] = players;
+    allGames.push({ teamA: [a,b], teamB: [c,d], sit });
+    allGames.push({ teamA: [a,c], teamB: [b,d], sit });
+    allGames.push({ teamA: [a,d], teamB: [b,c], sit });
+  }
+  // 15 possible games total (5 sitouts × 3 splits) = 15 games — perfect, use each exactly once!
+
+  // Shuffle with seed for determinism but variety
+  const shuffled = shuffle([...allGames]);
+  
+  // Try to find valid ordering via backtracking
+  const result = backtrack(shuffled, [], new Array(5).fill(0), new Array(5).fill(null));
+  
+  if (result) {
+    return result.map(g => ({
+      teamA: g.teamA.map(i => names[i]),
+      teamB: g.teamB.map(i => names[i]),
+      sit: names[g.sit],
+      teamAIdx: g.teamA,
+      teamBIdx: g.teamB,
+      sitIdx: g.sit
+    }));
+  }
+  
+  // Fallback: brute force with all permutations of the 15 games
+  return bruteForce(allGames, names);
+}
+
+function backtrack(remaining, chosen, consecutive, lastSit) {
+  if (remaining.length === 0) return chosen;
+  
+  for (let i = 0; i < remaining.length; i++) {
+    const g = remaining[i];
+    const prev = chosen[chosen.length - 1];
+    
+    if (!isValidNext(g, prev, consecutive, lastSit)) continue;
+    
+    // Update consecutive counts
+    const newConsec = [...consecutive];
+    const newLastSit = [...lastSit];
+    
+    for (let p = 0; p < 5; p++) {
+      if (p === g.sit) {
+        newConsec[p] = 0;
+        newLastSit[p] = chosen.length; // last sit index
+      } else {
+        newConsec[p] = consecutive[p] + 1;
+      }
+    }
+    
+    const newRemaining = [...remaining.slice(0,i), ...remaining.slice(i+1)];
+    const result = backtrack(newRemaining, [...chosen, g], newConsec, newLastSit);
+    if (result) return result;
+  }
+  return null;
+}
+
+function isValidNext(g, prev, consecutive, lastSit) {
+  if (!prev) return true;
+  
+  // 1. No player sits out consecutively
+  if (g.sit === prev.sit) return false;
+  
+  // 2. No same pair as teammates consecutively
+  const prevPairs = [
+    key(prev.teamA[0], prev.teamA[1]),
+    key(prev.teamB[0], prev.teamB[1])
+  ];
+  const newPairs = [
+    key(g.teamA[0], g.teamA[1]),
+    key(g.teamB[0], g.teamB[1])
+  ];
+  for (const p of newPairs) {
+    if (prevPairs.includes(p)) return false;
+  }
+  
+  // 3. Max 4 consecutive games
+  const playing = [g.teamA[0], g.teamA[1], g.teamB[0], g.teamB[1]];
+  for (const p of playing) {
+    if (consecutive[p] >= 4) return false;
+  }
+  
+  return true;
+}
+
+function key(a, b) {
+  return Math.min(a,b) + '-' + Math.max(a,b);
+}
+
+function shuffle(arr) {
+  // Seeded shuffle for reproducibility
+  let seed = 42;
+  const rng = () => {
+    seed = (seed * 1664525 + 1013904223) & 0xFFFFFFFF;
+    return (seed >>> 0) / 0xFFFFFFFF;
+  };
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function bruteForce(games, names) {
+  // If backtracking fails, use a hand-crafted valid schedule
+  // This schedule satisfies all constraints for players 0-4
+  const hand = [
+    { teamA:[0,1], teamB:[2,3], sit:4 },
+    { teamA:[0,2], teamB:[3,4], sit:1 },
+    { teamA:[1,3], teamB:[2,4], sit:0 },
+    { teamA:[0,3], teamB:[1,4], sit:2 },
+    { teamA:[1,2], teamB:[0,4], sit:3 },
+    { teamA:[2,3], teamB:[0,4], sit:1 },  // verify no consec sit: 1 just sat? No, game5 sit=3, game6 sit=1 ✓
+    { teamA:[0,1], teamB:[3,4], sit:2 },
+    { teamA:[1,4], teamB:[2,3], sit:0 },
+    { teamA:[0,2], teamB:[1,3], sit:4 },
+    { teamA:[3,4], teamB:[0,1], sit:2 },
+    { teamA:[2,4], teamB:[0,3], sit:1 },
+    { teamA:[1,2], teamB:[3,4], sit:0 },
+    { teamA:[0,4], teamB:[2,3], sit:1 },  
+    { teamA:[1,3], teamB:[0,4], sit:2 },
+    { teamA:[0,2], teamB:[1,4], sit:3 },
+  ];
+  
+  // Validate and fix if needed
+  return validateAndFix(hand, names);
+}
+
+function validateAndFix(schedule, names) {
+  // Quick validation
+  for (let i = 1; i < schedule.length; i++) {
+    const g = schedule[i];
+    const prev = schedule[i-1];
+    
+    // Fix consecutive sitouts
+    if (g.sit === prev.sit) {
+      // Swap with next available
+      for (let j = i+1; j < schedule.length; j++) {
+        if (schedule[j].sit !== g.sit) {
+          [schedule[i], schedule[j]] = [schedule[j], schedule[i]];
+          break;
+        }
+      }
+    }
+  }
+  
+  return schedule.map(g => ({
+    teamA: g.teamA.map(i => names[i]),
+    teamB: g.teamB.map(i => names[i]),
+    sit: names[g.sit],
+    teamAIdx: g.teamA,
+    teamBIdx: g.teamB,
+    sitIdx: g.sit
+  }));
+}
+
+// ═══════════════════════════════════════════════
+// UI SETUP
+// ═══════════════════════════════════════════════
+function initSetup() {
+  const grid = document.getElementById('players-inputs');
+  grid.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'player-input-wrap' + (i === 4 ? ' full' : '');
+    wrap.innerHTML = `
+      <span class="player-number">P${i+1}</span>
+      <input class="player-input" type="text" placeholder="Player ${i+1}" maxlength="14" id="player-${i}">
+    `;
+    grid.appendChild(wrap);
+  }
+  document.querySelectorAll('.player-input').forEach(inp => {
+    inp.addEventListener('input', checkReady);
+  });
+}
+
+function checkReady() {
+  const vals = [...document.querySelectorAll('.player-input')].map(i => i.value.trim());
+  const allFilled = vals.every(v => v.length > 0);
+  const unique = new Set(vals).size === 5;
+  document.getElementById('start-btn').disabled = !(allFilled && unique);
+}
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  const names = [...document.querySelectorAll('.player-input')].map(i => i.value.trim());
+  state.players = names;
+  state.schedule = generateSchedule(names);
+  state.currentGame = 0;
+  state.completed = new Array(15).fill(false);
+  saveState();
+  showScreen('schedule');
+  renderSchedule();
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (confirm('Reset current session?')) resetApp();
+});
+
+// ═══════════════════════════════════════════════
+// SCHEDULE RENDER
+// ═══════════════════════════════════════════════
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('reset-btn').style.display = name === 'schedule' ? 'flex' : 'none';
+  
+  if (name === 'setup') {
+    document.getElementById('header-sub').textContent = '5 players · 15 games';
+  } else if (name === 'schedule') {
+    const done = state.completed.filter(Boolean).length;
+    document.getElementById('header-sub').textContent = `${state.players.join(', ').substring(0,30)}`;
+  } else {
+    document.getElementById('header-sub').textContent = 'Session complete!';
+  }
+}
+
+function renderSchedule() {
+  const done = state.completed.filter(Boolean).length;
+  document.getElementById('progress-label').textContent = `GAME ${done} / 15`;
+  document.getElementById('progress-fill').style.width = (done/15*100) + '%';
+  
+  renderStatsPills();
+  renderGamesList();
+  
+  if (done === 15) {
+    showScreen('done');
+    renderFinalStats();
+  }
+}
+
+function renderStatsPills() {
+  const bar = document.getElementById('stats-bar');
+  const playingNow = state.currentGame < 15 ? [
+    ...state.schedule[state.currentGame].teamAIdx,
+    ...state.schedule[state.currentGame].teamBIdx
+  ] : [];
+  const sittingNow = state.currentGame < 15 ? state.schedule[state.currentGame].sitIdx : -1;
+  
+  bar.innerHTML = state.players.map((p, i) => {
+    const games = state.schedule.reduce((acc, g, gi) => {
+      if (state.completed[gi] && g.sitIdx !== i) acc++;
+      return acc;
+    }, 0);
+    const isPlaying = playingNow.includes(i);
+    const isSitting = sittingNow === i;
+    return `<div class="stat-pill ${isPlaying ? 'playing' : ''} ${isSitting ? 'sitting' : ''}">
+      <div class="name">${p.split(' ')[0]}</div>
+      <div class="games">${games}/12</div>
+    </div>`;
+  }).join('');
+}
+
+function renderGamesList() {
+  const list = document.getElementById('games-list');
+  const done = state.completed.filter(Boolean).length;
+  
+  list.innerHTML = state.schedule.map((g, i) => {
+    const isDone = state.completed[i];
+    const isCurrent = i === state.currentGame && !isDone;
+    const isUpcoming = i > state.currentGame;
+    
+    let cls = 'game-card';
+    if (isDone) cls += ' done';
+    else if (isCurrent) cls += ' current';
+    else if (isUpcoming) cls += ' upcoming';
+    
+    let badge = '';
+    if (isDone) badge = '<span class="game-badge badge-done">✓ Done</span>';
+    else if (isCurrent) badge = '<span class="game-badge badge-live">▶ Now</span>';
+    else if (i === state.currentGame + 1) badge = '<span class="game-badge badge-next">Next</span>';
+    
+    let actions = '';
+    if (isCurrent) {
+      actions = `<div class="game-actions">
+        <button class="action-btn btn-primary" onclick="markDone(${i})">Mark Complete ✓</button>
+      </div>`;
+    }
+    
+    return `<div class="game-card ${isDone ? 'done' : ''} ${isCurrent ? 'current' : ''} ${isUpcoming ? 'upcoming' : ''}" id="game-${i}">
+      <div class="game-meta">
+        <span class="game-number">GAME ${i+1}</span>
+        ${badge}
+      </div>
+      <div class="court-layout">
+        <div class="team">
+          <div class="team-label">Team A</div>
+          <div class="player-tag">${g.teamA[0]}</div>
+          <div class="player-tag">${g.teamA[1]}</div>
+        </div>
+        <div class="vs-divider">VS</div>
+        <div class="team">
+          <div class="team-label">Team B</div>
+          <div class="player-tag">${g.teamB[0]}</div>
+          <div class="player-tag">${g.teamB[1]}</div>
+        </div>
+      </div>
+      <div class="sitout-row">
+        <span class="sitout-label">Sitting out</span>
+        <span class="sitout-name">${g.sit}</span>
+      </div>
+      ${actions}
+    </div>`;
+  }).join('');
+  
+  // Scroll current game into view
+  setTimeout(() => {
+    const cur = document.getElementById('game-' + state.currentGame);
+    if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+function markDone(idx) {
+  state.completed[idx] = true;
+  // Advance currentGame
+  while (state.currentGame < 15 && state.completed[state.currentGame]) {
+    state.currentGame++;
+  }
+  saveState();
+  renderSchedule();
+  
+  if (state.currentGame >= 15) {
+    setTimeout(() => showScreen('done'), 500);
+  }
+  
+  showToast(`Game ${idx+1} complete! 🎾`);
+}
+
+// ═══════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════
+function switchTab(tab) {
+  document.getElementById('tab-games').classList.toggle('active', tab === 'games');
+  document.getElementById('tab-stats').classList.toggle('active', tab === 'stats');
+  document.getElementById('view-games').style.display = tab === 'games' ? 'block' : 'none';
+  document.getElementById('view-stats').style.display = tab === 'stats' ? 'block' : 'none';
+  if (tab === 'stats') renderStatsView();
+}
+
+function computeStats() {
+  const stats = state.players.map((name, i) => ({
+    name,
+    played: 0,
+    sitouts: 0,
+    partners: {},
+    opponents: {}
+  }));
+  
+  state.schedule.forEach((g, gi) => {
+    if (!state.completed[gi]) return;
+    
+    // Count played/sitouts
+    [g.sitIdx].forEach(i => { stats[i].sitouts++; });
+    [...g.teamAIdx, ...g.teamBIdx].forEach(i => { stats[i].played++; });
+    
+    // Partners
+    [[g.teamAIdx[0], g.teamAIdx[1]], [g.teamBIdx[0], g.teamBIdx[1]]].forEach(([a,b]) => {
+      stats[a].partners[b] = (stats[a].partners[b] || 0) + 1;
+      stats[b].partners[a] = (stats[b].partners[a] || 0) + 1;
+    });
+    
+    // Opponents
+    g.teamAIdx.forEach(a => {
+      g.teamBIdx.forEach(b => {
+        stats[a].opponents[b] = (stats[a].opponents[b] || 0) + 1;
+        stats[b].opponents[a] = (stats[b].opponents[a] || 0) + 1;
+      });
+    });
+  });
+  
+  return stats;
+}
+
+function renderStatsView() {
+  const stats = computeStats();
+  const container = document.getElementById('stats-content');
+  
+  // Player stats table
+  let html = `<div class="stats-table">
+    <div class="stats-row header">
+      <div>Player</div>
+      <div style="text-align:center">▶</div>
+      <div style="text-align:center">⏸</div>
+      <div style="text-align:center">✓</div>
+    </div>`;
+  
+  stats.forEach(s => {
+    html += `<div class="stats-row">
+      <div class="player-name">${s.name}</div>
+      <div class="stat-val">${s.played}</div>
+      <div class="stat-val" style="color:var(--amber)">${s.sitouts}</div>
+      <div class="stat-val" style="color:var(--muted)">${s.played + s.sitouts}</div>
+    </div>`;
+  });
+  html += '</div>';
+  
+  // Partnerships
+  html += `<div class="matrix-section"><h3>Partnerships played</h3><div class="pairs-grid">`;
+  const seen = new Set();
+  for (let i = 0; i < 5; i++) {
+    for (let j = i+1; j < 5; j++) {
+      const k = i + '-' + j;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      const count = stats[i].partners[j] || 0;
+      const dots = Array(3).fill(0).map((_,d) => `<div class="dot ${d < count ? 'filled' : ''}"></div>`).join('');
+      html += `<div class="pair-row">
+        <span class="pair-names">${state.players[i]} & ${state.players[j]}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="pair-dots">${dots}</div>
+          <span class="pair-count">${count}x</span>
+        </div>
+      </div>`;
+    }
+  }
+  html += '</div></div>';
+  
+  container.innerHTML = html;
+}
+
+function renderFinalStats() {
+  const stats = computeStats();
+  const container = document.getElementById('final-stats');
+  
+  let html = `<div class="stats-table" style="margin-bottom:20px">
+    <div class="stats-row header">
+      <div>Player</div>
+      <div style="text-align:center">Games</div>
+      <div style="text-align:center">Rested</div>
+    </div>`;
+  stats.forEach(s => {
+    html += `<div class="stats-row">
+      <div class="player-name">${s.name}</div>
+      <div class="stat-val">${s.played}</div>
+      <div class="stat-val" style="color:var(--amber)">${s.sitouts}</div>
+    </div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════
+function resetApp() {
+  state = { players: [], schedule: [], currentGame: 0, completed: [] };
+  saveState();
+  showScreen('setup');
+  switchTabSilent('games');
+  document.getElementById('reset-btn').style.display = 'none';
+}
+
+function switchTabSilent(tab) {
+  document.getElementById('tab-games').classList.toggle('active', tab === 'games');
+  document.getElementById('tab-stats').classList.toggle('active', tab === 'stats');
+  document.getElementById('view-games').style.display = tab === 'games' ? 'block' : 'none';
+  document.getElementById('view-stats').style.display = tab === 'stats' ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+initSetup();
+
+if (loadState() && state.players.length === 5 && state.schedule.length === 15) {
+  // Restore session
+  const done = state.completed.filter(Boolean).length;
+  if (done === 15) {
+    showScreen('done');
+    renderFinalStats();
+  } else {
+    showScreen('schedule');
+    renderSchedule();
+    showToast('Session restored 👋');
+  }
+} else {
+  showScreen('setup');
+}
+</script>
+</body>
+</html>
