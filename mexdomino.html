@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#12192b"/>
+<title>Mexican Train</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#12192b}
+body{-webkit-tap-highlight-color:transparent}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+</style>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useEffect, useCallback } = React;
+
+const COLORS = {
+  pink:"#e91e8c", brown:"#a1887f", purple:"#9c27b0", red:"#e53935",
+  yellow:"#fdd835", green:"#43a047", blue:"#42a5f5", orange:"#fb8c00",
+};
+const CK = Object.keys(COLORS);
+const PIECES = (n) => n <= 4 ? 15 : n <= 6 ? 12 : 10;
+const ENGINE = (r) => 12 - (r - 1);
+const FF = { bc:"Barlow Condensed, sans-serif", inter:"Inter, sans-serif" };
+const STORE_KEY = "mxt_game_v1";
+
+const save = (s) => { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch(_){} };
+const load = () => { try { const r=localStorage.getItem(STORE_KEY); return r?JSON.parse(r):null; } catch(_){return null;} };
+const clear = () => { try { localStorage.removeItem(STORE_KEY); } catch(_){} };
+
+const RULES = [
+  { title:"The set", icon:"🎲", body:"Mexican Train uses a Double-12 domino set — 91 tiles total, every combination from 0-0 to 12-12. You also need one train marker per player, one Mexican Train marker (ice color), and a hub for the center." },
+  { title:"Pieces per player", icon:"✋", body:"After placing the engine in the hub, shuffle the rest and deal:\n• 2–4 players → 15 tiles each\n• 5–6 players → 12 each\n• 7–8 players → 10 each\nThe remaining tiles go face-down as the boneyard." },
+  { title:"The rounds", icon:"🔄", body:"A full game has 13 rounds. Round 1 uses Double-12. Each following round steps down — Round 2 uses Double-11, down to Round 13 which uses Double-0. You can agree to play fewer rounds before starting." },
+  { title:"Setup each round", icon:"🏗️", body:"Remove the engine for this round and place it in the hub center. Shuffle the rest. Deal tiles. The player holding the starting double places it first and goes first." },
+  { title:"First turn (special)", icon:"⭐", body:"On the very first turn each player builds their entire personal train in one go — lay as many matching tiles as you can. If you can't start, draw one from the boneyard. If still no match, place your marker — your train is open." },
+  { title:"Regular turns", icon:"▶️", body:"Each player plays ONE tile per turn on: their own private train · the Mexican Train · another player's marked (open) train. Can't play? Draw one tile, play it if possible, otherwise place your marker." },
+  { title:"The Mexican Train", icon:"🚂", body:"Any player can start it on any turn by matching the engine. Only one per game. Always open — anyone plays on it. The ice-colored marker stays on it all game." },
+  { title:"Doubles", icon:"🎯", body:"Play a double sideways and immediately cover it with a second tile. Can't cover? Draw — if still can't, place marker and pass. Next player must try to cover it. While uncovered, no other trains can be played on." },
+  { title:"One tile left", icon:"☝️", body:"When you're down to one tile, say 'uno' or double-tap the table twice. Courtesy rule so opponents know to watch out." },
+  { title:"Ending a round", icon:"🏁", body:"A round ends when someone plays their last tile — even if it's an uncovered double. Also ends if boneyard is empty and nobody can play. The player who goes out scores 0." },
+  { title:"Scoring", icon:"📊", body:"Count every pip (dot) on every tile left in hand — that's your round score. Lowest running total wins.\n\nTiebreaker: most zero-point rounds wins. Still tied? Lowest single-round score (excluding zeros) wins." },
+  { title:"Strategy tips", icon:"💡", body:"• Build a long train early — chain as many tiles as possible on your first turn.\n• Dump high-value tiles first — doubles and high pips are dangerous to hold.\n• Use the Mexican Train to offload extras.\n• Play doubles strategically — they force the next player to cover them.\n• Keep varied numbers — diversity gives you more play options." },
+];
+
+const TIPS = {
+  setup:(n,p)=>`With ${n} players, each draws ${p} tiles. The player holding Double-12 places it first and goes first.`,
+  round:(r,e)=>`Round ${r} · Double-${e}. Whoever holds it places it in the hub to begin.`,
+  first:"First turn is special — each player builds their full train in one go. Lay as many matching tiles as you can.",
+  gameover:"Game over! Tiebreaker: most zero-point rounds → then lowest single-round score.",
+};
+
+const DominoSVG = ({ value, size=56 }) => {
+  const w=size*2.1, h=size, rx=size*0.14, mid=w/2;
+  const fs=size*0.38, cy=h/2+fs*0.35, lx=mid/2, rx2=mid+mid/2;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} style={{display:"block"}}>
+      <rect x="1.5" y="1.5" width={w-3} height={h-3} rx={rx} ry={rx} fill="#1e2d4a" stroke="#f9a825" strokeWidth="2"/>
+      <line x1={mid} y1={h*0.15} x2={mid} y2={h*0.85} stroke="#f9a825" strokeWidth="1.5" strokeLinecap="round"/>
+      <text x={lx} y={cy} textAnchor="middle" fontFamily={FF.bc} fontSize={fs} fontWeight="700" fill="#f9a825">{value}</text>
+      <text x={rx2} y={cy} textAnchor="middle" fontFamily={FF.bc} fontSize={fs} fontWeight="700" fill="#f9a825">{value}</text>
+    </svg>
+  );
+};
+
+const TrainIcon = ({ color, size=24 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" height={size} viewBox="0 -960 960 960" width={size} fill={color} style={{flexShrink:0}}>
+    <path d="M160-340v-380q0-41 19-71.5t58.5-50q39.5-19.5 100-29T480-880q86 0 146.5 9t99 28.5Q764-823 782-793t18 73v380q0 59-40.5 99.5T660-200l60 60v20h-70l-80-80H390l-80 80h-70v-20l60-60q-59 0-99.5-40.5T160-340Zm320-480q-120 0-173 15.5T231-760h501q-18-27-76.5-43.5T480-820ZM220-545h234v-155H220v155Zm440 60H220h520-80Zm-146-60h226v-155H514v155ZM374-331q16-16 16-39t-16-39q-16-16-39-16t-39 16q-16 16-16 39t16 39q16 16 39 16t39-16Zm290 0q16-16 16-39t-16-39q-16-16-39-16t-39 16q-16 16-16 39t16 39q16 16 39 16t39-16Zm-364 76h360q34 0 57-25t23-60v-145H220v145q0 35 23 60t57 25Zm180-505h252-501 249Z"/>
+  </svg>
+);
+
+const TipCard = ({ text, onDismiss }) => (
+  <div style={{background:"#0b1e3d",border:"1px solid #f9a825",borderRadius:10,padding:"10px 12px",display:"flex",gap:8,alignItems:"flex-start",height:"100%",boxSizing:"border-box"}}>
+    <span style={{fontSize:14,flexShrink:0,marginTop:1}}>💡</span>
+    <span style={{fontFamily:FF.inter,fontSize:12,color:"#d0d8e8",flex:1,lineHeight:1.5}}>{text}</span>
+    <button onClick={onDismiss} style={{background:"none",border:"none",color:"#556",cursor:"pointer",fontSize:16,padding:0,lineHeight:1,flexShrink:0}}>✕</button>
+  </div>
+);
+
+const RoundTable = ({ players, roundScores, onRowTap }) => {
+  const cumByRound = useMemo(() => {
+    const m={};
+    players.forEach(p=>{m[p.id]=[];});
+    roundScores.forEach((r,ri)=>{
+      players.forEach(p=>{
+        const prev=ri===0?0:m[p.id][ri-1];
+        m[p.id].push(prev+(r.scores[p.id]??0));
+      });
+    });
+    return m;
+  },[players,roundScores]);
+
+  if(!roundScores.length) return (
+    <div style={{fontFamily:FF.inter,color:"#9e9e9e",fontSize:13,textAlign:"center",padding:"40px 0"}}>
+      Complete at least one round to see standings.
+    </div>
+  );
+
+  // leader per round = player with lowest cumulative at that round
+  const leaderPerRound = roundScores.map((_,ri)=>{
+    let best=null, bestScore=Infinity;
+    players.forEach(p=>{ const s=cumByRound[p.id][ri]??0; if(s<bestScore){bestScore=s;best=p.id;} });
+    return best;
+  });
+
+  const totalPerPlayer = players.map(p=>cumByRound[p.id][roundScores.length-1]??0);
+  const minTotal = Math.min(...totalPerPlayer);
+
+  return (
+    <div style={{overflowX:"auto"}}>
+      <table style={{borderCollapse:"collapse",tableLayout:"auto",minWidth:"100%"}}>
+        <thead>
+          <tr>
+            <th style={{fontFamily:FF.inter,fontSize:10,color:"#9e9e9e",fontWeight:600,padding:"6px 8px",textAlign:"left",borderBottom:"1px solid #1e2d4a",whiteSpace:"nowrap",position:"sticky",left:0,background:"#16213e",zIndex:1}}>Player</th>
+            {roundScores.map((r,ri)=>(
+              <th key={ri} style={{padding:"4px 6px",borderBottom:"1px solid #1e2d4a",textAlign:"center",minWidth:42}}>
+                <div style={{fontFamily:FF.bc,fontSize:12,fontWeight:700,color:"#f9a825",lineHeight:1}}>{r.engine}×{r.engine}</div>
+                <div style={{fontFamily:FF.inter,fontSize:9,color:"#556",marginTop:1}}>R{r.round}</div>
+              </th>
+            ))}
+            <th style={{padding:"4px 8px",borderBottom:"1px solid #1e2d4a",textAlign:"center",borderLeft:"2px solid #2d2d4e"}}>
+              <div style={{fontFamily:FF.bc,fontSize:12,fontWeight:700,color:"#f9a825"}}>Total</div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {players.map((p,pi)=>{
+            const total=totalPerPlayer[pi];
+            const isWinner=total===minTotal&&roundScores.length>0;
+            return (
+              <tr key={p.id} style={{borderBottom:"1px solid #1e2d4a",cursor:onRowTap?"pointer":"default"}}
+                onMouseEnter={e=>e.currentTarget.style.background="#1a2540"}
+                onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                {/* Player name — sticky left */}
+                <td style={{padding:"8px 8px",whiteSpace:"nowrap",position:"sticky",left:0,background:"#16213e",zIndex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:7}}>
+                    <TrainIcon color={COLORS[p.colorKey]} size={16}/>
+                    <span style={{fontFamily:FF.inter,fontSize:13,color:"#f5f5f5"}}>{p.name}</span>
+                  </div>
+                </td>
+                {/* One cell per round */}
+                {roundScores.map((r,ri)=>{
+                  const rs=r.scores[p.id]??0;
+                  const cum=cumByRound[p.id][ri]??0;
+                  const isLeading=leaderPerRound[ri]===p.id;
+                  const wentOut=rs===0;
+                  return (
+                    <td key={ri} style={{padding:"6px 6px",textAlign:"center",background:isLeading?"rgba(249,168,37,0.07)":"transparent",cursor:onRowTap?"pointer":"default"}}
+                      onClick={()=>onRowTap&&onRowTap(ri)}>
+                      <div style={{fontFamily:FF.bc,fontSize:15,fontWeight:700,color:wentOut?"#43a047":"#f5f5f5",lineHeight:1}}>{rs}</div>
+                      <div style={{fontFamily:FF.bc,fontSize:10,color:isLeading?"#f9a825":"#556",marginTop:2,lineHeight:1}}>{cum}</div>
+                    </td>
+                  );
+                })}
+                {/* Total */}
+                <td style={{padding:"6px 8px",textAlign:"center",borderLeft:"2px solid #2d2d4e"}}>
+                  <div style={{fontFamily:FF.bc,fontSize:17,fontWeight:700,color:isWinner?"#f9a825":"#f5f5f5"}}>{total}</div>
+                  {isWinner&&<div style={{fontSize:10}}>🏆</div>}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <div style={{fontFamily:FF.inter,fontSize:10,color:"#556",marginTop:8,paddingLeft:2}}>
+        Top = round score · Bottom = cumulative · Gold column = leader that round · Tap cell to edit
+      </div>
+    </div>
+  );
+};
+
+const RaceChart = ({ players, roundScores, landscape=false }) => {
+  const [view,setView]=useState("rank");
+  const rounds=roundScores.length;
+
+  const cumByRound=useMemo(()=>players.map(p=>
+    roundScores.reduce((acc,r,i)=>{acc.push((acc[i-1]||0)+(r.scores[p.id]??0));return acc;},[])
+  ),[players,roundScores]);
+
+  const rankByRound=useMemo(()=>roundScores.map((_,ri)=>{
+    const order=[...players].sort((a,b)=>cumByRound[players.indexOf(a)][ri]-cumByRound[players.indexOf(b)][ri]);
+    const m={};order.forEach((p,i)=>{m[p.id]=i+1;});return m;
+  }),[players,roundScores,cumByRound]);
+
+  if(!rounds) return (
+    <div style={{fontFamily:FF.inter,color:"#9e9e9e",fontSize:13,textAlign:"center",padding:"40px 0"}}>
+      Complete at least one round to see the race.
+    </div>
+  );
+
+  const W=landscape?760:520, H=landscape?300:230;
+  const PL=36,PR=landscape?110:100,PT=12,PB=28;
+  const cW=W-PL-PR, cH=H-PT-PB, n=players.length;
+  const xPos=ri=>PL+(rounds>1?(ri/(rounds-1))*cW:cW/2);
+  const yRank=rank=>PT+((rank-1)/Math.max(n-1,1))*cH;
+  const maxCum=Math.max(...cumByRound.flat(),1);
+  const yPts=v=>PT+(v/maxCum)*cH;
+  const getY=(pi,ri)=>view==="rank"?yRank(rankByRound[ri][players[pi].id]):yPts(cumByRound[pi][ri]);
+  const gridLines=view==="rank"
+    ?players.map((_,i)=>({y:yRank(i+1),label:`${i+1}${["st","nd","rd"][i]||"th"}`}))
+    :[0,.25,.5,.75,1].map(f=>({y:PT+f*cH,label:Math.round(f*maxCum)}));
+
+  return (
+    <div>
+      <div style={{display:"flex",gap:6,marginBottom:10}}>
+        {[["rank","Ranking"],["cumulative","Cumulative"]].map(([v,label])=>(
+          <button key={v} onClick={()=>setView(v)} style={{flex:1,padding:"5px 0",borderRadius:20,fontSize:11,fontWeight:600,fontFamily:FF.inter,cursor:"pointer",border:`1px solid ${view===v?"#42a5f5":"#1e2d4a"}`,background:view===v?"#0f3460":"transparent",color:view===v?"#f5f5f5":"#9e9e9e"}}>{label}</button>
+        ))}
+      </div>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+        <span style={{fontFamily:FF.bc,fontSize:13,fontWeight:600,color:"#f5f5f5"}}>{view==="rank"?"Position per round":"Cumulative score"}</span>
+        <span style={{fontFamily:FF.inter,fontSize:10,color:"#9e9e9e"}}>{view==="rank"?"1st at top":"lower is better"}</span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",display:"block"}}>
+        {gridLines.map(({y,label},i)=>(
+          <g key={i}>
+            <line x1={PL} y1={y} x2={W-PR} y2={y} stroke="#1e2d4a" strokeWidth="0.5"/>
+            <text x={PL-5} y={y+3.5} fontSize="8" fill={view==="rank"&&i===0?"#f9a825":"#556"} textAnchor="end" fontFamily={FF.inter}>{label}</text>
+          </g>
+        ))}
+        <line x1={PL} y1={PT} x2={PL} y2={H-PB} stroke="#1e2d4a" strokeWidth="0.5"/>
+        {roundScores.map((_,ri)=>(
+          <text key={ri} x={xPos(ri)} y={H-PB+12} fontSize="8" fill="#556" textAnchor="middle" fontFamily={FF.inter}>R{ri+1}</text>
+        ))}
+        {players.map((p,pi)=>{
+          const col=COLORS[p.colorKey];
+          const pts=roundScores.map((_,ri)=>({x:xPos(ri),y:getY(pi,ri)}));
+          const last=pts[pts.length-1];
+          const nw=p.name.length*5.8+10;
+          return (
+            <g key={p.id}>
+              <polyline fill="none" stroke={col} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" points={pts.map(pt=>`${pt.x},${pt.y}`).join(" ")}/>
+              <circle cx={last.x} cy={last.y} r="3.5" fill={col}/>
+              <rect x={last.x+7} y={last.y-9} width={nw} height={16} rx={4} fill="#12192b"/>
+              <text x={last.x+11} y={last.y+3.5} fontSize="9.5" fill={col} fontWeight="600" fontFamily={FF.inter}>{p.name}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
+const INITIAL = {
+  step:"setup", numPlayers:4,
+  names:Array(8).fill("").map((_,i)=>`Player ${i+1}`),
+  totalRounds:13, doubleBlank:0,
+  players:[], currentRound:1, roundScores:[], entryValues:[], dismissedTips:[],
+};
+
+function App() {
+  const [state,setState]=useState(()=>{
+    const saved=load();
+    if(saved) return {...INITIAL,...saved,dismissedTips:saved.dismissedTips||[]};
+    return INITIAL;
+  });
+  const [tip,setTip]=useState(null);
+  const [tab,setTab]=useState("game");
+  const [ruleOpen,setRuleOpen]=useState(null);
+  const [landscape,setLandscape]=useState(false);
+  const [confirmReset,setConfirmReset]=useState(false);
+  const [editingRound,setEditingRound]=useState(null);
+
+  const {step,numPlayers,names,totalRounds,doubleBlank,players,currentRound,roundScores,entryValues,dismissedTips}=state;
+
+  useEffect(()=>{save(state);},[state]);
+  useEffect(()=>{
+    const check=()=>setLandscape(window.innerWidth>window.innerHeight&&window.innerWidth>500);
+    check(); window.addEventListener("resize",check);
+    return ()=>window.removeEventListener("resize",check);
+  },[]);
+
+  const patch=useCallback((u)=>setState(prev=>({...prev,...u})),[]);
+
+  const showTip=(key,text)=>{
+    if(!dismissedTips.includes(key)) setTip({key,text});
+  };
+  const dismissTip=()=>{
+    if(tip){patch({dismissedTips:[...dismissedTips,tip.key]});setTip(null);}
+  };
+
+  const startGame=()=>{
+    const ps=Array.from({length:numPlayers},(_,i)=>({id:i,name:names[i]||`Player ${i+1}`,colorKey:CK[i]}));
+    const ev={};ps.forEach(p=>{ev[p.id]="";});
+    patch({players:ps,currentRound:1,roundScores:[],entryValues:ev,step:"score_entry"});
+    showTip("round1",TIPS.first);
+  };
+
+  const submitRound=()=>{
+    const scores={};
+    players.forEach(p=>{scores[p.id]=parseInt(entryValues[p.id])||0;});
+    const newScores=[...roundScores,{round:currentRound,engine:ENGINE(currentRound),scores}];
+    const ev={};players.forEach(p=>{ev[p.id]="";});
+    if(currentRound>=totalRounds){
+      patch({roundScores:newScores,step:"summary",entryValues:ev});
+      showTip("gameover",TIPS.gameover);
+    } else {
+      const nr=currentRound+1;
+      patch({roundScores:newScores,currentRound:nr,entryValues:ev,step:"score_entry"});
+      showTip(`round${nr}`,TIPS.round(nr,ENGINE(nr)));
+    }
+  };
+
+  const goBack=()=>{
+    if(roundScores.length===0) return;
+    const last=roundScores[roundScores.length-1];
+    const ev={};players.forEach(p=>{ev[p.id]=String(last.scores[p.id]??"");});
+    patch({roundScores:roundScores.slice(0,-1),currentRound:last.round,entryValues:ev,step:"score_entry"});
+    setTip(null);
+  };
+
+  const startEditRound=(ri)=>{
+    const r=roundScores[ri];
+    const ev={};players.forEach(p=>{ev[p.id]=String(r.scores[p.id]??"");});
+    setEditingRound(ri);patch({entryValues:ev});
+  };
+
+  const saveEditRound=()=>{
+    const scores={};players.forEach(p=>{scores[p.id]=parseInt(entryValues[p.id])||0;});
+    patch({roundScores:roundScores.map((r,i)=>i===editingRound?{...r,scores}:r)});
+    setEditingRound(null);
+  };
+
+  const hardReset=()=>{
+    clear();setState(INITIAL);setTip(null);setConfirmReset(false);setEditingRound(null);setTab("game");
+  };
+
+  const cumScores=useMemo(()=>{
+    const m={};players.forEach(p=>{m[p.id]=roundScores.reduce((s,r)=>s+(r.scores[p.id]??0),0);});return m;
+  },[players,roundScores]);
+
+  const sortedPlayers=useMemo(()=>[...players].sort((a,b)=>{
+    const diff=(cumScores[a.id]??0)-(cumScores[b.id]??0);
+    if(diff!==0) return diff;
+    return roundScores.filter(r=>r.scores[b.id]===0).length-roundScores.filter(r=>r.scores[a.id]===0).length;
+  }),[players,cumScores,roundScores]);
+
+  const S={
+    app:{minHeight:"100vh",background:"#12192b",color:"#f5f5f5",maxWidth:landscape?"100%":480,margin:"0 auto",paddingBottom:72},
+    header:{background:"#16213e",padding:"12px 18px",borderBottom:"1px solid #1e2d4a",display:"flex",alignItems:"center",gap:10},
+    body:{padding:"14px 18px"},
+    card:{background:"#16213e",borderRadius:12,border:"1px solid #1e2d4a",padding:"14px 16px",marginBottom:12},
+    label:{fontFamily:FF.inter,fontSize:10,color:"#9e9e9e",fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:8,display:"block"},
+    numInput:{background:"#0b1628",border:"1px solid #1e2d4a",borderRadius:8,color:"#f5f5f5",fontSize:20,fontFamily:FF.bc,fontWeight:700,padding:"9px 10px",width:70,boxSizing:"border-box",textAlign:"center"},
+    nameInput:{background:"#0b1628",border:"1px solid #1e2d4a",borderRadius:8,color:"#f5f5f5",fontSize:14,fontFamily:FF.inter,padding:"9px 12px",width:"100%",boxSizing:"border-box"},
+    btn:(bg="#1a3a6b",fg="#f5f5f5")=>({background:bg,color:fg,border:"none",borderRadius:10,padding:"13px 0",width:"100%",fontSize:15,fontFamily:FF.inter,fontWeight:600,cursor:"pointer",marginTop:8}),
+    btnSm:(bg="#1e2d4a",fg="#f5f5f5")=>({background:bg,color:fg,border:"none",borderRadius:8,padding:"8px 14px",fontSize:13,fontFamily:FF.inter,fontWeight:500,cursor:"pointer"}),
+    btnOutline:{background:"transparent",color:"#9e9e9e",border:"1px solid #1e2d4a",borderRadius:10,padding:"11px 0",width:"100%",fontSize:14,fontFamily:FF.inter,cursor:"pointer",marginTop:6},
+    pill:(a)=>({padding:"6px 14px",borderRadius:20,fontSize:11,fontFamily:FF.inter,fontWeight:600,cursor:"pointer",border:`1px solid ${a?"#42a5f5":"#1e2d4a"}`,background:a?"#0f3460":"transparent",color:a?"#f5f5f5":"#9e9e9e"}),
+    tabBar:{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:landscape?"100%":480,background:"#16213e",borderTop:"1px solid #1e2d4a",display:"flex"},
+    tabBtn:(a)=>({flex:1,padding:"10px 0 8px",background:"none",border:"none",color:a?"#f5f5f5":"#9e9e9e",fontFamily:FF.inter,fontSize:11,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:3}),
+    rankBadge:(i)=>({width:22,height:22,borderRadius:"50%",background:i===0?"#f9a825":i===1?"#bdbdbd":i===2?"#a1887f":"#1e2d4a",color:i<3?"#12192b":"#9e9e9e",fontSize:10,fontFamily:FF.bc,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}),
+    divider:{borderTop:"1px solid #1e2d4a",margin:"10px 0"},
+  };
+
+  const hdg=(size=20)=>({fontFamily:FF.bc,fontWeight:700,fontSize:size,letterSpacing:"0.01em",color:"#f5f5f5"});
+  const domSize=landscape?66:52;
+
+  const PlayerRow=({p,right,bottom=true})=>(
+    <div style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:bottom?"1px solid #1e2d4a":"none"}}>
+      <TrainIcon color={COLORS[p.colorKey]} size={20}/>
+      <span style={{fontFamily:FF.inter,fontSize:14,flex:1}}>{p.name}</span>
+      {right}
+    </div>
+  );
+
+  const ResetModal=()=>(
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
+      <div style={{background:"#16213e",border:"1px solid #1e2d4a",borderRadius:14,padding:24,margin:20,maxWidth:320}}>
+        <div style={{...hdg(18),marginBottom:10}}>Erase all data?</div>
+        <div style={{fontFamily:FF.inter,fontSize:13,color:"#9e9e9e",marginBottom:20,lineHeight:1.5}}>This will delete the current game and all saved scores from your phone's memory. This cannot be undone.</div>
+        <div style={{display:"flex",gap:10}}>
+          <button onClick={()=>setConfirmReset(false)} style={{...S.btnSm(),flex:1,padding:"11px 0"}}>Cancel</button>
+          <button onClick={hardReset} style={{...S.btnSm("#7b1515","#fff"),flex:1,padding:"11px 0"}}>Erase</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const EditModal=()=>{
+    const r=roundScores[editingRound];
+    if(!r) return null;
+    return (
+      <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100,padding:16}}>
+        <div style={{background:"#16213e",border:"1px solid #1e2d4a",borderRadius:14,padding:20,width:"100%",maxWidth:360}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <div style={{...hdg(16)}}>Edit Round {r.round} · Double-{r.engine}</div>
+            <button onClick={()=>setEditingRound(null)} style={{background:"none",border:"none",color:"#9e9e9e",fontSize:18,cursor:"pointer"}}>✕</button>
+          </div>
+          {players.map((p,i)=>(
+            <div key={p.id} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:i<players.length-1?"1px solid #1e2d4a":"none"}}>
+              <TrainIcon color={COLORS[p.colorKey]} size={24}/>
+              <span style={{fontFamily:FF.inter,fontSize:14,flex:1}}>{p.name}</span>
+              <input style={S.numInput} type="number" inputMode="numeric" min="0"
+                value={entryValues[p.id]}
+                onChange={e=>patch({entryValues:{...entryValues,[p.id]:e.target.value}})}
+                placeholder="0"/>
+            </div>
+          ))}
+          <button style={S.btn("#1a3a6b")} onClick={saveEditRound}>Save changes</button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {confirmReset&&<ResetModal/>}
+      {editingRound!==null&&<EditModal/>}
+      <div style={S.app}>
+
+        <div style={S.header}>
+          <TrainIcon color="#ffffff" size={22}/>
+          <div style={{flex:1}}>
+            <div style={{...hdg(17),lineHeight:1.1}}>Mexican Train</div>
+            <div style={{fontFamily:FF.inter,fontSize:11,color:"#9e9e9e",marginTop:1}}>
+              {step==="setup"?"Set up your game":step==="score_entry"?`Round ${currentRound} of ${totalRounds} · Double-${ENGINE(currentRound)}`:step==="summary"?"Final results":""}
+            </div>
+          </div>
+          {step!=="setup"&&(
+            <button onClick={()=>setConfirmReset(true)} style={{background:"none",border:"1px solid #1e2d4a",borderRadius:8,color:"#9e9e9e",padding:"5px 10px",fontFamily:FF.inter,fontSize:11,cursor:"pointer",flexShrink:0}}>Reset</button>
+          )}
+        </div>
+
+        {tab==="rules"&&(
+          <div style={S.body}>
+            <div style={{fontFamily:FF.inter,fontSize:12,color:"#9e9e9e",marginBottom:14}}>Tap any section to expand · Double-12 set</div>
+            {RULES.map((r,i)=>(
+              <div key={i} style={{...S.card,cursor:"pointer"}} onClick={()=>setRuleOpen(ruleOpen===i?null:i)}>
+                <div style={{display:"flex",alignItems:"center",gap:10,justifyContent:"space-between"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <span style={{fontSize:17}}>{r.icon}</span>
+                    <span style={{fontFamily:FF.bc,fontSize:15,fontWeight:600}}>{r.title}</span>
+                  </div>
+                  <span style={{color:"#9e9e9e",fontSize:11}}>{ruleOpen===i?"▲":"▼"}</span>
+                </div>
+                {ruleOpen===i&&<div style={{fontFamily:FF.inter,fontSize:13,color:"#bdbdbd",marginTop:10,lineHeight:1.65,whiteSpace:"pre-line"}}>{r.body}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab==="race"&&(
+          <div style={S.body}>
+            {players.length===0
+              ?<div style={{fontFamily:FF.inter,color:"#9e9e9e",fontSize:14,textAlign:"center",padding:"60px 0"}}>Start a game to see the race graph.</div>
+              :<>
+                <div style={S.card}>
+                  <label style={S.label}>Round standings</label>
+                  <RoundTable players={players} roundScores={roundScores}/>
+                </div>
+                <div style={S.card}>
+                  <RaceChart players={players} roundScores={roundScores} landscape={landscape}/>
+                </div>
+              </>
+            }
+          </div>
+        )}
+
+        {tab==="game"&&(
+          <div style={S.body}>
+
+            {step==="setup"&&(
+              <>
+                <div style={S.card}>
+                  <label style={S.label}>Number of players</label>
+                  <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+                    <button onClick={()=>patch({numPlayers:Math.max(2,numPlayers-1)})} style={{...S.btn("#0f3460"),width:44,marginTop:0,borderRadius:8,fontSize:22,padding:"8px 0"}}>−</button>
+                    <span style={{...hdg(34),flex:1,textAlign:"center"}}>{numPlayers}</span>
+                    <button onClick={()=>{const n=Math.min(8,numPlayers+1);patch({numPlayers:n});showTip("setup",TIPS.setup(n,PIECES(n)));}} style={{...S.btn("#0f3460"),width:44,marginTop:0,borderRadius:8,fontSize:22,padding:"8px 0"}}>+</button>
+                  </div>
+                  <div style={{background:"#0b1628",borderRadius:8,padding:"10px 14px",display:"flex",justifyContent:"space-between"}}>
+                    <span style={{fontFamily:FF.inter,fontSize:13,color:"#9e9e9e"}}>Tiles per player</span>
+                    <span style={{fontFamily:FF.bc,fontSize:18,fontWeight:700,color:"#f9a825"}}>{PIECES(numPlayers)}</span>
+                  </div>
+                </div>
+                {tip&&<TipCard text={tip.text} onDismiss={dismissTip}/>}
+                <div style={S.card}>
+                  <label style={S.label}>Player names</label>
+                  {Array.from({length:numPlayers},(_,i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                      <TrainIcon color={COLORS[CK[i]]} size={22}/>
+                      <input style={S.nameInput} value={names[i]} placeholder={`Player ${i+1}`}
+                        onChange={e=>{const n=[...names];n[i]=e.target.value;patch({names:n});}}/>
+                    </div>
+                  ))}
+                </div>
+                <div style={S.card}>
+                  <label style={S.label}>Rounds</label>
+                  <div style={{display:"flex",gap:8,marginBottom:14}}>
+                    {[3,6,13].map(r=>(
+                      <button key={r} onClick={()=>patch({totalRounds:r})} style={{...S.pill(totalRounds===r),flex:1,padding:"8px 0"}}>{r} rounds</button>
+                    ))}
+                  </div>
+                  <label style={S.label}>Double-blank value</label>
+                  <div style={{display:"flex",gap:8}}>
+                    {[0,25,50].map(v=>(
+                      <button key={v} onClick={()=>patch({doubleBlank:v})} style={{...S.pill(doubleBlank===v),flex:1,padding:"8px 0"}}>{v} pts</button>
+                    ))}
+                  </div>
+                </div>
+                <button style={S.btn("#1a3a6b")} onClick={()=>{startGame();showTip("setup",TIPS.setup(numPlayers,PIECES(numPlayers)));}}>Start game →</button>
+              </>
+            )}
+
+            {step==="score_entry"&&(
+              <>
+                <div style={{display:"flex",gap:10,marginBottom:12,alignItems:"stretch",minHeight:domSize+40}}>
+                  <div style={{...S.card,flex:"0 0 auto",marginBottom:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"12px 14px",gap:6}}>
+                    <div style={{fontFamily:FF.inter,fontSize:9,color:"#9e9e9e",letterSpacing:"0.06em",textTransform:"uppercase"}}>Engine</div>
+                    <DominoSVG value={ENGINE(currentRound)} size={domSize}/>
+                    <div style={{fontFamily:FF.inter,fontSize:9,color:"#9e9e9e"}}>
+                      R{currentRound}/{totalRounds}{currentRound===1&&<span style={{color:"#f9a825",marginLeft:4}}>⭐</span>}
+                    </div>
+                  </div>
+                  <div style={{flex:1,display:"flex",flexDirection:"column"}}>
+                    {tip
+                      ?<TipCard text={tip.text} onDismiss={dismissTip}/>
+                      :<div style={{...S.card,marginBottom:0,flex:1,display:"flex",flexDirection:"column",gap:6,justifyContent:"center"}}>
+                        <div style={{fontFamily:FF.bc,fontSize:20,fontWeight:700,color:"#f5f5f5"}}>Double-{ENGINE(currentRound)}</div>
+                        <div style={{fontFamily:FF.inter,fontSize:12,color:"#9e9e9e",lineHeight:1.4}}>
+                          {currentRound===1?"First turn — build your full train in one go":"Enter pips remaining in each player's hand"}
+                        </div>
+                        {roundScores.length>0&&sortedPlayers[0]&&(
+                          <>
+                            <div style={S.divider}/>
+                            <div style={{fontFamily:FF.inter,fontSize:10,color:"#9e9e9e",marginBottom:2}}>Leader</div>
+                            <div style={{display:"flex",alignItems:"center",gap:6}}>
+                              <TrainIcon color={COLORS[sortedPlayers[0].colorKey]} size={16}/>
+                              <span style={{fontFamily:FF.inter,fontSize:13,color:"#f5f5f5",flex:1}}>{sortedPlayers[0].name}</span>
+                              <span style={{fontFamily:FF.bc,fontSize:17,fontWeight:700,color:"#f9a825"}}>{cumScores[sortedPlayers[0].id]}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div style={S.card}>
+                  <label style={S.label}>Pips in hand · 0 = went out</label>
+                  {players.map((p,i)=>(
+                    <div key={p.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:i<players.length-1?"1px solid #1e2d4a":"none"}}>
+                      <TrainIcon color={COLORS[p.colorKey]} size={28}/>
+                      <span style={{fontFamily:FF.inter,fontSize:15,flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
+                      <input style={S.numInput} type="number" inputMode="numeric" min="0"
+                        value={entryValues[p.id]}
+                        onChange={e=>patch({entryValues:{...entryValues,[p.id]:e.target.value}})}
+                        placeholder="0"/>
+                    </div>
+                  ))}
+                </div>
+                <button style={S.btn("#1a3a6b")} onClick={submitRound}>
+                  {currentRound<totalRounds?`Save · Round ${currentRound+1} →`:"Save · final results →"}
+                </button>
+                {roundScores.length>0&&(
+                  <button style={S.btnOutline} onClick={goBack}>← Fix Round {roundScores[roundScores.length-1].round} scores</button>
+                )}
+              </>
+            )}
+
+            {step==="summary"&&(
+              <>
+                <div style={{...S.card,textAlign:"center",padding:"20px 16px"}}>
+                  <div style={{fontFamily:FF.inter,fontSize:10,color:"#f9a825",letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:8}}>Winner</div>
+                  <TrainIcon color={COLORS[sortedPlayers[0]?.colorKey]||"#f9a825"} size={40}/>
+                  <div style={{...hdg(30),marginTop:8}}>{sortedPlayers[0]?.name}</div>
+                  <div style={{fontFamily:FF.bc,fontSize:20,color:"#f9a825",fontWeight:600,marginTop:4}}>{cumScores[sortedPlayers[0]?.id]} pts total</div>
+                </div>
+
+                <div style={S.card}>
+                  <label style={S.label}>Final standings</label>
+                  {sortedPlayers.map((p,i)=>{
+                    const zeros=roundScores.filter(r=>r.scores[p.id]===0).length;
+                    return (
+                      <PlayerRow key={p.id} p={p} bottom={i<sortedPlayers.length-1}
+                        right={
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            {zeros>0&&<span style={{fontFamily:FF.inter,fontSize:10,color:"#43a047"}}>{zeros}× zero</span>}
+                            <div style={S.rankBadge(i)}>{i+1}</div>
+                            <span style={{fontFamily:FF.bc,fontSize:20,fontWeight:700,color:"#f5f5f5",minWidth:36,textAlign:"right"}}>{cumScores[p.id]}</span>
+                          </div>
+                        }/>
+                    );
+                  })}
+                </div>
+
+                <div style={S.card}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                    <label style={{...S.label,marginBottom:0}}>Round by round</label>
+                    <span style={{fontFamily:FF.inter,fontSize:10,color:"#9e9e9e"}}>tap cell to edit</span>
+                  </div>
+                  <RoundTable players={players} roundScores={roundScores} onRowTap={startEditRound}/>
+                </div>
+
+                <div style={S.card}>
+                  <label style={S.label}>Race graph</label>
+                  <RaceChart players={players} roundScores={roundScores} landscape={landscape}/>
+                </div>
+
+                <button style={S.btn("#f9a825","#12192b")} onClick={()=>setConfirmReset(true)}>Play again →</button>
+              </>
+            )}
+          </div>
+        )}
+
+        <div style={S.tabBar}>
+          {[
+            {key:"game",icon:<TrainIcon color={tab==="game"?"#f5f5f5":"#9e9e9e"} size={20}/>,label:"Game"},
+            {key:"race",icon:<span style={{fontSize:18,lineHeight:1}}>📈</span>,label:"Race"},
+            {key:"rules",icon:<span style={{fontSize:18,lineHeight:1}}>📋</span>,label:"Rules"},
+          ].map(({key,icon,label})=>(
+            <button key={key} style={S.tabBtn(tab===key)} onClick={()=>setTab(key)}>
+              {icon}
+              <span style={{fontFamily:FF.inter}}>{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
