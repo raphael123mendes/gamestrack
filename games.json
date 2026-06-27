@@ -1,6 +1,13 @@
 {
   "games": [
     {
+      "file": "padel_4_5_rotation_atari.html",
+      "name": "Padel Manager",
+      "description": "",
+      "emoji": "🎮",
+      "tags": []
+    },
+    {
       "file": "padel_rr_vbeta.html",
       "name": "Padel RR — big groups and couples",
       "description": "padel game scheduler for big groups and couples",
@@ -61,6 +68,13 @@
         "cu",
         "gamenight"
       ]
+    },
+    {
+      "file": "rs_padelhub.html",
+      "name": "Padel RR — Match Hub",
+      "description": "",
+      "emoji": "🃏",
+      "tags": []
     }
   ]
 }
