@@ -5,7 +5,11 @@
       "name": "Limited bu effective way to make rounds if you have 4 or 5 players",
       "description": "insures that all play with all, fair sitouts and change doubles",
       "emoji": "🎮",
-      "tags": ["classic","4 players","5 players"]
+      "tags": [
+        "classic",
+        "4 players",
+        "5 players"
+      ]
     },
     {
       "file": "padeladek.html",
