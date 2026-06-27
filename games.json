@@ -1,6 +1,13 @@
 {
   "games": [
     {
+      "file": "mexdomino.html",
+      "name": "Mexican Train",
+      "description": "",
+      "emoji": "🎮",
+      "tags": []
+    },
+    {
       "file": "padel_4_5_rotation_atari.html",
       "name": "Limited bu effective way to make rounds if you have 4 or 5 players",
       "description": "insures that all play with all, fair sitouts and change doubles",
