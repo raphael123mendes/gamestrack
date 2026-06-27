@@ -2,15 +2,15 @@
   "games": [
     {
       "file": "padel_4_5_rotation_atari.html",
-      "name": "Padel Manager",
-      "description": "",
+      "name": "Limited bu effective way to make rounds if you have 4 or 5 players",
+      "description": "insures that all play with all, fair sitouts and change doubles",
       "emoji": "🎮",
-      "tags": []
+      "tags": ["classic","4 players","5 players"]
     },
     {
       "file": "padeladek.html",
-      "name": "Padel Round Robin",
-      "description": "",
+      "name": "Padel Round Robin only with 5 players",
+      "description": "buidl for adek people if you have 5 players and dont knwo what to do",
       "emoji": "🎮",
       "tags": []
     },
@@ -28,8 +28,8 @@
     },
     {
       "file": "rs_padelhub.html",
-      "name": "Padel RR — Match Hub",
-      "description": "",
+      "name": "Padel HUB",
+      "description": "Here no limit, all combinations of padel courts and players you can use. fix double, individual, mix gender.this is the real deal",
       "emoji": "🃏",
       "tags": []
     }
