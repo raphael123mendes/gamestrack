@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Padel RR — Match Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode:"class",
+  theme:{ extend:{
+    colors:{
+      "court-green":"#DFFF00","carbon-deep":"#121212","slate-active":"#1E293B","error-red":"#FF4B4B",
+      "surface":"#051424","surface-dim":"#051424","surface-bright":"#2c3a4c","surface-variant":"#273647",
+      "surface-container-lowest":"#010f1f","surface-container-low":"#0d1c2d","surface-container":"#122131",
+      "surface-container-high":"#1c2b3c","surface-container-highest":"#273647",
+      "surface-glass":"rgba(30,41,59,0.7)","surface-tint":"#b8d300",
+      "on-surface":"#d4e4fa","on-surface-variant":"#c6c9ab","on-background":"#d4e4fa","background":"#051424",
+      "primary":"#ffffff","on-primary":"#2c3400","primary-container":"#d2f000","on-primary-container":"#5d6b00",
+      "primary-fixed":"#d2f000","primary-fixed-dim":"#b8d300","on-primary-fixed":"#191e00","on-primary-fixed-variant":"#414c00",
+      "inverse-primary":"#576500","secondary":"#c8c6c5","on-secondary":"#313030","secondary-container":"#4a4949",
+      "on-secondary-container":"#bab8b7","secondary-fixed":"#e5e2e1","secondary-fixed-dim":"#c8c6c5",
+      "on-secondary-fixed":"#1c1b1b","on-secondary-fixed-variant":"#474646",
+      "tertiary":"#ffffff","on-tertiary":"#263143","tertiary-container":"#d8e3fb","on-tertiary-container":"#5a6579",
+      "tertiary-fixed":"#d8e3fb","tertiary-fixed-dim":"#bcc7de","on-tertiary-fixed":"#111c2d","on-tertiary-fixed-variant":"#3c475a",
+      "outline":"#909378","outline-variant":"#454932","inverse-surface":"#d4e4fa","inverse-on-surface":"#233143",
+      "error":"#ffb4ab","on-error":"#690005","error-container":"#93000a","on-error-container":"#ffdad6"
+    },
+    borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},
+    spacing:{"stack-sm":"0.5rem","stack-md":"1.5rem","stack-lg":"2.5rem","container-max":"1200px","margin-mobile":"1.25rem","gutter":"1rem"},
+    fontFamily:{
+      "display-lg":["Barlow Condensed"],"score-display":["Barlow Condensed"],"headline-lg":["Barlow Condensed"],
+      "headline-lg-mobile":["Barlow Condensed"],"headline-md":["Barlow Condensed"],"label-xl":["Barlow Condensed"],
+      "body-lg":["Inter"],"body-md":["Inter"],"label-md":["Inter"]
+    },
+    fontSize:{
+      "display-lg":["48px",{lineHeight:"1.1",letterSpacing:"-0.02em",fontWeight:"800"}],
+      "score-display":["64px",{lineHeight:"1",fontWeight:"800"}],
+      "headline-lg":["32px",{lineHeight:"1.2",letterSpacing:"0.02em",fontWeight:"700"}],
+      "headline-lg-mobile":["28px",{lineHeight:"1.2",fontWeight:"700"}],
+      "headline-md":["24px",{lineHeight:"1.2",fontWeight:"600"}],
+      "label-xl":["20px",{lineHeight:"1",letterSpacing:"0.05em",fontWeight:"700"}],
+      "label-md":["14px",{lineHeight:"1",letterSpacing:"0.03em",fontWeight:"600"}],
+      "body-md":["16px",{lineHeight:"1.5",fontWeight:"400"}],
+      "body-lg":["18px",{lineHeight:"1.6",fontWeight:"400"}]
+    }
+  }}
+}
+</script>
+<style>
+body{background-color:#051424;color:#d4e4fa;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;}
+.glass-panel{background:rgba(30,41,59,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);}
+.glass-card{background:rgba(30,41,59,0.4);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);}
+.court-card-bg{background:linear-gradient(135deg,rgba(30,41,59,0.95) 0%,rgba(18,33,49,0.98) 100%);}
+.bg-sports-overlay{background-image:linear-gradient(rgba(5,20,36,0.88),rgba(5,20,36,0.97)),url('https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=1200&q=60');background-size:cover;background-position:center;}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:#DFFF00;cursor:pointer;border-radius:50%;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;}
+.screen{display:none;}.screen.active{display:block;}
+.timeline-line::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,#DFFF00 0%,#1E293B 100%);z-index:0;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:#051424;}::-webkit-scrollbar-thumb{background:#273647;border-radius:10px;}
+.shimmer{background:linear-gradient(90deg,rgba(223,255,0,0) 0%,rgba(223,255,0,0.1) 50%,rgba(223,255,0,0) 100%);background-size:200% 100%;animation:shimmer 2s infinite;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.nav-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 12px;transition:all 0.15s;color:#c6c9ab;cursor:pointer;}
+.nav-tab.active{background:#DFFF00;color:#191e00;border-radius:0.75rem;}
+.mode-btn{border:2px solid #273647;background:#051424;border-radius:0.75rem;padding:1.25rem;cursor:pointer;transition:all 0.2s;text-align:left;width:100%;}
+.mode-btn.selected{border-color:#DFFF00;background:#1E293B;}
+.score-pill{border:1px solid #273647;background:#051424;border-radius:9999px;padding:0.375rem 1rem;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.2s;color:#c6c9ab;letter-spacing:0.03em;}
+.score-pill.selected{border-color:#DFFF00;background:#1E293B;color:#DFFF00;}
+.cfg-btn{border:1px solid #273647;background:#051424;border-radius:0.75rem;padding:0.875rem 1rem;cursor:pointer;transition:all 0.2s;text-align:left;width:100%;}
+.cfg-btn.selected{border-color:#DFFF00;background:#1E293B;}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP APP BAR -->
+<header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md border-b border-surface-variant flex justify-between items-center h-16 px-margin-mobile md:px-12">
+  <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#DFFF00;letter-spacing:-0.02em;">PADEL RR</div>
+  <div class="flex items-center gap-3">
+    <span id="round-badge" class="hidden text-xs font-bold tracking-widest uppercase text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant"></span>
+  </div>
+</header>
+
+<!-- ═══════════════════ SCREEN: SETUP ═══════════════════ -->
+<div id="screen-setup" class="screen active bg-sports-overlay min-h-screen pb-28 pt-20">
+<main class="max-w-4xl mx-auto px-margin-mobile md:px-8 py-stack-md space-y-stack-lg">
+
+  <div>
+    <p class="text-xs font-bold uppercase tracking-widest text-court-green mb-1">New Session</p>
+    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;" class="text-white">TOURNAMENT SETUP</h1>
+  </div>
+
+  <!-- Format -->
+  <section class="glass-panel p-6 rounded-xl space-y-6">
+    <div>
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;" class="text-court-green mb-1">Tournament Dynamics</h2>
+      <p class="text-sm text-on-surface-variant">Select how players rotate and compete.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="mode-btns">
+      <button class="mode-btn selected" id="modeBtn-fixed_doubles" onclick="selectMode('fixed_doubles')">
+        <span class="material-symbols-outlined text-court-green" style="font-size:26px;font-variation-settings:'FILL' 1;">groups</span>
+        <div class="mt-2"><div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;" class="text-white">Fixed Doubles</div><div class="text-xs text-on-surface-variant mt-0.5">Pre-formed teams stay together all session.</div></div>
+      </button>
+      <button class="mode-btn" id="modeBtn-individual_rotation" onclick="selectMode('individual_rotation')">
+        <span class="material-symbols-outlined text-on-surface-variant" style="font-size:26px;" id="modeIcon-individual_rotation">sync_alt</span>
+        <div class="mt-2"><div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;" class="text-white">Individual Rotation</div><div class="text-xs text-on-surface-variant mt-0.5">Players rotate partners each round.</div></div>
+      </button>
+      <button class="mode-btn" id="modeBtn-interleaved_couples_mix" onclick="selectMode('interleaved_couples_mix')">
+        <span class="material-symbols-outlined text-on-surface-variant" style="font-size:26px;" id="modeIcon-interleaved_couples_mix">wc</span>
+        <div class="mt-2"><div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;" class="text-white">Couples Mix</div><div class="text-xs text-on-surface-variant mt-0.5">Couples matchups + gender-split rounds.</div></div>
+      </button>
+    </div>
+
+    <div class="h-px bg-surface-variant opacity-40"></div>
+
+    <!-- Scoring System — exact from original -->
+    <div>
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;" class="text-court-green mb-1">Scoring &amp; Tempo</h2>
+      <p class="text-sm text-on-surface-variant mb-4">Define the rules of engagement for every match.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Scoring System -->
+        <div class="space-y-4">
+          <label style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;" class="text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-court-green" style="font-size:18px;">scoreboard</span> Scoring System
+          </label>
+          <div class="space-y-3">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant block mb-2">Games</span>
+              <div class="flex gap-2 flex-wrap">
+                <button class="score-pill selected" id="spill-games-3" onclick="selectScore('games',3)">3 Games</button>
+                <button class="score-pill" id="spill-games-6" onclick="selectScore('games',6)">6 Games</button>
+              </div>
+            </div>
+            <div>
+              <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant block mb-2">Americano</span>
+              <div class="flex gap-2 flex-wrap">
+                <button class="score-pill" id="spill-americano-12" onclick="selectScore('americano',12)">12 Pts</button>
+                <button class="score-pill" id="spill-americano-24" onclick="selectScore('americano',24)">24 Pts</button>
+                <button class="score-pill" id="spill-americano-36" onclick="selectScore('americano',36)">36 Pts</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Time Limit -->
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <label style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;" class="text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-court-green" style="font-size:18px;">av_timer</span> Time Limit per Match
+            </label>
+            <button class="relative inline-flex h-6 w-11 items-center rounded-full bg-surface-variant transition-colors focus:outline-none" id="time-toggle" onclick="toggleTimeLimit()">
+              <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1" id="toggle-thumb"></span>
+            </button>
+          </div>
+          <div class="space-y-2 opacity-30 pointer-events-none transition-all" id="time-options">
+            <div class="flex items-center gap-3">
+              <div class="flex-1">
+                <span class="text-sm text-on-surface-variant block mb-1">Minutes per match</span>
+                <div class="bg-surface-container-high/50 border border-outline-variant p-3 rounded-lg flex items-center gap-2">
+                  <span class="material-symbols-outlined text-court-green" style="font-size:14px;">info</span>
+                  <p class="text-xs text-on-surface italic">Ties accepted if timer expires.</p>
+                </div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <input id="time-input" type="number" min="1" max="60" value="15"
+                  class="w-24 h-16 bg-surface-container-lowest border-2 border-court-green text-center rounded-xl focus:ring-0 focus:outline-none"
+                  style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:#DFFF00;"/>
+                <span class="text-xs text-on-surface-variant">min</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Config picker -->
+  <section class="space-y-3">
+    <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.05em;" class="text-on-surface-variant uppercase tracking-widest">Configuration</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="config-picker"></div>
+  </section>
+
+  <!-- Player Names -->
+  <section class="space-y-3">
+    <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.05em;" class="text-on-surface-variant uppercase tracking-widest">Player / Team Names <span class="text-xs font-normal normal-case tracking-normal">(optional)</span></h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="name-inputs"></div>
+  </section>
+
+  <!-- Timeline alert -->
+  <div id="time-alert" class="hidden rounded-xl p-4 border flex gap-3 items-start">
+    <span class="material-symbols-outlined mt-0.5" id="time-alert-icon">info</span>
+    <p class="text-sm leading-relaxed" id="time-alert-msg"></p>
+  </div>
+
+</main>
+<!-- Setup CTA -->
+<div class="fixed bottom-0 left-0 w-full glass-panel h-20 flex items-center px-margin-mobile md:px-12 justify-between z-50">
+  <div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;" class="text-white" id="setup-summary"></div>
+    <div class="text-xs text-on-surface-variant" id="setup-est"></div>
+  </div>
+  <button id="start-btn" onclick="goToSchedule()" class="bg-court-green text-on-primary-fixed h-12 px-8 rounded-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(223,255,0,0.3)]" style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.05em;">
+    START SESSION <span class="material-symbols-outlined">arrow_forward</span>
+  </button>
+</div>
+</div>
+
+<!-- ═══════════════════ SCREEN: SCHEDULE ═══════════════════ -->
+<div id="screen-schedule" class="screen min-h-screen pb-28 pt-20">
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-12 py-stack-md space-y-stack-md">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;" class="text-white">FULL SCHEDULE</h1>
+      <p class="text-xs text-on-surface-variant" id="schedule-subtitle"></p>
+    </div>
+    <button onclick="navigateTo('scoring')" class="bg-court-green text-on-primary-fixed px-5 h-10 rounded-xl flex items-center gap-1 hover:scale-105 active:scale-95 transition-all" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;">
+      <span class="material-symbols-outlined" style="font-size:16px;">sports_tennis</span> PLAY
+    </button>
+  </div>
+  <div id="schedule-rounds" class="relative timeline-line space-y-6 pl-12"></div>
+</main>
+<nav class="fixed bottom-0 left-0 w-full bg-surface-glass backdrop-blur-xl border-t border-outline-variant h-16 px-4 pb-1 flex justify-around items-center z-50">
+  <button class="nav-tab active" onclick="navigateTo('schedule')"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">event_note</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Schedule</span></button>
+  <button class="nav-tab" onclick="navigateTo('scoring')"><span class="material-symbols-outlined" style="font-size:20px;">sports_tennis</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Courts</span></button>
+  <button class="nav-tab" onclick="navigateTo('standings')"><span class="material-symbols-outlined" style="font-size:20px;">leaderboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Standings</span></button>
+</nav>
+</div>
+
+<!-- ═══════════════════ SCREEN: SCORING ═══════════════════ -->
+<div id="screen-scoring" class="screen min-h-screen pb-36 pt-20">
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-12 py-stack-md space-y-stack-md">
+  <div class="flex items-center justify-between">
+    <div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.05em;" class="text-court-green uppercase block" id="scoring-round-label">Round 1</span>
+      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;" class="text-on-surface" id="scoring-phase-label">Live Session</h1>
+    </div>
+    <div class="flex gap-2">
+      <div class="flex items-center bg-surface-container-high px-3 py-2 rounded-xl border border-outline-variant" id="scoring-mode-badge">
+        <span class="material-symbols-outlined mr-2 text-court-green" style="font-size:16px;">groups</span>
+        <span class="text-xs font-bold">Classic</span>
+      </div>
+      <div class="flex items-center bg-surface-container-high px-3 py-2 rounded-xl border border-outline-variant" id="scoring-score-badge">
+        <span class="material-symbols-outlined mr-2 text-court-green" style="font-size:16px;">scoreboard</span>
+        <span class="text-xs font-bold" id="scoring-score-label">3 Games</span>
+      </div>
+    </div>
+  </div>
+  <div id="court-cards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+  <div id="sitout-section" class="hidden">
+    <section class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="material-symbols-outlined text-on-surface-variant">hotel_class</span>
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;" class="text-on-surface">Sit-out Teams</h2>
+      </div>
+      <div id="sitout-chips" class="flex flex-wrap gap-4"></div>
+    </section>
+  </div>
+</main>
+<!-- Submit + Nav -->
+<div class="fixed bottom-0 left-0 w-full z-40">
+  <div class="flex justify-center mb-3 px-margin-mobile">
+    <button id="submit-btn" onclick="submitRound()" class="w-full max-w-md h-14 bg-court-green hover:bg-[#cde500] active:scale-95 transition-all text-on-primary-fixed rounded-2xl shadow-[0_8px_30px_rgba(223,255,0,0.2)] flex items-center justify-center gap-3">
+      <span class="material-symbols-outlined">check_circle</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.05em;">SUBMIT ROUND</span>
+    </button>
+  </div>
+  <nav class="bg-surface-glass backdrop-blur-xl border-t border-outline-variant h-16 px-4 pb-1 flex justify-around items-center">
+    <button class="nav-tab" onclick="navigateTo('schedule')"><span class="material-symbols-outlined" style="font-size:20px;">event_note</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Schedule</span></button>
+    <button class="nav-tab active" onclick="navigateTo('scoring')"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">sports_tennis</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Courts</span></button>
+    <button class="nav-tab" onclick="navigateTo('standings')"><span class="material-symbols-outlined" style="font-size:20px;">leaderboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Standings</span></button>
+  </nav>
+</div>
+</div>
+
+<!-- ═══════════════════ SCREEN: STANDINGS ═══════════════════ -->
+<div id="screen-standings" class="screen min-h-screen pb-28 pt-20">
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-12 py-stack-md space-y-stack-lg">
+  <div>
+    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;" class="text-white">SESSION SUMMARY</h1>
+    <p class="text-xs text-on-surface-variant" id="standings-subtitle"></p>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-gutter" id="stats-bar"></div>
+  <section class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;" class="text-white">TOP PERFORMERS</h2>
+      <span class="material-symbols-outlined text-court-green">stars</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter" id="top-performers"></div>
+  </section>
+  <section class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;" class="text-white">RANKINGS</h2>
+      <div class="flex bg-surface-container-low rounded-lg p-1 gap-1" id="rank-tabs"></div>
+    </div>
+    <div class="glass-card rounded-xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead><tr class="bg-surface-container-highest/50 border-b border-outline-variant">
+            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant" style="width:52px;">#</th>
+            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Team / Player</th>
+            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-center">P</th>
+            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-center">W</th>
+            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-center">GW</th>
+            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-center">GL</th>
+            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-court-green text-center">+/-</th>
+          </tr></thead>
+          <tbody id="rankings-body" class="divide-y divide-outline-variant/30"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <section class="space-y-3 pb-4">
+    <button id="continue-btn" onclick="navigateTo('scoring')" class="w-full bg-court-green text-on-primary-fixed h-14 rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(223,255,0,0.3)]" style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.05em;">
+      <span class="material-symbols-outlined">sports_tennis</span> CONTINUE SESSION
+    </button>
+    <div class="grid grid-cols-2 gap-3">
+      <button onclick="exportCSV()" class="bg-surface-container-high border border-outline-variant text-white h-12 rounded-xl flex items-center justify-center gap-2 hover:border-court-green hover:text-court-green transition-all" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;">
+        <span class="material-symbols-outlined" style="font-size:18px;">csv</span> EXPORT CSV
+      </button>
+      <button onclick="exportHTML()" class="bg-surface-container-high border border-outline-variant text-white h-12 rounded-xl flex items-center justify-center gap-2 hover:border-court-green hover:text-court-green transition-all" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;">
+        <span class="material-symbols-outlined" style="font-size:18px;">html</span> EXPORT HTML
+      </button>
+    </div>
+    <button onclick="confirmReset()" class="w-full flex items-center justify-center gap-2 text-error text-sm font-bold py-3 rounded-xl hover:bg-error-container/20 transition-colors">
+      <span class="material-symbols-outlined" style="font-size:18px;">refresh</span> Reset &amp; Clear All Data
+    </button>
+  </section>
+</main>
+<nav class="fixed bottom-0 left-0 w-full bg-surface-glass backdrop-blur-xl border-t border-outline-variant h-16 px-4 pb-1 flex justify-around items-center z-50">
+  <button class="nav-tab" onclick="navigateTo('schedule')"><span class="material-symbols-outlined" style="font-size:20px;">event_note</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Schedule</span></button>
+  <button class="nav-tab" onclick="navigateTo('scoring')"><span class="material-symbols-outlined" style="font-size:20px;">sports_tennis</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Courts</span></button>
+  <button class="nav-tab active" onclick="navigateTo('standings')"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">leaderboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Standings</span></button>
+</nav>
+</div>
+<!-- Edit Score Modal -->
+<div id="edit-modal" class="hidden fixed inset-0 z-[70] flex items-end md:items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeEditModal()"></div>
+  <div class="relative w-full max-w-md glass-panel rounded-2xl p-6 space-y-5">
+    <div class="flex justify-between items-center">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-court-green" id="edit-round-label">Round 1</p>
+        <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;" class="text-white" id="edit-court-label">Court 1</h3>
+      </div>
+      <button onclick="closeEditModal()" class="text-on-surface-variant hover:text-white p-2"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="edit-matchup" class="text-sm text-on-surface-variant text-center pb-2 border-b border-outline-variant"></div>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="text-center">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2" id="edit-label-a">Team A</p>
+        <input id="edit-score-a" type="number" min="0" max="99" value="0"
+          class="w-full h-20 bg-surface-container-lowest border-2 border-court-green text-center rounded-xl focus:ring-0"
+          style="font-family:'Barlow Condensed',sans-serif;font-size:48px;font-weight:800;color:#DFFF00;"/>
+      </div>
+      <div class="text-center">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2" id="edit-label-b">Team B</p>
+        <input id="edit-score-b" type="number" min="0" max="99" value="0"
+          class="w-full h-20 bg-surface-container-lowest border-2 border-outline-variant focus:border-court-green text-center rounded-xl focus:ring-0"
+          style="font-family:'Barlow Condensed',sans-serif;font-size:48px;font-weight:800;color:#DFFF00;"/>
+      </div>
+    </div>
+    <button onclick="saveEditedScore()" class="w-full bg-court-green text-on-primary-fixed h-12 rounded-xl font-bold flex items-center justify-center gap-2"
+      style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.05em;">
+      <span class="material-symbols-outlined">save</span> SAVE SCORE
+    </button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] glass-card px-6 py-3 rounded-full border border-court-green/30 opacity-0 pointer-events-none transition-all duration-300 translate-y-2 flex items-center gap-3">
+  <span class="material-symbols-outlined text-court-green" style="font-size:18px;">check_circle</span>
+  <span class="text-white text-sm font-bold" id="toast-msg"></span>
+</div>
+
+<script>
+// ─── MASTER PRESETS ─────────────────────────────────────────────────────────
+// ============================================================================
+// PADELZERA ENGINE: THE UNIFIED MASTER TOURNAMENT MATRIX BLUEPRINTS
+// ============================================================================
+// ============================================================================
+// PADELZERA ENGINE: THE UNIFIED MASTER TOURNAMENT MATRIX BLUEPRINTS
+// ============================================================================
+const PRESETS = {
+  version: "1.2.0",
+  lastUpdated: "2026-06",
+  author: "Padelzera Core",
+
+  // --------------------------------------------------------------------------
+  // CATEGORY 1: FIXED DOUBLES
+  // --------------------------------------------------------------------------
+  fixed_doubles: [
+    {
+      teamsCount: 3,
+      courtsCount: 1,
+      rounds: [
+        { round: 1, courts: [{ courtId: 1, teamA: 0, teamB: 1 }], sitOuts: [2] },
+        { round: 2, courts: [{ courtId: 1, teamA: 1, teamB: 2 }], sitOuts: [0] },
+        { round: 3, courts: [{ courtId: 1, teamA: 0, teamB: 2 }], sitOuts: [1] }
+      ]
+    },
+    {
+      teamsCount: 4,
+      courtsCount: 1,
+      description: "4 Fixed Pairs, 1 Court. Perfect Play-Sit-Play cadence. 0% back-to-back sit-outs.",
+      rounds: [
+        { round: 1, courts: [{ courtId: 1, teamA: 0, teamB: 1 }], sitOuts: [2, 3] }, // T1 vs T2 | Bench: T3, T4
+        { round: 2, courts: [{ courtId: 1, teamA: 2, teamB: 3 }], sitOuts: [0, 1] }, // T3 vs T4 | Bench: T1, T2
+        { round: 3, courts: [{ courtId: 1, teamA: 0, teamB: 2 }], sitOuts: [1, 3] }, // T1 vs T3 | Bench: T2, T4
+        { round: 4, courts: [{ courtId: 1, teamA: 1, teamB: 3 }], sitOuts: [0, 2] }, // T2 vs T4 | Bench: T1, T3
+        { round: 5, courts: [{ courtId: 1, teamA: 0, teamB: 3 }], sitOuts: [1, 2] }, // T1 vs T4 | Bench: T2, T3
+        { round: 6, courts: [{ courtId: 1, teamA: 1, teamB: 2 }], sitOuts: [0, 3] }  // T2 vs T3 | Bench: T1, T4
+      ]
+    },
+    {
+      teamsCount: 4,
+      courtsCount: 2,
+      rounds: [
+        { round: 1, courts: [{ courtId: 1, teamA: 0, teamB: 1 }, { courtId: 2, teamA: 2, teamB: 3 }], sitOuts: [] },
+        { round: 2, courts: [{ courtId: 1, teamA: 0, teamB: 2 }, { courtId: 2, teamA: 1, teamB: 3 }], sitOuts: [] },
+        { round: 3, courts: [{ courtId: 1, teamA: 0, teamB: 3 }, { courtId: 2, teamA: 1, teamB: 2 }], sitOuts: [] }
+      ]
+    },
+    {
+      teamsCount: 5,
+      courtsCount: 2,
+      rounds: [
+        { round: 1, courts: [{ courtId: 1, teamA: 0, teamB: 1 }, { courtId: 2, teamA: 2, teamB: 3 }], sitOuts: [4] },
+        { round: 2, courts: [{ courtId: 1, teamA: 3, teamB: 4 }, { courtId: 2, teamA: 0, teamB: 2 }], sitOuts: [1] },
+        { round: 3, courts: [{ courtId: 1, teamA: 1, teamB: 4 }, { courtId: 2, teamA: 3, teamB: 0 }], sitOuts: [2] },
+        { round: 4, courts: [{ courtId: 1, teamA: 2, teamB: 4 }, { courtId: 2, teamA: 1, teamB: 3 }], sitOuts: [0] },
+        { round: 5, courts: [{ courtId: 1, teamA: 0, teamB: 4 }, { courtId: 2, teamA: 1, teamB: 2 }], sitOuts: [3] }
+      ]
+    },
+    {
+      teamsCount: 6,
+      courtsCount: 3,
+      rounds: [
+        { round: 1, courts: [{ courtId: 1, teamA: 0, teamB: 5 }, { courtId: 2, teamA: 1, teamB: 4 }, { courtId: 3, teamA: 2, teamB: 3 }], sitOuts: [] },
+        { round: 2, courts: [{ courtId: 1, teamA: 0, teamB: 4 }, { courtId: 2, teamA: 5, teamB: 3 }, { courtId: 3, teamA: 1, teamB: 2 }], sitOuts: [] },
+        { round: 3, courts: [{ courtId: 1, teamA: 0, teamB: 3 }, { courtId: 2, teamA: 4, teamB: 2 }, { courtId: 3, teamA: 5, teamB: 1 }], sitOuts: [] },
+        { round: 4, courts: [{ courtId: 1, teamA: 0, teamB: 2 }, { courtId: 2, teamA: 3, teamB: 1 }, { courtId: 3, teamA: 4, teamB: 5 }], sitOuts: [] },
+        { round: 5, courts: [{ courtId: 1, teamA: 0, teamB: 1 }, { courtId: 2, teamA: 2, teamB: 5 }, { courtId: 3, teamA: 3, teamB: 4 }], sitOuts: [] }
+      ]
+    },
+    {
+      teamsCount: 8,
+      courtsCount: 4,
+      rounds: [
+        { round: 1, courts: [{ courtId: 1, teamA: 0, teamB: 7 }, { courtId: 2, teamA: 1, teamB: 6 }, { courtId: 3, teamA: 2, teamB: 5 }, { courtId: 4, teamA: 3, teamB: 4 }], sitOuts: [] },
+        { round: 2, courts: [{ courtId: 1, teamA: 0, teamB: 6 }, { courtId: 2, teamA: 7, teamB: 5 }, { courtId: 3, teamA: 1, teamB: 4 }, { courtId: 4, teamA: 2, teamB: 3 }], sitOuts: [] },
+        { round: 3, courts: [{ courtId: 1, teamA: 0, teamB: 5 }, { courtId: 2, teamA: 6, teamB: 4 }, { courtId: 3, teamA: 7, teamB: 3 }, { courtId: 4, teamA: 1, teamB: 2 }], sitOuts: [] },
+        { round: 4, courts: [{ courtId: 1, teamA: 0, teamB: 4 }, { courtId: 2, teamA: 5, teamB: 3 }, { courtId: 3, teamA: 6, teamB: 2 }, { courtId: 4, teamA: 7, teamB: 1 }], sitOuts: [] },
+        { round: 5, courts: [{ courtId: 1, teamA: 0, teamB: 3 }, { courtId: 2, teamA: 4, teamB: 2 }, { courtId: 3, teamA: 5, teamB: 1 }, { courtId: 4, teamA: 6, teamB: 7 }], sitOuts: [] },
+        { round: 6, courts: [{ courtId: 1, teamA: 0, teamB: 2 }, { courtId: 2, teamA: 3, teamB: 1 }, { courtId: 3, teamA: 4, teamB: 7 }, { courtId: 4, teamA: 5, teamB: 6 }], sitOuts: [] },
+        { round: 7, courts: [{ courtId: 1, teamA: 0, teamB: 1 }, { courtId: 2, teamA: 2, teamB: 7 }, { courtId: 3, teamA: 3, teamB: 6 }, { courtId: 4, teamA: 4, teamB: 5 }], sitOuts: [] }
+      ]
+    }
+  ],
+
+  // --------------------------------------------------------------------------
+  // CATEGORY 2: INDIVIDUAL ROTATIONS
+  // --------------------------------------------------------------------------
+  individual_rotation: [
+    {
+      playersCount: 4,
+      courtsCount: 1,
+      hasBlocks: false,
+      rounds: [
+        { round: 1, courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [] },
+        { round: 2, courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 3] }], sitOuts: [] },
+        { round: 3, courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 2] }], sitOuts: [] }
+      ]
+    },
+    {
+      playersCount: 5,
+      courtsCount: 1,
+      hasBlocks: false,
+      rounds: [
+        { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [4] },
+        { round: 2,  courts: [{ courtId: 1, teamA: [1, 2], teamB: [3, 4] }], sitOuts: [0] },
+        { round: 3,  courts: [{ courtId: 1, teamA: [2, 3], teamB: [4, 0] }], sitOuts: [1] },
+        { round: 4,  courts: [{ courtId: 1, teamA: [3, 4], teamB: [0, 1] }], sitOuts: [2] },
+        { round: 5,  courts: [{ courtId: 1, teamA: [4, 0], teamB: [1, 2] }], sitOuts: [3] },
+        { round: 6,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 3] }], sitOuts: [4] },
+        { round: 7,  courts: [{ courtId: 1, teamA: [1, 3], teamB: [2, 4] }], sitOuts: [0] },
+        { round: 8,  courts: [{ courtId: 1, teamA: [2, 4], teamB: [3, 0] }], sitOuts: [1] },
+        { round: 9,  courts: [{ courtId: 1, teamA: [3, 0], teamB: [4, 1] }], sitOuts: [2] },
+        { round: 10, courts: [{ courtId: 1, teamA: [4, 1], teamB: [0, 2] }], sitOuts: [3] },
+        { round: 11, courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 2] }], sitOuts: [4] },
+        { round: 12, courts: [{ courtId: 1, teamA: [1, 4], teamB: [2, 3] }], sitOuts: [0] },
+        { round: 13, courts: [{ courtId: 1, teamA: [2, 0], teamB: [3, 4] }], sitOuts: [1] },
+        { round: 14, courts: [{ courtId: 1, teamA: [3, 1], teamB: [4, 0] }], sitOuts: [2] },
+        { round: 15, courts: [{ courtId: 1, teamA: [4, 2], teamB: [0, 1] }], sitOuts: [3] }
+      ]
+    },
+    {
+      playersCount: 6,
+      courtsCount: 1,
+      hasBlocks: false,
+      description: "6 Individual Players, 1 Court. Re-engineered matrix: Exactly 10 games and 5 sit-outs per player. 0 back-to-back sit-outs.",
+      rounds: [
+        { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [4, 5] },
+        { round: 2,  courts: [{ courtId: 1, teamA: [4, 5], teamB: [0, 2] }], sitOuts: [1, 3] },
+        { round: 3,  courts: [{ courtId: 1, teamA: [1, 3], teamB: [4, 5] }], sitOuts: [0, 2] },
+        { round: 4,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 4] }], sitOuts: [3, 5] },
+        { round: 5,  courts: [{ courtId: 1, teamA: [3, 5], teamB: [0, 2] }], sitOuts: [1, 4] },
+        { round: 6,  courts: [{ courtId: 1, teamA: [1, 4], teamB: [3, 5] }], sitOuts: [0, 2] },
+        { round: 7,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 5] }], sitOuts: [2, 4] },
+        { round: 8,  courts: [{ courtId: 1, teamA: [2, 4], teamB: [0, 3] }], sitOuts: [1, 5] },
+        { round: 9,  courts: [{ courtId: 1, teamA: [1, 5], teamB: [2, 4] }], sitOuts: [0, 3] },
+        { round: 10, courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 5] }], sitOuts: [1, 3] },
+        { round: 11, courts: [{ courtId: 1, teamA: [1, 3], teamB: [0, 4] }], sitOuts: [2, 5] },
+        { round: 12, courts: [{ courtId: 1, teamA: [2, 5], teamB: [1, 3] }], sitOuts: [0, 4] },
+        { round: 13, courts: [{ courtId: 1, teamA: [0, 5], teamB: [3, 4] }], sitOuts: [1, 2] },
+        { round: 14, courts: [{ courtId: 1, teamA: [1, 2], teamB: [0, 5] }], sitOuts: [3, 4] },
+        { round: 15, courts: [{ courtId: 1, teamA: [3, 4], teamB: [1, 2] }], sitOuts: [0, 5] }
+      ]
+    },
+    {
+      playersCount: 8,
+      courtsCount: 2,
+      hasBlocks: true,
+      rounds: [
+        { round: 1, courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }], sitOuts: [] },
+        { round: 2, courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 3] }, { courtId: 2, teamA: [4, 6], teamB: [5, 7] }], sitOuts: [] },
+        { round: 3, courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 2] }, { courtId: 2, teamA: [4, 7], teamB: [5, 6] }], sitOuts: [] },
+        { round: 4, courts: [{ courtId: 1, teamA: [0, 1], teamB: [4, 5] }, { courtId: 2, teamA: [2, 3], teamB: [6, 7] }], sitOuts: [] },
+        { round: 5, courts: [{ courtId: 1, teamA: [0, 4], teamB: [1, 5] }, { courtId: 2, teamA: [2, 6], teamB: [3, 7] }], sitOuts: [] },
+        { round: 6, courts: [{ courtId: 1, teamA: [0, 5], teamB: [1, 4] }, { courtId: 2, teamA: [2, 7], teamB: [3, 6] }], sitOuts: [] },
+        { round: 7, courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 6] }, { courtId: 2, teamA: [1, 3], teamB: [5, 7] }], sitOuts: [] },
+        { round: 8, courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 6] }, { courtId: 2, teamA: [1, 5], teamB: [3, 7] }], sitOuts: [] },
+        { round: 9, courts: [{ courtId: 1, teamA: [0, 6], teamB: [2, 4] }, { courtId: 2, teamA: [1, 7], teamB: [3, 5] }], sitOuts: [] }
+      ]
+    },
+    {
+      playersCount: 12,
+      courtsCount: 3,
+      hasBlocks: true,
+      rounds: [
+        { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }, { courtId: 3, teamA: [8, 9], teamB: [10, 11] }], sitOuts: [] },
+        { round: 2,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 3] }, { courtId: 2, teamA: [4, 6], teamB: [5, 7] }, { courtId: 3, teamA: [8, 10], teamB: [9, 11] }], sitOuts: [] },
+        { round: 3,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 2] }, { courtId: 2, teamA: [4, 7], teamB: [5, 6] }, { courtId: 3, teamA: [8, 11], teamB: [9, 10] }], sitOuts: [] },
+        { round: 4,  courts: [{ courtId: 1, teamA: [0, 4], teamB: [8, 9] }, { courtId: 2, teamA: [1, 5], teamB: [10, 2] }, { courtId: 3, teamA: [3, 6], teamB: [7, 11] }], sitOuts: [] },
+        { round: 5,  courts: [{ courtId: 1, teamA: [0, 8], teamB: [4, 9] }, { courtId: 2, teamA: [1, 10], teamB: [5, 2] }, { courtId: 3, teamA: [3, 7], teamB: [6, 11] }], sitOuts: [] },
+        { round: 6,  courts: [{ courtId: 1, teamA: [0, 9], teamB: [4, 8] }, { courtId: 2, teamA: [1, 2], teamB: [5, 10] }, { courtId: 3, teamA: [3, 11], teamB: [6, 7] }], sitOuts: [] },
+        { round: 7,  courts: [{ courtId: 1, teamA: [0, 5], teamB: [6, 8] }, { courtId: 2, teamA: [1, 4], teamB: [7, 11] }, { courtId: 3, teamA: [2, 3], teamB: [9, 10] }], sitOuts: [] },
+        { round: 8,  courts: [{ courtId: 1, teamA: [0, 6], teamB: [5, 8] }, { courtId: 2, teamA: [1, 7], teamB: [4, 11] }, { courtId: 3, teamA: [2, 9], teamB: [3, 10] }], sitOuts: [] },
+        { round: 9,  courts: [{ courtId: 1, teamA: [0, 8], teamB: [5, 6] }, { courtId: 2, teamA: [1, 11], teamB: [4, 7] }, { courtId: 3, teamA: [2, 10], teamB: [3, 9] }], sitOuts: [] },
+        { round: 10, courts: [{ courtId: 1, teamA: [0, 7], teamB: [10, 11] }, { courtId: 2, teamA: [1, 3], teamB: [8, 4] }, { courtId: 3, teamA: [2, 5], teamB: [6, 9] }], sitOuts: [] },
+        { round: 11, courts: [{ courtId: 1, teamA: [0, 10], teamB: [7, 11] }, { courtId: 2, teamA: [1, 8], teamB: [3, 4] }, { courtId: 3, teamA: [2, 6], teamB: [5, 9] }], sitOuts: [] },
+        { round: 12, courts: [{ courtId: 1, teamA: [0, 11], teamB: [7, 10] }, { courtId: 2, teamA: [1, 4], teamB: [3, 8] }, { courtId: 3, teamA: [2, 9], teamB: [5, 6] }], sitOuts: [] }
+      ]
+    }
+  ],
+
+  // --------------------------------------------------------------------------
+  // CATEGORY 3: INTERLEAVED COUPLES MIX
+  // --------------------------------------------------------------------------
+  interleaved_couples_mix: [
+    {
+      couplesCount: 4,
+      courtsCount: 2,
+      roundsCount: 6,
+      rounds: [
+        { round: 1, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }], sitOuts: [] },
+        { round: 2, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 6] }, { courtId: 2, teamA: [1, 3], teamB: [5, 7] }], sitOuts: [] },
+        { round: 3, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [0, 1], teamB: [4, 5] }, { courtId: 2, teamA: [2, 3], teamB: [6, 7] }], sitOuts: [] },
+        { round: 4, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 6] }, { courtId: 2, teamA: [1, 5], teamB: [3, 7] }], sitOuts: [] },
+        { round: 5, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [0, 1], teamB: [6, 7] }, { courtId: 2, teamA: [2, 3], teamB: [4, 5] }], sitOuts: [] },
+        { round: 6, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 6], teamB: [2, 4] }, { courtId: 2, teamA: [1, 7], teamB: [3, 5] }], sitOuts: [] }
+      ]
+    },
+  {
+  couplesCount: 5,
+  courtsCount: 2,
+  roundsCount: 10,
+  rounds: [
+    { round: 1, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }], sitOuts: [8, 9] },
+    { round: 2, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 6] }, { courtId: 2, teamA: [1, 3], teamB: [5, 7] }], sitOuts: [8, 9] },
+    { round: 3, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [0, 1], teamB: [8, 9] }, { courtId: 2, teamA: [2, 3], teamB: [6, 7] }], sitOuts: [4, 5] },
+    { round: 4, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 8], teamB: [2, 6] }, { courtId: 2, teamA: [1, 9], teamB: [3, 7] }], sitOuts: [4, 5] },
+    { round: 5, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [4, 5], teamB: [8, 9] }, { courtId: 2, teamA: [0, 1], teamB: [6, 7] }], sitOuts: [2, 3] },
+    { round: 6, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [4, 8], teamB: [0, 6] }, { courtId: 2, teamA: [5, 9], teamB: [1, 7] }], sitOuts: [2, 3] },
+    { round: 7, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [2, 3], teamB: [4, 5] }, { courtId: 2, teamA: [0, 1], teamB: [8, 9] }], sitOuts: [6, 7] },
+    { round: 8, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [2, 4], teamB: [0, 8] }, { courtId: 2, teamA: [3, 5], teamB: [1, 9] }], sitOuts: [6, 7] },
+    { round: 9, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [2, 3], teamB: [8, 9] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }], sitOuts: [0, 1] },
+    { round: 10, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [2, 8], teamB: [4, 6] }, { courtId: 2, teamA: [3, 9], teamB: [5, 7] }], sitOuts: [0, 1] }
+  ]
+},
+{
+  couplesCount: 6,
+  courtsCount: 3,
+  roundsCount: 10,
+  description: "6 Couples, 3 Courts, 10 Rounds. 0 sit-outs. Hybrid Gender Split design using Court 3 for unique breakaway mixed matches. 0% back-to-back repeats.",
+  rounds: [
+    {
+      round: 1,
+      phase: "All-Mixed Round",
+      courts: [
+        { courtId: 1, teamA: [0, 1], teamB: [2, 3] },   // C1 vs C2
+        { courtId: 2, teamA: [4, 5], teamB: [6, 7] },   // C3 vs C4
+        { courtId: 3, teamA: [8, 9], teamB: [10, 11] }  // C5 vs C6
+      ]
+    },
+    {
+      round: 2,
+      phase: "Hybrid Gender Split",
+      courts: [
+        { courtId: 1, teamA: [0, 2], teamB: [4, 6] },   // Men's: M1+M2 vs M3+M4
+        { courtId: 2, teamA: [1, 3], teamB: [5, 7] },   // Women's: W1+W2 vs W3+W4
+        { courtId: 3, teamA: [8, 9], teamB: [2, 3] }    // Mixed Breakaway: C5 vs C2 (Fresh)
+      ]
+    },
+    {
+      round: 3,
+      phase: "All-Mixed Round",
+      courts: [
+        { courtId: 1, teamA: [0, 1], teamB: [4, 5] },   // C1 vs C3
+        { courtId: 2, teamA: [2, 3], teamB: [10, 11] }, // C2 vs C6
+        { courtId: 3, teamA: [6, 7], teamB: [8, 9] }    // C4 vs C5
+      ]
+    },
+    {
+      round: 4,
+      phase: "Hybrid Gender Split",
+      courts: [
+        { courtId: 1, teamA: [0, 8], teamB: [2, 10] },  // Men's: M1+M5 vs M2+M6
+        { courtId: 2, teamA: [1, 9], teamB: [3, 11] },  // Women's: W1+W5 vs W2+W6
+        { courtId: 3, teamA: [4, 5], teamB: [10, 11] }  // Mixed Breakaway: C3 vs C6 (Fresh)
+      ]
+    },
+    {
+      round: 5,
+      phase: "All-Mixed Round",
+      courts: [
+        { courtId: 1, teamA: [0, 1], teamB: [6, 7] },   // C1 vs C4
+        { courtId: 2, teamA: [2, 3], teamB: [4, 5] },   // C2 vs C3
+        { courtId: 3, teamA: [8, 9], teamB: [10, 11] }  // C5 vs C6
+      ]
+    },
+    {
+      round: 6,
+      phase: "Hybrid Gender Split",
+      courts: [
+        { courtId: 1, teamA: [4, 10], teamB: [6, 8] },  // Men's: M3+M6 vs M4+M5
+        { courtId: 2, teamA: [5, 11], teamB: [7, 9] },  // Women's: W3+W6 vs W4+W5
+        { courtId: 3, teamA: [0, 1], teamB: [8, 9] }    // Mixed Breakaway: C1 vs C5 (Fresh)
+      ]
+    },
+    {
+      round: 7,
+      phase: "All-Mixed Round",
+      courts: [
+        { courtId: 1, teamA: [0, 1], teamB: [10, 11] }, // C1 vs C6
+        { courtId: 2, teamA: [2, 3], teamB: [6, 7] },   // C2 vs C4
+        { courtId: 3, teamA: [4, 5], teamB: [8, 9] }    // C3 vs C5
+      ]
+    },
+    {
+      round: 8,
+      phase: "Hybrid Gender Split",
+      courts: [
+        { courtId: 1, teamA: [0, 4], teamB: [6, 10] },  // Men's: M1+M3 vs M4+M6
+        { courtId: 2, teamA: [1, 5], teamB: [7, 11] },  // Women's: W1+W3 vs W4+W11
+        { courtId: 3, teamA: [2, 3], teamB: [6, 7] }    // Mixed Breakaway: C2 vs C4 (Fresh)
+      ]
+    },
+    {
+      round: 9,
+      phase: "All-Mixed Round",
+      courts: [
+        { courtId: 1, teamA: [0, 1], teamB: [8, 9] },   // C1 vs C5
+        { courtId: 2, teamA: [2, 3], teamB: [4, 5] },   // C2 vs C3
+        { courtId: 3, teamA: [6, 7], teamB: [10, 11] }  // C4 vs C6
+      ]
+    },
+    {
+      round: 10,
+      phase: "Hybrid Gender Split",
+      courts: [
+        { courtId: 1, teamA: [0, 6], teamB: [8, 2] },   // Men's: M1+M4 vs M5+M2
+        { courtId: 2, teamA: [1, 7], teamB: [9, 3] },   // Women's: W1+W4 vs W5+W2
+        { courtId: 3, teamA: [4, 5], teamB: [6, 7] }    // Mixed Breakaway: C3 vs C4 (Fresh)
+      ]
+    }
+  ]
+},
+{
+      couplesCount: 8,
+      courtsCount: 4,
+      roundsCount: 6,
+      description: "8 Couples, 4 Courts, 0 sit-outs. Round-by-round style interleaving.",
+      rounds: [
+        { round: 1, phase: "Couples Matchups",     courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }, { courtId: 3, teamA: [8, 9], teamB: [10, 11] }, { courtId: 4, teamA: [12, 13], teamB: [14, 15] }], sitOuts: [] },
+        { round: 2, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 6] }, { courtId: 2, teamA: [8, 10], teamB: [12, 14] }, { courtId: 3, teamA: [1, 3], teamB: [5, 7] }, { courtId: 4, teamA: [9, 11], teamB: [13, 15] }], sitOuts: [] },
+        { round: 3, phase: "Couples Matchups",     courts: [{ courtId: 1, teamA: [0, 1], teamB: [4, 5] }, { courtId: 2, teamA: [2, 3], teamB: [6, 7] }, { courtId: 3, teamA: [8, 9], teamB: [12, 13] }, { courtId: 4, teamA: [10, 11], teamB: [14, 15] }], sitOuts: [] },
+        { round: 4, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 4], teamB: [8, 12] }, { courtId: 2, teamA: [2, 6], teamB: [10, 14] }, { courtId: 3, teamA: [1, 5], teamB: [9, 13] }, { courtId: 4, teamA: [3, 7], teamB: [11, 15] }], sitOuts: [] },
+        { round: 5, phase: "Couples Matchups",     courts: [{ courtId: 1, teamA: [0, 1], teamB: [6, 7] }, { courtId: 2, teamA: [2, 3], teamB: [4, 5] }, { courtId: 3, teamA: [8, 9], teamB: [14, 15] }, { courtId: 4, teamA: [10, 11], teamB: [12, 13] }], sitOuts: [] },
+        { round: 6, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 6], teamB: [10, 12] }, { courtId: 2, teamA: [2, 4], teamB: [8, 14] }, { courtId: 3, teamA: [1, 7], teamB: [11, 13] }, { courtId: 4, teamA: [3, 5], teamB: [9, 15] }], sitOuts: [] }
+]
+    }
+  ]
+};
+
+// ─── TIME VALIDATOR ──────────────────────────────────────────────────────────
+function validateTimeFit(rounds, duration, booking, swap) {
+  booking = booking || 120; swap = swap || 3;
+  var play = rounds * duration;
+  var swapTotal = (rounds - 1) * swap;
+  var total = play + swapTotal;
+  var diff = booking - total;
+  if (diff >= 0) return {status:'success',total:total,msg:'Fits in '+total+'m — '+diff+'m to spare.'};
+  if (diff >= -10) return {status:'warning',total:total,msg:'Tight: runs '+Math.abs(diff)+'m over '+booking+'m booking.'};
+  return {status:'error',total:total,msg:'Needs '+total+'m — '+Math.abs(diff)+'m short of '+booking+'m booking.'};
+}
+// ─── SESSION STATE ───────────────────────────────────────────────────────────
+const SK = 'padelrr_v3';
+function load() { try { const s=localStorage.getItem(SK); return s?JSON.parse(s):null; } catch(e){return null;} }
+function save() { try { localStorage.setItem(SK, JSON.stringify(S)); } catch(e){} }
+function nuke() { try { localStorage.removeItem(SK); } catch(e){} }
+
+let S = {
+  mode:'fixed_doubles', pidx:0, names:[], scoreType:'games', scoreVal:3,
+  timeLimitEnabled:false, timeLimit:15, currentRound:0, scores:[], started:false
+};
+
+function preset() { return PRESETS[S.mode][S.pidx]; }
+function unitCount() { const p=preset(); return p.teamsCount||p.playersCount||(p.couplesCount*2); }
+function isFixed() { return S.mode==='fixed_doubles'; }
+
+// Cycle expansion: find # of cycles so total rounds lands in [12,18] closest to 15
+function bestCycles(n) {
+  var best=null, bestDist=999;
+  for(var c=1;c<=20;c++){
+    var t=c*n;
+    if(t>=12&&t<=18){var d=Math.abs(t-15);if(best===null||d<bestDist||(d===bestDist&&t>best.total)){best={cycles:c,total:t};bestDist=d;}}
+  }
+  if(best) return best;
+  // fallback: nearest to 15 outside range
+  for(var c2=1;c2<=20;c2++){var t2=c2*n,d2=Math.abs(t2-15);if(best===null||d2<bestDist){best={cycles:c2,total:t2};bestDist=d2;}}
+  return best;
+}
+
+// Returns the full expanded rounds array (cycles × base rounds), renumbered 1..N
+function expandedRounds() {
+  var p=preset();
+  var base=p.rounds;
+  var bc=bestCycles(base.length);
+  var out=[];
+  for(var c=0;c<bc.cycles;c++){
+    base.forEach(function(r){
+      var copy=Object.assign({},r);
+      copy.round=out.length+1;
+      copy._cycle=c+1;
+      copy._cycleRound=r.round;
+      out.push(copy);
+    });
+  }
+  return out;
+}
+function uName(i) {
+  const n=S.names[i]; if(n&&n.trim()) return n.trim();
+  if(isFixed()) return 'Team '+(i+1);
+  if(S.mode==='individual_rotation') return 'P'+(i+1);
+  return 'Player '+(i+1);
+}
+function teamLabel(ids) {
+  if(!Array.isArray(ids)) return uName(ids);
+  return ids.map(i=>uName(i)).join(' / ');
+}
+
+// ─── SETUP STATE ─────────────────────────────────────────────────────────────
+let sMode='fixed_doubles', sPidx=0, sScoreType='games', sScoreVal=3, sTimeLimitOn=false, sTimeLimit=15;
+
+function selectMode(mode) {
+  sMode=mode; sPidx=0;
+  ['fixed_doubles','individual_rotation','interleaved_couples_mix'].forEach(function(m){
+    const btn=document.getElementById('modeBtn-'+m);
+    if(btn) btn.className='mode-btn'+(m===mode?' selected':'');
+  });
+  renderConfigPicker();
+  renderNameInputs();
+  updateTimeFit();
+}
+
+function selectScore(type, val) {
+  sScoreType=type; sScoreVal=val;
+  document.querySelectorAll('.score-pill').forEach(function(p){ p.classList.remove('selected'); });
+  const id='spill-'+type+'-'+val;
+  const el=document.getElementById(id);
+  if(el) el.classList.add('selected');
+  updateTimeFit();
+}
+
+function toggleTimeLimit() {
+  sTimeLimitOn=!sTimeLimitOn;
+  const toggle=document.getElementById('time-toggle');
+  const thumb=document.getElementById('toggle-thumb');
+  const opts=document.getElementById('time-options');
+  if(sTimeLimitOn){
+    toggle.classList.replace('bg-surface-variant','bg-court-green');
+    thumb.classList.replace('translate-x-1','translate-x-6');
+    opts.classList.remove('opacity-30','pointer-events-none');
+  } else {
+    toggle.classList.replace('bg-court-green','bg-surface-variant');
+    thumb.classList.replace('translate-x-6','translate-x-1');
+    opts.classList.add('opacity-30','pointer-events-none');
+  }
+  updateTimeFit();
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var inp=document.getElementById('time-input');
+  if(inp) inp.addEventListener('input', function(){
+    var v=parseInt(this.value)||15;
+    if(v<1) v=1; if(v>60) v=60;
+    sTimeLimit=v; updateTimeFit();
+  });
+});
+
+function renderConfigPicker() {
+  const cfgs=PRESETS[sMode];
+  const el=document.getElementById('config-picker');
+  el.innerHTML='';
+  cfgs.forEach(function(cfg,i){
+    const lbl=cfg.teamsCount?cfg.teamsCount+' Teams':cfg.playersCount?cfg.playersCount+' Players':cfg.couplesCount+' Couples';
+    const sub=cfg.courtsCount+' Court'+(cfg.courtsCount>1?'s':'')+' · '+cfg.rounds.length+' Rounds';
+    const btn=document.createElement('button');
+    btn.className='cfg-btn'+(i===sPidx?' selected':'');
+    btn.innerHTML='<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:17px;font-weight:700;" class="text-white">'+lbl+'</div><div class="text-xs text-on-surface-variant mt-0.5">'+sub+'</div>';
+    btn.addEventListener('click', function(){ sPidx=i; renderConfigPicker(); renderNameInputs(); updateTimeFit(); });
+    el.appendChild(btn);
+  });
+  updateSetupSummary();
+}
+
+function renderNameInputs() {
+  const cfg=PRESETS[sMode][sPidx];
+  const count=cfg.teamsCount||cfg.playersCount||(cfg.couplesCount*2);
+  const lbl=cfg.teamsCount?'Team':cfg.playersCount?'Player':'Player';
+  const el=document.getElementById('name-inputs');
+  el.innerHTML='';
+  for(let i=0;i<count;i++){
+    const inp=document.createElement('input');
+    inp.type='text';
+    inp.placeholder=lbl+' '+(i+1);
+    inp.value=S.names[i]||'';
+    inp.className='bg-surface-container border border-surface-variant rounded-xl px-4 py-3 text-sm text-white placeholder-on-surface-variant focus:outline-none focus:border-court-green transition-colors';
+    inp.dataset.idx=i;
+    el.appendChild(inp);
+  }
+}
+
+function updateTimeFit() {
+  const cfg=PRESETS[sMode][sPidx];
+  const alertEl=document.getElementById('time-alert');
+  const msgEl=document.getElementById('time-alert-msg');
+  const iconEl=document.getElementById('time-alert-icon');
+  if(cfg.rounds.length<=3){alertEl.classList.add('hidden');return;}
+  var bc3=bestCycles(cfg.rounds.length);
+  const dur=sTimeLimitOn?sTimeLimit:12;
+  const r=validateTimeFit(bc3.total,dur);
+  alertEl.classList.remove('hidden');
+  msgEl.textContent='Est. with '+dur+'min matches: '+r.msg;
+  if(r.status==='success'){alertEl.className='rounded-xl p-4 border flex gap-3 items-start bg-green-900/20 border-green-500/40';iconEl.textContent='check_circle';iconEl.className='material-symbols-outlined mt-0.5 text-green-400';}
+  else if(r.status==='warning'){alertEl.className='rounded-xl p-4 border flex gap-3 items-start bg-yellow-900/20 border-yellow-500/40';iconEl.textContent='warning';iconEl.className='material-symbols-outlined mt-0.5 text-yellow-400';}
+  else{alertEl.className='rounded-xl p-4 border flex gap-3 items-start bg-red-900/20 border-red-500/40';iconEl.textContent='error';iconEl.className='material-symbols-outlined mt-0.5 text-red-400';}
+}
+
+function updateSetupSummary() {
+  const cfg=PRESETS[sMode][sPidx];
+  const lbl=cfg.teamsCount?cfg.teamsCount+' teams':cfg.playersCount?cfg.playersCount+' players':cfg.couplesCount+' couples';
+  var bc2=bestCycles(cfg.rounds.length);
+  var totalR=bc2.total;
+  const est=totalR*12+(totalR-1)*3;
+  var cycLabel=bc2.cycles>1?' ('+bc2.cycles+'× cycle)':'';
+  document.getElementById('setup-summary').textContent=lbl+' · '+totalR+' rounds'+cycLabel;
+  document.getElementById('setup-est').textContent='~'+est+'min estimated (12min matches)';
+}
+
+function goToSchedule() {
+  const inputs=document.querySelectorAll('#name-inputs input');
+  const names=[];
+  inputs.forEach(function(inp){names.push(inp.value.trim());});
+  S={
+    mode:sMode, pidx:sPidx, names:names, scoreType:sScoreType, scoreVal:sScoreVal,
+    timeLimitEnabled:sTimeLimitOn, timeLimit:sTimeLimit,
+    currentRound:0, scores:[], started:true
+  };
+  save();
+  navigateTo('schedule');
+  showToast('Session started!');
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function navigateTo(screen) {
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('screen-'+screen).classList.add('active');
+  if(screen==='schedule') renderSchedule();
+  if(screen==='scoring') renderScoring();
+  if(screen==='standings') renderStandings();
+  window.scrollTo(0,0);
+}
+
+// ─── SCHEDULE ────────────────────────────────────────────────────────────────
+function renderSchedule() {
+  var p=preset();
+  var exRounds=expandedRounds();
+  const lbl=p.teamsCount?p.teamsCount+' teams':p.playersCount?p.playersCount+' players':p.couplesCount+' couples';
+  var bc=bestCycles(p.rounds.length);
+  document.getElementById('schedule-subtitle').textContent=lbl+' · '+p.courtsCount+' court'+(p.courtsCount>1?'s':'')+' · '+exRounds.length+' rounds'+(bc.cycles>1?' ('+bc.cycles+' cycles)':'');
+  const c=document.getElementById('schedule-rounds');
+  c.innerHTML='';
+  exRounds.forEach(function(r,ri){
+    const done=ri<S.currentRound, cur=ri===S.currentRound;
+    const div=document.createElement('div');
+    div.className='relative mb-4';
+    const dot='<div class="absolute -left-8 w-3 h-3 rounded-full mt-6 border-2 '+(cur?'bg-court-green border-court-green':done?'bg-on-surface-variant border-outline':'bg-surface-container border-outline-variant')+'"></div>';
+    const courts=r.courts.map(function(ct){
+      const a=Array.isArray(ct.teamA)?ct.teamA:[ct.teamA];
+      const b=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
+      const sc=S.scores.find(function(s){return s.ri===ri&&s.ci===ct.courtId-1;});
+      const scStr=sc?'<span class="text-court-green font-bold ml-2">'+sc.sA+'–'+sc.sB+'</span>':'';
+      return '<div class="flex items-center gap-2 text-sm py-1"><span class="material-symbols-outlined text-on-surface-variant" style="font-size:13px;">sports_tennis</span><span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;">'+teamLabel(a)+'</span><span class="text-on-surface-variant text-xs mx-1">vs</span><span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;">'+teamLabel(b)+'</span>'+scStr+'<span class="text-on-surface-variant text-xs ml-auto">C'+ct.courtId+'</span></div>';
+    }).join('');
+    const sits=(r.sitOuts&&r.sitOuts.length)?'<div class="text-xs text-on-surface-variant mt-2 flex items-center gap-1"><span class="material-symbols-outlined" style="font-size:12px;">hotel_class</span> Sitting out: '+r.sitOuts.map(function(u){return uName(u);}).join(', ')+'</div>':'';
+    const phase=r.phase?'<span class="text-xs font-bold uppercase tracking-widest text-court-green mr-2">'+r.phase+'</span>':'';
+    const badge=done?'<span class="bg-green-900/40 text-green-400 px-2 py-0.5 rounded text-xs font-bold">DONE</span>':cur?'<span class="shimmer bg-court-green/20 text-court-green px-2 py-0.5 rounded text-xs font-bold">NOW</span>':'<span class="bg-surface-container-highest text-on-surface-variant px-2 py-0.5 rounded text-xs font-bold">NEXT</span>';
+    const playBtn=cur?'<button onclick="navigateTo(\'scoring\')" class="mt-3 w-full bg-court-green text-on-primary-fixed rounded-xl py-2 text-sm font-bold tracking-wide flex items-center justify-center gap-1" style="font-family:\'Barlow Condensed\',sans-serif;"><span class="material-symbols-outlined" style="font-size:15px;">play_arrow</span>PLAY THIS ROUND</button>':'';
+    const editBtns=done?r.courts.map(function(ct,ci){return '<button onclick="openEditModal('+ri+','+ci+')" class="mt-1 w-full flex items-center justify-center gap-1 border border-outline-variant text-on-surface-variant rounded-xl py-1.5 text-xs font-bold hover:border-court-green hover:text-court-green transition-all"><span class="material-symbols-outlined" style="font-size:13px;">edit</span>Edit Court '+ct.courtId+' Score</button>';}).join(''):'';
+    div.innerHTML=dot+'<div class="rounded-2xl p-4 border '+(cur?'border-court-green/40 bg-slate-active/80':'border-outline-variant bg-surface-container-low')+(done?' opacity-60':'')+'"><div class="flex justify-between items-start mb-2">'+phase+'<span class="text-xs text-on-surface-variant uppercase tracking-widest">Round '+r.round+'</span>'+badge+'</div>'+courts+sits+playBtn+editBtns+'</div>';
+    c.appendChild(div);
+  });
+}
+
+// ─── SCORING ─────────────────────────────────────────────────────────────────
+function renderScoring() {
+  var p=preset();
+  var exRounds=expandedRounds();
+  const ri=S.currentRound;
+  updateRoundBadge();
+  if(ri>=exRounds.length){
+    document.getElementById('scoring-round-label').textContent='Session Complete';
+    document.getElementById('scoring-phase-label').textContent='All '+exRounds.length+' rounds done!';
+    document.getElementById('court-cards').innerHTML='<div class="col-span-2 text-center py-16"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:32px;font-weight:700;" class="text-court-green">All rounds complete!</div><button onclick="navigateTo(\'standings\')" class="mt-6 bg-court-green text-on-primary-fixed h-12 px-8 rounded-xl font-bold inline-flex items-center gap-2" style="font-family:\'Barlow Condensed\',sans-serif;">VIEW STANDINGS</button></div>';
+    document.getElementById('sitout-section').classList.add('hidden');
+    const sb=document.getElementById('submit-btn');
+    sb.disabled=true; sb.classList.add('opacity-40');
+    return;
+  }
+  const r=exRounds[ri];
+  var cycleInfo=exRounds.length>p.rounds.length&&r._cycle?' · Cycle '+r._cycle:'';
+  document.getElementById('scoring-round-label').textContent='Round '+r.round+' of '+exRounds.length+cycleInfo;
+  document.getElementById('scoring-phase-label').textContent=r.phase||'Live Session';
+  document.getElementById('scoring-score-label').textContent=S.scoreVal+(S.scoreType==='games'?' Games':' Pts');
+  const sb=document.getElementById('submit-btn'); sb.disabled=false; sb.classList.remove('opacity-40');
+
+  // Court cards — exact style from original
+  const cc=document.getElementById('court-cards');
+  cc.innerHTML='';
+  r.courts.forEach(function(ct,ci){
+    const a=Array.isArray(ct.teamA)?ct.teamA:[ct.teamA];
+    const b=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
+    const ex=S.scores.find(function(s){return s.ri===ri&&s.ci===ci;});
+    const sA=ex?ex.sA:0, sB=ex?ex.sB:0;
+    const art=document.createElement('article');
+    art.className='court-card-bg relative rounded-2xl overflow-hidden border border-outline-variant p-6 transition-all duration-300 hover:border-court-green/50';
+    art.innerHTML=
+      '<div class="absolute top-2 right-4 pointer-events-none select-none" style="font-family:\'Barlow Condensed\',sans-serif;font-size:100px;font-weight:800;color:rgba(255,255,255,0.05);line-height:1;">'+ct.courtId+'</div>'+
+      '<div class="flex justify-between items-center mb-6 border-b border-outline-variant pb-4">'+
+        '<h3 style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:700;" class="text-court-green">Court '+ct.courtId+'</h3>'+
+        '<span class="bg-court-green/10 text-court-green px-2 py-1 rounded text-xs font-bold tracking-tighter uppercase">'+S.scoreVal+(S.scoreType==='games'?' Games':' Pts')+'</span>'+
+      '</div>'+
+      '<div class="space-y-8">'+
+        '<div class="flex justify-between items-center group/team">'+
+          '<div class="flex-1"><p class="font-label-md text-label-md text-on-surface-variant mb-1">TEAM A</p>'+
+          '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:700;" class="leading-none">'+teamLabel(a)+'</p></div>'+
+          '<input class="w-20 h-20 bg-surface-container-lowest border-2 border-outline-variant focus:border-court-green text-center rounded-xl transition-all focus:ring-0" style="font-family:\'Barlow Condensed\',sans-serif;font-size:48px;font-weight:800;color:#DFFF00;" type="number" min="0" max="99" value="'+sA+'" data-ri="'+ri+'" data-ci="'+ci+'" data-side="A"/>'+
+        '</div>'+
+        '<div class="relative py-2 flex justify-center items-center">'+
+          '<div class="absolute inset-x-0 top-1/2 h-px bg-outline-variant"></div>'+
+          '<span class="relative z-10 bg-[#122131] px-4 font-label-md text-label-md text-on-surface-variant italic">vs</span>'+
+        '</div>'+
+        '<div class="flex justify-between items-center group/team">'+
+          '<div class="flex-1"><p class="font-label-md text-label-md text-on-surface-variant mb-1">TEAM B</p>'+
+          '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:700;" class="leading-none">'+teamLabel(b)+'</p></div>'+
+          '<input class="w-20 h-20 bg-surface-container-lowest border-2 border-outline-variant focus:border-court-green text-center rounded-xl transition-all focus:ring-0" style="font-family:\'Barlow Condensed\',sans-serif;font-size:48px;font-weight:800;color:#DFFF00;" type="number" min="0" max="99" value="'+sB+'" data-ri="'+ri+'" data-ci="'+ci+'" data-side="B"/>'+
+        '</div>'+
+      '</div>';
+    cc.appendChild(art);
+  });
+
+  // Bind score inputs
+  cc.querySelectorAll('input[type=number]').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      const ri2=parseInt(this.dataset.ri), ci2=parseInt(this.dataset.ci), side=this.dataset.side;
+      const v=parseInt(this.value)||0;
+      let e=S.scores.find(function(s){return s.ri===ri2&&s.ci===ci2;});
+      if(!e){e={ri:ri2,ci:ci2,sA:0,sB:0};S.scores.push(e);}
+      if(side==='A') e.sA=v; else e.sB=v;
+      save();
+      if(v>=S.scoreVal){this.classList.add('border-court-green','shadow-[0_0_15px_rgba(223,255,0,0.3)]');this.classList.remove('border-outline-variant');}
+    });
+    inp.addEventListener('focus', function(){this.select();});
+  });
+
+  // Sit-outs
+  const ss=document.getElementById('sitout-section');
+  const sc=document.getElementById('sitout-chips');
+  if(r.sitOuts&&r.sitOuts.length){
+    ss.classList.remove('hidden');
+    sc.innerHTML=r.sitOuts.map(function(u){
+      return '<div class="flex items-center bg-slate-active/50 border border-court-green/20 rounded-xl px-5 py-3 gap-4"><div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center border border-outline"><span class="material-symbols-outlined text-court-green">hotel_class</span></div><div><p class="font-label-md text-label-md text-on-surface leading-tight">'+uName(u)+'</p><p class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant mt-1">Sitting Out</p></div></div>';
+    }).join('');
+  } else { ss.classList.add('hidden'); }
+}
+
+function submitRound() {
+  const p=preset();
+  S.currentRound++;
+  save();
+  var exLen=expandedRounds().length;
+  if(S.currentRound>=exLen){
+    showToast('Session complete! All rounds done.');
+    setTimeout(function(){navigateTo('standings');},900);
+  } else {
+    showToast('Round '+(S.currentRound)+' submitted!');
+    renderScoring();
+  }
+}
+
+function updateRoundBadge() {
+  const p=preset();
+  const b=document.getElementById('round-badge');
+  if(S.started){
+    b.classList.remove('hidden');
+    var exL=expandedRounds().length; b.textContent=S.currentRound>=exL?'DONE':'R'+(S.currentRound+1)+'/'+exL;
+  } else { b.classList.add('hidden'); }
+}
+
+// ─── STANDINGS — COMPUTE FUNCTIONS ──────────────────────────────────────────
+
+// Helper: is a pair [i,j] an original couple in couples mix?
+// Couples are [0,1], [2,3], [4,5]... — consecutive even/odd index pairs
+function isCouplePair(ids) {
+  if(S.mode!=='interleaved_couples_mix') return false;
+  if(ids.length!==2) return false;
+  var a=Math.min(ids[0],ids[1]), b=Math.max(ids[0],ids[1]);
+  return (a%2===0) && (b===a+1);
+}
+
+// Helper: couple number from player index (0-indexed)
+function coupleNum(playerIdx) { return Math.floor(playerIdx/2)+1; }
+
+// Helper: gender label from player index (even=M, odd=F)
+function genderLabel(playerIdx) { return playerIdx%2===0?'M':'F'; }
+
+// Individual standings: every player aggregated across all rounds
+function computeStandings() {
+  var n=unitCount();
+  var stats={};
+  for(var i=0;i<n;i++) stats[i]={played:0,wins:0,gw:0,gl:0};
+  var exRds=expandedRounds();
+  S.scores.forEach(function(sc){
+    if(sc.ri>=exRds.length) return;
+    var r=exRds[sc.ri];
+    var ct=r.courts[sc.ci];
+    if(!ct) return;
+    var aIds=Array.isArray(ct.teamA)?ct.teamA:[ct.teamA];
+    var bIds=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
+    var winA=sc.sA>sc.sB;
+    aIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sA;stats[id].gl+=sc.sB;if(winA)stats[id].wins++;});
+    bIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sB;stats[id].gl+=sc.sA;if(!winA)stats[id].wins++;});
+  });
+  return Object.entries(stats).map(function(e){
+    var id=+e[0];
+    var sub=S.mode==='interleaved_couples_mix'?'Couple '+coupleNum(id)+' · '+genderLabel(id):'';
+    return {id:id,name:uName(id),sub:sub,played:e[1].played,wins:e[1].wins,gw:e[1].gw,gl:e[1].gl,net:e[1].gw-e[1].gl};
+  }).sort(function(a,b){return b.wins!==a.wins?b.wins-a.wins:b.net-a.net;});
+}
+
+// All doubles pairs (used for fixed_doubles and individual_rotation)
+function computeDoublesStandings() {
+  return _doublesBy(null); // no phase filter, all pairs
+}
+
+// Couples Mix — only original couple pairs [0,1],[2,3]…
+function computeCouplesStandings() {
+  return _doublesBy(null, true); // couple pairs only
+}
+
+// Couples Mix — only cross-pairs formed in Gender Split rounds
+function computeMixStandings() {
+  return _doublesBy('Gender Split', false); // gender split rounds, non-couple pairs
+}
+
+// Internal doubles aggregator
+// phaseFilter: null = all rounds, string = only rounds where phase contains that string
+// couplesOnly: true = only couple pairs, false = only non-couple pairs, null = all pairs
+function _doublesBy(phaseFilter, couplesOnly) {
+  var exRds=expandedRounds();
+  var pairs={};
+  S.scores.forEach(function(sc){
+    if(sc.ri>=exRds.length) return;
+    var r=exRds[sc.ri];
+    if(phaseFilter!==null&&(!r.phase||r.phase.indexOf(phaseFilter)<0)) return;
+    var ct=r.courts[sc.ci];
+    if(!ct) return;
+    var aIds=Array.isArray(ct.teamA)?ct.teamA:[ct.teamA];
+    var bIds=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
+    var winA=sc.sA>sc.sB;
+    function addPair(ids,gw,gl,won){
+      if(couplesOnly===true && !isCouplePair(ids)) return;
+      if(couplesOnly===false && isCouplePair(ids)) return;
+      var key=ids.slice().sort(function(a,b){return a-b;}).join('-');
+      if(!pairs[key]) pairs[key]={ids:ids.slice(),played:0,wins:0,gw:0,gl:0};
+      pairs[key].played++;
+      pairs[key].gw+=gw;
+      pairs[key].gl+=gl;
+      if(won) pairs[key].wins++;
+    }
+    addPair(aIds,sc.sA,sc.sB,winA);
+    addPair(bIds,sc.sB,sc.sA,!winA);
+  });
+  return Object.values(pairs).map(function(p){
+    var name=p.ids.map(function(id){return uName(id);}).join(' / ');
+    var sub='';
+    if(S.mode==='interleaved_couples_mix'){
+      sub=isCouplePair(p.ids)?'Couple '+coupleNum(p.ids[0]):'Mix pair';
+    }
+    return {name:name,sub:sub,played:p.played,wins:p.wins,gw:p.gw,gl:p.gl,net:p.gw-p.gl};
+  }).sort(function(a,b){return b.wins!==a.wins?b.wins-a.wins:b.net-a.net;});
+}
+
+// Gender Split standings: individual players but only in Gender Split phase rounds
+function computeGenderStandings() {
+  var n=unitCount();
+  var stats={};
+  for(var i=0;i<n;i++) stats[i]={played:0,wins:0,gw:0,gl:0};
+  var exRds=expandedRounds();
+  S.scores.forEach(function(sc){
+    if(sc.ri>=exRds.length) return;
+    var r=exRds[sc.ri];
+    if(!r.phase||r.phase.indexOf('Gender')<0) return;
+    var ct=r.courts[sc.ci];
+    if(!ct) return;
+    var aIds=Array.isArray(ct.teamA)?ct.teamA:[ct.teamA];
+    var bIds=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
+    var winA=sc.sA>sc.sB;
+    aIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sA;stats[id].gl+=sc.sB;if(winA)stats[id].wins++;});
+    bIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sB;stats[id].gl+=sc.sA;if(!winA)stats[id].wins++;});
+  });
+  return Object.entries(stats).map(function(e){
+    var id=+e[0];
+    var sub=S.mode==='interleaved_couples_mix'?'Couple '+coupleNum(id)+' · '+genderLabel(id):'';
+    return {id:id,name:uName(id),sub:sub,played:e[1].played,wins:e[1].wins,gw:e[1].gw,gl:e[1].gl,net:e[1].gw-e[1].gl};
+  }).filter(function(p){return p.played>0;})
+    .sort(function(a,b){return b.wins!==a.wins?b.wins-a.wins:b.net-a.net;});
+}
+
+// Active tab state
+var _activeRankTab='doubles';
+
+function getTabs() {
+  if(S.mode==='fixed_doubles') return [{id:'doubles',label:'Doubles'}];
+  if(S.mode==='individual_rotation') return [{id:'doubles',label:'Doubles'},{id:'individual',label:'Individual'}];
+  // interleaved_couples_mix — Mix tab already covers Gender Split rounds per-player
+  return [
+    {id:'couples',label:'Couples'},
+    {id:'mix',label:'Mix Pairs'},
+    {id:'individual',label:'Individual'}
+  ];
+}
+
+function switchRankTab(tab) {
+  _activeRankTab=tab;
+  document.querySelectorAll('.rank-tab-btn').forEach(function(btn){
+    var active=btn.dataset.tab===tab;
+    btn.className='rank-tab-btn px-4 py-1.5 rounded-md transition-all cursor-pointer '+(active?'bg-court-green text-on-primary-fixed':'text-on-surface-variant hover:text-white');
+    btn.style.fontFamily="'Barlow Condensed',sans-serif";
+    btn.style.fontSize='13px';
+    btn.style.fontWeight='700';
+    btn.style.letterSpacing='0.05em';
+  });
+  renderRankingsTable();
+}
+
+function renderRankingsTable() {
+  var st;
+  if(_activeRankTab==='individual') st=computeStandings();
+  else if(_activeRankTab==='couples') st=computeCouplesStandings();
+  else if(_activeRankTab==='mix') st=computeMixStandings();
+  else st=computeDoublesStandings();
+
+  var tbody=document.getElementById('rankings-body');
+  if(!tbody) return;
+  if(st.length===0){
+    tbody.innerHTML='<tr><td colspan="7" class="px-4 py-8 text-center text-on-surface-variant text-sm">No data yet — scores will appear here after rounds are played.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=st.map(function(pl,i){
+    var rankColor=i===0?'#DFFF00':'rgba(255,255,255,0.3)';
+    var netPer=pl.played>0?((pl.gw-pl.gl)/pl.played):0;
+    var netStr=(netPer>=0?'+':'')+netPer.toFixed(1);
+    var netColor=netPer>=0?'text-court-green':'text-error-red';
+    var subHtml=pl.sub?'<div class="text-xs text-on-surface-variant opacity-60 mt-0.5">'+pl.sub+'</div>':'';
+    return [
+      '<tr class="hover:bg-white/5 transition-colors">',
+      '<td class="px-4 py-3" style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:800;color:'+rankColor+';">'+String(i+1).padStart(2,'0')+'</td>',
+      '<td class="px-4 py-3"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:700;" class="text-white leading-tight">'+pl.name+'</div>'+subHtml+'</td>',
+      '<td class="px-4 py-3 text-center text-white font-bold">'+pl.played+'</td>',
+      '<td class="px-4 py-3 text-center text-white">'+pl.wins+'</td>',
+      '<td class="px-4 py-3 text-center text-white">'+pl.gw+'</td>',
+      '<td class="px-4 py-3 text-center text-white">'+pl.gl+'</td>',
+      '<td class="px-4 py-3 text-center font-bold '+netColor+';">'+netStr+'</td>',
+      '</tr>'
+    ].join('');
+  }).join('');
+}
+
+function renderStandings() {
+  var exRdsLen=expandedRounds().length;
+  var pct=exRdsLen>0?Math.round(S.currentRound/exRdsLen*100):0;
+  document.getElementById('standings-subtitle').textContent='Round '+S.currentRound+' of '+exRdsLen+' complete';
+
+  // Stats bar
+  document.getElementById('stats-bar').innerHTML=[
+    '<div class="glass-card p-5 rounded-xl border-l-4 border-court-green"><p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Rounds</p>'+
+      '<div class="mt-2 flex items-baseline gap-1"><span style="font-family:\'Barlow Condensed\',sans-serif;font-size:40px;font-weight:800;color:#DFFF00;">'+S.currentRound+'</span>'+
+      '<span class="text-on-surface-variant text-sm">/ '+exRdsLen+'</span></div></div>',
+    '<div class="glass-card p-5 rounded-xl"><p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Matches</p>'+
+      '<div class="mt-2"><span style="font-family:\'Barlow Condensed\',sans-serif;font-size:40px;font-weight:800;color:#ffffff;">'+S.scores.length+'</span></div></div>',
+    '<div class="glass-card p-5 rounded-xl"><p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Players</p>'+
+      '<div class="mt-2"><span style="font-family:\'Barlow Condensed\',sans-serif;font-size:40px;font-weight:800;color:#ffffff;">'+unitCount()+'</span></div></div>',
+    '<div class="glass-card p-5 rounded-xl"><p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Progress</p>'+
+      '<div class="mt-2"><span style="font-family:\'Barlow Condensed\',sans-serif;font-size:40px;font-weight:800;color:#DFFF00;">'+pct+'%</span></div></div>'
+  ].join('');
+
+  // Top performers — mode-aware
+  var topPods=[];
+  var dbl=S.mode==='interleaved_couples_mix'?computeCouplesStandings():computeDoublesStandings();
+  var mix=S.mode==='interleaved_couples_mix'?computeMixStandings():[];
+  var ind=computeStandings();
+
+  if(S.mode==='interleaved_couples_mix'){
+    if(dbl.length>0){var d=dbl[0];topPods.push({label:'Best Couple',icon:'favorite',accent:true,name:d.name,stat:d.played+' MP · '+d.wins+'W · '+(d.played>0?(d.net>=0?'+':'')+((d.net/d.played).toFixed(1)):'0.0')+' Net/MP'});}
+    if(mix.length>0){var mx=mix[0];topPods.push({label:'Best Mix',icon:'wc',accent:false,name:mx.name,stat:mx.played+' MP · '+mx.wins+'W · '+(mx.played>0?(mx.net>=0?'+':'')+((mx.net/mx.played).toFixed(1)):'0.0')+' Net/MP'});}
+    if(ind.length>0){var iv=ind[0];topPods.push({label:'Best Individual',icon:'person',accent:false,name:iv.name,stat:iv.played+' MP · '+iv.wins+'W · '+(iv.played>0?(iv.net>=0?'+':'')+((iv.net/iv.played).toFixed(1)):'0.0')+' Net/MP'});}
+  } else {
+    if(dbl.length>0){var d2=dbl[0];topPods.push({label:'Best Double',icon:'groups',accent:true,name:d2.name,stat:d2.played+' MP · '+d2.wins+'W · '+(d2.played>0?(d2.net>=0?'+':'')+((d2.net/d2.played).toFixed(1)):'0.0')+' Net/MP'});}
+    if(S.mode!=='fixed_doubles'&&ind.length>0){var iv2=ind[0];topPods.push({label:'Best Individual',icon:'person',accent:false,name:iv2.name,stat:iv2.played+' MP · '+iv2.wins+'W · '+(iv2.played>0?(iv2.net>=0?'+':'')+((iv2.net/iv2.played).toFixed(1)):'0.0')+' Net/MP'});}
+  }
+
+  document.getElementById('top-performers').innerHTML=topPods.map(function(pod,i){
+    var bc=pod.accent?'border-court-green':'border-white/20';
+    var ic=pod.accent?'text-court-green':'text-white';
+    var lc=pod.accent?'text-court-green':'text-on-surface-variant';
+    return [
+      '<div class="glass-card p-4 rounded-xl flex items-center gap-4 relative overflow-hidden hover:bg-slate-active/50 transition-all">',
+        '<div class="w-16 h-16 rounded-full border-2 '+bc+' p-1 relative z-10 flex items-center justify-center bg-surface-container-highest flex-shrink-0">',
+          '<span class="material-symbols-outlined '+ic+'" style="font-size:26px;">'+pod.icon+'</span>',
+        '</div>',
+        '<div class="flex flex-col z-10 min-w-0">',
+          '<span class="text-xs '+lc+' uppercase tracking-widest font-bold">'+pod.label+'</span>',
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:17px;font-weight:700;" class="text-white truncate">'+pod.name+'</span>',
+          '<span class="text-xs text-on-surface-variant opacity-80 mt-0.5">'+pod.stat+'</span>',
+        '</div>',
+        '<div class="absolute top-2 right-2 opacity-10" style="font-family:\'Barlow Condensed\',sans-serif;font-size:48px;font-weight:800;line-height:1;">0'+(i+1)+'</div>',
+      '</div>'
+    ].join('');
+  }).join('');
+
+  // Tab switcher
+  var tabs=getTabs();
+  if(!tabs.find(function(t){return t.id===_activeRankTab;})) _activeRankTab=tabs[0].id;
+  var tabsEl=document.getElementById('rank-tabs');
+  tabsEl.innerHTML=tabs.map(function(t){
+    var active=t.id===_activeRankTab;
+    return '<button class="rank-tab-btn px-4 py-1.5 rounded-md transition-all cursor-pointer '+(active?'bg-court-green text-on-primary-fixed':'text-on-surface-variant hover:text-white')+'" '+
+      'data-tab="'+t.id+'" onclick="switchRankTab(\''+t.id+'\')" '+
+      'style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;">'+t.label+'</button>';
+  }).join('');
+
+  renderRankingsTable();
+
+  var cb=document.getElementById('continue-btn');
+  if(S.currentRound>=exRdsLen){
+    cb.innerHTML='<span class="material-symbols-outlined">emoji_events</span> SESSION COMPLETE';
+    cb.disabled=true; cb.classList.add('opacity-60');
+  } else {
+    cb.innerHTML='<span class="material-symbols-outlined">sports_tennis</span> CONTINUE SESSION';
+    cb.disabled=false; cb.classList.remove('opacity-60');
+  }
+}
+
+// ─── EDIT SCORE MODAL ────────────────────────────────────────────────────────
+var _editRi=-1, _editCi=-1;
+
+function openEditModal(ri, ci) {
+  var exRds=expandedRounds();
+  var r=exRds[ri];
+  var ct=r.courts[ci];
+  var a=Array.isArray(ct.teamA)?ct.teamA:[ct.teamA];
+  var b=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
+  var ex=S.scores.find(function(s){return s.ri===ri&&s.ci===ci;});
+  _editRi=ri; _editCi=ci;
+  document.getElementById('edit-round-label').textContent='Round '+r.round;
+  document.getElementById('edit-court-label').textContent='Court '+ct.courtId;
+  document.getElementById('edit-matchup').textContent=teamLabel(a)+' vs '+teamLabel(b);
+  document.getElementById('edit-label-a').textContent=teamLabel(a);
+  document.getElementById('edit-label-b').textContent=teamLabel(b);
+  document.getElementById('edit-score-a').value=ex?ex.sA:0;
+  document.getElementById('edit-score-b').value=ex?ex.sB:0;
+  document.getElementById('edit-modal').classList.remove('hidden');
+  setTimeout(function(){document.getElementById('edit-score-a').focus();document.getElementById('edit-score-a').select();},100);
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.add('hidden');
+  _editRi=-1; _editCi=-1;
+}
+
+function saveEditedScore() {
+  if(_editRi<0) return;
+  var sA=parseInt(document.getElementById('edit-score-a').value)||0;
+  var sB=parseInt(document.getElementById('edit-score-b').value)||0;
+  var ex=S.scores.find(function(s){return s.ri===_editRi&&s.ci===_editCi;});
+  if(ex){ex.sA=sA;ex.sB=sB;}
+  else S.scores.push({ri:_editRi,ci:_editCi,sA:sA,sB:sB});
+  save();
+  closeEditModal();
+  renderSchedule();
+  showToast('Score updated');
+}
+
+// ─── CSV EXPORT ───────────────────────────────────────────────────────────────
+function exportCSV() {
+  var exRds=expandedRounds();
+  var p=preset();
+  var now=new Date().toLocaleDateString();
+  var lbl=p.teamsCount?p.teamsCount+' teams':p.playersCount?p.playersCount+' players':p.couplesCount+' couples';
+  var rows=[];
+  rows.push(['Padel RR Session Export',now]);
+  rows.push(['Format',lbl+' / '+S.mode.replace(/_/g,' ')]);
+  rows.push(['Scoring',S.scoreVal+(S.scoreType==='games'?' Games':' Points')]);
+  rows.push(['Total Rounds',exRds.length]);
+  rows.push(['Completed Rounds',S.currentRound]);
+  rows.push([]);
+  rows.push(['SCHEDULE AND RESULTS']);
+  rows.push(['Round','Phase','Court','Team A','Team B','Score A','Score B','Winner','Status']);
+  exRds.forEach(function(r,ri){
+    var played=ri<S.currentRound;
+    var phase=r.phase||'-';
+    r.courts.forEach(function(ct,ci){
+      var a=Array.isArray(ct.teamA)?ct.teamA:[ct.teamA];
+      var b=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
+      var sc=S.scores.find(function(s){return s.ri===ri&&s.ci===ci;});
+      var sA=sc?sc.sA:'';
+      var sB=sc?sc.sB:'';
+      var winner=sc?(sc.sA>sc.sB?teamLabel(a):sc.sB>sc.sA?teamLabel(b):'Draw'):'';
+      var status=played?(sc?'Played':'Played (no score)'):'Scheduled';
+      rows.push([r.round,phase,ct.courtId,teamLabel(a),teamLabel(b),sA,sB,winner,status]);
+    });
+    if(r.sitOuts&&r.sitOuts.length){
+      rows.push([r.round,phase,'SIT-OUT',r.sitOuts.map(function(u){return uName(u);}).join(', '),'','','','','']);
+    }
+  });
+  rows.push([]);
+  var getTabs2=getTabs();
+  getTabs2.forEach(function(tab){
+    var st;
+    if(tab.id==='individual') st=computeStandings();
+    else if(tab.id==='couples') st=computeCouplesStandings();
+    else if(tab.id==='mix') st=computeMixStandings();
+    else st=computeDoublesStandings();
+    rows.push([tab.label.toUpperCase()+' RANKINGS']);
+    rows.push(['Rank','Name','Played','Wins','Losses','GW','GL','Net/MP']);
+    st.forEach(function(pl,i){
+      var netPer=pl.played>0?((pl.gw-pl.gl)/pl.played).toFixed(1):0;
+      var netStr=(netPer>=0?'+':'')+netPer;
+      rows.push([String(i+1).padStart(2,'0'),pl.name,pl.played,pl.wins,pl.played-pl.wins,pl.gw,pl.gl,netStr]);
+    });
+    rows.push([]);
+  });
+  var csv=rows.map(function(row){
+    return row.map(function(cell){
+      var s=String(cell===undefined||cell===null?'':cell);
+      if(s.indexOf(';')>=0||s.indexOf('"')>=0||s.indexOf('\n')>=0) s='"'+s.replace(/"/g,'""')+'"';
+      return s;
+    }).join(';');
+  }).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var ds=now.replace(/\//g,'-');
+  a.href=url; a.download='padel_rr_'+ds+'.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  showToast('CSV downloaded');
+}
+
+// ─── HTML OFFLINE EXPORT ──────────────────────────────────────────────────────
+function exportHTML() {
+  var exRds=expandedRounds();
+  var p=preset();
+  var now=new Date().toLocaleString();
+  var lbl=p.teamsCount?p.teamsCount+' teams':p.playersCount?p.playersCount+' players':p.couplesCount+' couples';
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // BUG 1+3: loop all tabs, one heading+table per tab
+  function buildRankTable(st, title) {
+    var rows = st.map(function(pl, i) {
+      var medal = ['🥇','🥈','🥉'][i] || '';
+      var netPer = pl.played > 0 ? ((pl.gw - pl.gl) / pl.played) : 0;
+      var netStr = (netPer >= 0 ? '+' : '') + netPer.toFixed(1);
+      var netColor = netPer >= 0 ? '#DFFF00' : '#f87171';
+      var rankColor = i === 0 ? '#DFFF00' : '#94a3b8';
+      // BUG 2+7: closing " before > on tr style
+      var trStyle = 'border-bottom:1px solid #1e293b' + (i === 0 ? ';background:#0d1c2d' : '');
+      // WARN 4: include pl.sub if present
+      var subHtml = pl.sub ? '<br/><small style="color:#475569;font-size:10px;">'+esc(pl.sub)+'</small>' : '';
+      return [
+        '<tr style="'+trStyle+'">',
+        '<td style="padding:10px 12px;font-size:20px;font-weight:800;color:'+rankColor+';font-family:Barlow Condensed,sans-serif;">'+medal+String(i+1).padStart(2,'0')+'</td>',
+        '<td style="padding:10px 12px;font-size:15px;font-weight:700;color:#f1f5f9;font-family:Barlow Condensed,sans-serif;">'+esc(pl.name)+subHtml+'</td>',
+        '<td style="padding:10px 12px;text-align:center;color:#94a3b8;">'+pl.played+'</td>',
+        '<td style="padding:10px 12px;text-align:center;color:#4ade80;font-weight:700;">'+pl.wins+'</td>',
+        '<td style="padding:10px 12px;text-align:center;color:#f87171;">'+(pl.played-pl.wins)+'</td>',
+        '<td style="padding:10px 12px;text-align:center;color:#f1f5f9;">'+pl.gw+'</td>',
+        '<td style="padding:10px 12px;text-align:center;color:#f1f5f9;">'+pl.gl+'</td>',
+        '<td style="padding:10px 12px;text-align:center;font-weight:700;color:'+netColor+';">'+netStr+'</td>',
+        '</tr>'
+      ].join('');
+    }).join('');
+    return '<h2>'+esc(title)+'</h2>'+
+      '<table><thead><tr>'+
+      '<th>#</th><th>Name</th><th>Played</th><th>Wins</th><th>Losses</th><th>GW</th><th>GL</th><th>Net/MP</th>'+
+      '</tr></thead><tbody>'+rows+'</tbody></table>';
+  }
+
+  var rankingSections = getTabs().map(function(tab) {
+    var st;
+    if(tab.id==='individual') st=computeStandings();
+    else if(tab.id==='couples') st=computeCouplesStandings();
+    else if(tab.id==='mix') st=computeMixStandings();
+    else st=computeDoublesStandings();
+    return buildRankTable(st, tab.label+' Rankings');
+  }).join('');
+
+  var schedRows = exRds.map(function(r, ri) {
+    var played = ri < S.currentRound;
+    var phase = r.phase || '—';
+    var rows = r.courts.map(function(ct, ci) {
+      var a = Array.isArray(ct.teamA) ? ct.teamA : [ct.teamA];
+      var b = Array.isArray(ct.teamB) ? ct.teamB : [ct.teamB];
+      var sc = S.scores.find(function(s){return s.ri===ri&&s.ci===ci;});
+      var scoreStr = sc ? (sc.sA+' – '+sc.sB) : '—';
+      var scoreColor = sc ? '#DFFF00' : '#475569';
+      var winner = sc ? (sc.sA>sc.sB ? esc(teamLabel(a)) : sc.sB>sc.sA ? esc(teamLabel(b)) : 'Draw') : '';
+      var statusColor = played ? '#4ade80' : '#475569';
+      var status = played ? (sc ? 'Played' : 'No score') : 'Scheduled';
+      return [
+        '<tr style="border-bottom:1px solid #1e293b;">',
+        '<td style="padding:8px 12px;color:#64748b;font-size:12px;">R'+r.round+'</td>',
+        '<td style="padding:8px 12px;color:#94a3b8;font-size:11px;">'+esc(phase)+'</td>',
+        '<td style="padding:8px 12px;color:#DFFF00;font-size:12px;font-weight:700;">C'+ct.courtId+'</td>',
+        '<td style="padding:8px 12px;font-size:13px;font-family:Barlow Condensed,sans-serif;font-weight:700;">'+esc(teamLabel(a))+'</td>',
+        '<td style="padding:8px 12px;text-align:center;color:'+scoreColor+';font-weight:700;font-family:Barlow Condensed,sans-serif;">'+scoreStr+'</td>',
+        '<td style="padding:8px 12px;font-size:13px;font-family:Barlow Condensed,sans-serif;font-weight:700;">'+esc(teamLabel(b))+'</td>',
+        '<td style="padding:8px 12px;font-size:11px;color:'+statusColor+';">'+winner+(winner?' · ':'')+status+'</td>',
+        '</tr>'
+      ].join('');
+    });
+    if(r.sitOuts && r.sitOuts.length) {
+      var sitNames = r.sitOuts.map(function(u){return uName(u);}).join(', ');
+      // BUG 5: colspan="5" not "6" for 7-column table
+      rows.push('<tr style="border-bottom:1px solid #1e293b;background:#080f1a;"><td style="padding:6px 12px;color:#475569;font-size:11px;">R'+r.round+'</td><td colspan="5" style="padding:6px 12px;color:#475569;font-size:11px;">⏸ Sitting out: '+esc(sitNames)+'</td><td></td></tr>');
+    }
+    return rows.join('');
+  }).join('');
+
+  var parts = [
+    '<!DOCTYPE html>',
+    '<html lang="en"><head>',
+    '<meta charset="utf-8"/>',
+    '<meta name="viewport" content="width=device-width,initial-scale=1"/>',
+    '<title>Padel RR — Session Report</title>',
+    '<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>',
+    '<style>',
+    '*{box-sizing:border-box;margin:0;padding:0;}',
+    'body{background:#051424;color:#d4e4fa;font-family:Inter,sans-serif;padding:24px;max-width:1000px;margin:0 auto;}',
+    'h1{font-family:"Barlow Condensed",sans-serif;font-size:36px;font-weight:800;color:#DFFF00;letter-spacing:-0.02em;}',
+    'h2{font-family:"Barlow Condensed",sans-serif;font-size:22px;font-weight:700;color:#fff;margin:32px 0 12px;text-transform:uppercase;}',
+    'p.meta{color:#64748b;font-size:13px;margin-top:4px;}',
+    'table{width:100%;border-collapse:collapse;background:#0d1c2d;border-radius:12px;overflow:hidden;margin-bottom:8px;}',
+    'th{padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#475569;background:#122131;border-bottom:2px solid #1e293b;}',
+    'th:not(:nth-child(1)):not(:nth-child(2)){text-align:center;}',
+    'tr:hover{background:#122131;}',
+    '@media print{body{background:#fff;color:#111;padding:12px;}h1,h2{color:#111;}table{background:#f8fafc;}th{background:#e2e8f0;color:#374151;}td{color:#374151!important;}}',
+    '</style></head><body>',
+    '<h1>PADEL RR</h1>',
+    '<p class="meta">Session Report &middot; Exported '+esc(now)+'</p>',
+    '<p class="meta">'+esc(lbl)+' &middot; '+esc(S.mode.replace(/_/g,' '))+' &middot; '+S.scoreVal+' '+(S.scoreType==='games'?'games':'points')+' &middot; '+S.currentRound+'/'+exRds.length+' rounds played</p>',
+    rankingSections,
+    '<h2>Full Schedule &amp; Results</h2>',
+    '<table><thead><tr>',
+    '<th>Rnd</th><th>Phase</th><th>Court</th><th>Team A</th><th>Score</th><th>Team B</th><th>Status</th>',
+    '</tr></thead><tbody>',
+    schedRows,
+    '</tbody></table>',
+    '<p style="margin-top:32px;color:#334155;font-size:12px;text-align:center;">Generated by Padel RR Match Hub</p>',
+    '</body></html>'
+  ];
+  var html=parts.join('');
+  var blob=new Blob([html],{type:'text/html;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var ds=new Date().toLocaleDateString().replace(/\//g,'-');
+  a.href=url; a.download='padel_rr_report_'+ds+'.html';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  showToast('HTML report downloaded');
+}
+
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  var t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.remove('opacity-0','pointer-events-none','translate-y-2');
+  t.classList.add('opacity-100','translate-y-0');
+  setTimeout(function(){t.classList.add('opacity-0','translate-y-2');t.classList.remove('opacity-100','translate-y-0');},2400);
+}
+function confirmReset() {
+  if(confirm('Reset all session data? This cannot be undone.')) {
+    nuke();
+    S={mode:'fixed_doubles',pidx:0,names:[],scoreType:'games',scoreVal:3,timeLimitEnabled:false,timeLimit:15,currentRound:0,scores:[],started:false};
+    sMode='fixed_doubles'; sPidx=0;
+    navigateTo('setup');
+    renderConfigPicker();
+    renderNameInputs();
+    showToast('Session cleared');
+  }
+}
+
+// ─── BOOT ────────────────────────────────────────────────────────────────────
+(function(){
+  var saved=load();
+  if(saved&&saved.started){
+    S=saved; sMode=S.mode; sPidx=S.pidx;
+    navigateTo('scoring');
+    showToast('Session restored');
+  } else {
+    renderConfigPicker();
+    renderNameInputs();
+    updateTimeFit();
+    updateSetupSummary();
+  }
+})();
+</script>
+</body>
+</html>
