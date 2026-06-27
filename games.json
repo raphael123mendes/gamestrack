@@ -41,7 +41,8 @@
       "file": "rs_padelhub.html",
       "name": "Padel HUB",
       "description": "Here no limit, all combinations of padel courts and players you can use. fix double, individual, mix gender.this is the real deal",
-      "emoji": "🃏",
+      "emoji": "🏆",
+      "featured": true,
       "tags": []
     }
   ]
