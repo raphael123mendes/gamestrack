@@ -400,6 +400,17 @@ const PRESETS = {
       ]
     },
     {
+  teamsCount: 2,
+  courtsCount: 1,
+  rounds: [
+    { round: 1, courts: [{ courtId: 1, teamA: 0, teamB: 1 }], sitOuts: [] },
+    { round: 2, courts: [{ courtId: 1, teamA: 0, teamB: 1 }], sitOuts: [] },
+    { round: 3, courts: [{ courtId: 1, teamA: 0, teamB: 1 }], sitOuts: [] },
+    { round: 4, courts: [{ courtId: 1, teamA: 0, teamB: 1 }], sitOuts: [] },
+    { round: 5, courts: [{ courtId: 1, teamA: 0, teamB: 1 }], sitOuts: [] }
+          ]
+    },
+    {
       teamsCount: 4,
       courtsCount: 1,
       description: "4 Fixed Pairs, 1 Court. Perfect Play-Sit-Play cadence. 0% back-to-back sit-outs.",
@@ -472,51 +483,50 @@ const PRESETS = {
         { round: 3, courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 2] }], sitOuts: [] }
       ]
     },
-    {
-      playersCount: 5,
-      courtsCount: 1,
-      hasBlocks: false,
-      rounds: [
-        { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [4] },
-        { round: 2,  courts: [{ courtId: 1, teamA: [1, 2], teamB: [3, 4] }], sitOuts: [0] },
-        { round: 3,  courts: [{ courtId: 1, teamA: [2, 3], teamB: [4, 0] }], sitOuts: [1] },
-        { round: 4,  courts: [{ courtId: 1, teamA: [3, 4], teamB: [0, 1] }], sitOuts: [2] },
-        { round: 5,  courts: [{ courtId: 1, teamA: [4, 0], teamB: [1, 2] }], sitOuts: [3] },
-        { round: 6,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 3] }], sitOuts: [4] },
-        { round: 7,  courts: [{ courtId: 1, teamA: [1, 3], teamB: [2, 4] }], sitOuts: [0] },
-        { round: 8,  courts: [{ courtId: 1, teamA: [2, 4], teamB: [3, 0] }], sitOuts: [1] },
-        { round: 9,  courts: [{ courtId: 1, teamA: [3, 0], teamB: [4, 1] }], sitOuts: [2] },
-        { round: 10, courts: [{ courtId: 1, teamA: [4, 1], teamB: [0, 2] }], sitOuts: [3] },
-        { round: 11, courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 2] }], sitOuts: [4] },
-        { round: 12, courts: [{ courtId: 1, teamA: [1, 4], teamB: [2, 3] }], sitOuts: [0] },
-        { round: 13, courts: [{ courtId: 1, teamA: [2, 0], teamB: [3, 4] }], sitOuts: [1] },
-        { round: 14, courts: [{ courtId: 1, teamA: [3, 1], teamB: [4, 0] }], sitOuts: [2] },
-        { round: 15, courts: [{ courtId: 1, teamA: [4, 2], teamB: [0, 1] }], sitOuts: [3] }
-      ]
-    },
-    {
-      playersCount: 6,
-      courtsCount: 1,
-      hasBlocks: false,
-      description: "6 Individual Players, 1 Court. Re-engineered matrix: Exactly 10 games and 5 sit-outs per player. 0 back-to-back sit-outs.",
-      rounds: [
-        { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [4, 5] },
-        { round: 2,  courts: [{ courtId: 1, teamA: [4, 5], teamB: [0, 2] }], sitOuts: [1, 3] },
-        { round: 3,  courts: [{ courtId: 1, teamA: [1, 3], teamB: [4, 5] }], sitOuts: [0, 2] },
-        { round: 4,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 4] }], sitOuts: [3, 5] },
-        { round: 5,  courts: [{ courtId: 1, teamA: [3, 5], teamB: [0, 2] }], sitOuts: [1, 4] },
-        { round: 6,  courts: [{ courtId: 1, teamA: [1, 4], teamB: [3, 5] }], sitOuts: [0, 2] },
-        { round: 7,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 5] }], sitOuts: [2, 4] },
-        { round: 8,  courts: [{ courtId: 1, teamA: [2, 4], teamB: [0, 3] }], sitOuts: [1, 5] },
-        { round: 9,  courts: [{ courtId: 1, teamA: [1, 5], teamB: [2, 4] }], sitOuts: [0, 3] },
-        { round: 10, courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 5] }], sitOuts: [1, 3] },
-        { round: 11, courts: [{ courtId: 1, teamA: [1, 3], teamB: [0, 4] }], sitOuts: [2, 5] },
-        { round: 12, courts: [{ courtId: 1, teamA: [2, 5], teamB: [1, 3] }], sitOuts: [0, 4] },
-        { round: 13, courts: [{ courtId: 1, teamA: [0, 5], teamB: [3, 4] }], sitOuts: [1, 2] },
-        { round: 14, courts: [{ courtId: 1, teamA: [1, 2], teamB: [0, 5] }], sitOuts: [3, 4] },
-        { round: 15, courts: [{ courtId: 1, teamA: [3, 4], teamB: [1, 2] }], sitOuts: [0, 5] }
-      ]
-    },
+{
+  playersCount: 5,
+  courtsCount: 1,
+  rounds: [
+    { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [4] },
+    { round: 2,  courts: [{ courtId: 1, teamA: [1, 4], teamB: [0, 3] }], sitOuts: [2] },
+    { round: 3,  courts: [{ courtId: 1, teamA: [2, 4], teamB: [1, 3] }], sitOuts: [0] },
+    { round: 4,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 1] }], sitOuts: [3] },
+    { round: 5,  courts: [{ courtId: 1, teamA: [3, 0], teamB: [2, 4] }], sitOuts: [1] },
+    { round: 6,  courts: [{ courtId: 1, teamA: [1, 2], teamB: [0, 3] }], sitOuts: [4] },
+    { round: 7,  courts: [{ courtId: 1, teamA: [0, 4], teamB: [1, 3] }], sitOuts: [2] },
+    { round: 8,  courts: [{ courtId: 1, teamA: [3, 4], teamB: [2, 1] }], sitOuts: [0] },
+    { round: 9,  courts: [{ courtId: 1, teamA: [1, 0], teamB: [4, 2] }], sitOuts: [3] },
+    { round: 10, courts: [{ courtId: 1, teamA: [2, 3], teamB: [0, 4] }], sitOuts: [1] },
+    { round: 11, courts: [{ courtId: 1, teamA: [2, 0], teamB: [1, 3] }], sitOuts: [4] },
+    { round: 12, courts: [{ courtId: 1, teamA: [0, 3], teamB: [4, 1] }], sitOuts: [2] },
+    { round: 13, courts: [{ courtId: 1, teamA: [3, 4], teamB: [2, 1] }], sitOuts: [0] },
+    { round: 14, courts: [{ courtId: 1, teamA: [4, 1], teamB: [0, 2] }], sitOuts: [3] },
+    { round: 15, courts: [{ courtId: 1, teamA: [0, 4], teamB: [3, 2] }], sitOuts: [1] }
+  ]
+},
+   {
+  playersCount: 6,
+  courtsCount: 1,
+  hasBlocks: false,
+  description: "6 Individual Players, 1 Court. Exactly 10 games and 5 sit-outs per player. 0% back-to-back sit-outs. Max 4 consecutive games.",
+  rounds: [
+    { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [4, 5] },
+    { round: 2,  courts: [{ courtId: 1, teamA: [4, 5], teamB: [0, 2] }], sitOuts: [1, 3] },
+    { round: 3,  courts: [{ courtId: 1, teamA: [1, 3], teamB: [4, 0] }], sitOuts: [2, 5] },
+    { round: 4,  courts: [{ courtId: 1, teamA: [2, 5], teamB: [1, 4] }], sitOuts: [0, 3] },
+    { round: 5,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [2, 5] }], sitOuts: [1, 4] },
+    { round: 6,  courts: [{ courtId: 1, teamA: [1, 4], teamB: [3, 5] }], sitOuts: [0, 2] },
+    { round: 7,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 5] }], sitOuts: [3, 4] },
+    { round: 8,  courts: [{ courtId: 1, teamA: [3, 4], teamB: [0, 2] }], sitOuts: [1, 5] },
+    { round: 9,  courts: [{ courtId: 1, teamA: [1, 5], teamB: [3, 4] }], sitOuts: [0, 2] },
+    { round: 10, courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 5] }], sitOuts: [1, 3] },
+    { round: 11, courts: [{ courtId: 1, teamA: [1, 3], teamB: [0, 4] }], sitOuts: [2, 5] },
+    { round: 12, courts: [{ courtId: 1, teamA: [2, 5], teamB: [1, 3] }], sitOuts: [0, 4] },
+    { round: 13, courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 3] }], sitOuts: [1, 5] },
+    { round: 14, courts: [{ courtId: 1, teamA: [1, 5], teamB: [0, 4] }], sitOuts: [2, 3] },
+    { round: 15, courts: [{ courtId: 1, teamA: [2, 3], teamB: [1, 5] }], sitOuts: [0, 4] }
+  ]
+},
     {
       playersCount: 8,
       courtsCount: 2,
