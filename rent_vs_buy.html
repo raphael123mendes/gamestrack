@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Rent vs Buy, Long-Term Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --ink:#101B2D;
+    --ink-2:#16223A;
+    --ink-3:#1D2B47;
+    --paper:#F6F1E7;
+    --paper-2:#EDE6D6;
+    --brass:#B98A46;
+    --brass-light:#D6AE72;
+    --slate:#4C7A94;
+    --forest:#4B7B5B;
+    --rust:#A6543A;
+    --ink-text:#1B2333;
+    --paper-text:#F1EAD9;
+    --muted:#6B6152;
+    --muted-ink:#8B98B0;
+    --line: rgba(16,27,45,0.14);
+    --line-dark: rgba(246,241,231,0.14);
+    --radius: 4px;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink-text);
+    font-family:var(--sans);
+    line-height:1.5;
+  }
+  a{color:inherit;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:
+      linear-gradient(180deg, rgba(16,27,45,0) 60%, var(--ink) 100%),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(246,241,231,0.045) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(246,241,231,0.045) 28px),
+      var(--ink);
+    color:var(--paper-text);
+    padding:64px 24px 56px;
+    position:relative;
+    overflow:hidden;
+    border-bottom:1px solid var(--brass);
+  }
+  .hero-inner{max-width:1080px;margin:0 auto;position:relative;}
+  .mark{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--brass-light);margin-bottom:28px;
+  }
+  .mark::before{content:"";width:22px;height:1px;background:var(--brass-light);}
+  h1.hero-title{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(34px,5vw,58px);
+    line-height:1.05;
+    margin:0 0 18px;
+    max-width:15ch;
+    font-optical-sizing:auto;
+  }
+  .hero-title em{font-style:italic;color:var(--brass-light);font-weight:500;}
+  .hero-sub{
+    max-width:56ch;
+    color:var(--muted-ink);
+    font-size:16px;
+    margin:0 0 6px;
+  }
+  .hero-note{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--muted-ink);
+    margin-top:24px;
+    border-top:1px solid var(--line-dark);
+    padding-top:16px;
+    max-width:60ch;
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:48px 24px 100px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  @media (max-width:760px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+  section.panel{margin-bottom:44px;}
+  .panel-head{
+    display:flex;align-items:baseline;gap:12px;margin-bottom:20px;
+    border-bottom:1px solid var(--line);padding-bottom:10px;
+  }
+  .panel-num{font-family:var(--mono);font-size:12px;color:var(--brass);letter-spacing:.08em;}
+  .panel-title{font-family:var(--serif);font-size:22px;font-weight:600;margin:0;}
+  .panel-desc{color:var(--muted);font-size:13.5px;margin:-10px 0 20px;}
+
+  /* ---------- FORM ---------- */
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:6px;
+  }
+  .field .hint{font-size:11.5px;color:var(--muted);margin-top:5px;font-family:var(--sans);}
+  input[type=number], input[type=text], select{
+    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:var(--radius);
+    background:#fff;font-family:var(--mono);font-size:14.5px;color:var(--ink-text);
+  }
+  input:focus, select:focus{outline:2px solid var(--brass);outline-offset:1px;}
+  .row-inline{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px 22px 6px;
+  }
+  details.advanced{margin-top:6px;}
+  details.advanced summary{
+    cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.04em;
+    color:var(--slate);text-transform:uppercase;padding:10px 0;user-select:none;
+  }
+  details.advanced[open] summary{margin-bottom:6px;}
+
+  .btn{
+    font-family:var(--mono);font-size:13px;letter-spacing:.04em;text-transform:uppercase;
+    border:1px solid var(--ink);background:var(--ink);color:var(--paper-text);
+    padding:14px 26px;border-radius:4px;cursor:pointer;transition:transform .08s ease, background .15s ease;
+  }
+  .btn:hover{background:var(--ink-2);}
+  .btn:active{transform:translateY(1px);}
+  .btn.secondary{background:transparent;color:var(--ink-text);border-color:var(--line);}
+  .btn.secondary:hover{border-color:var(--ink);}
+  .btn.brass{background:var(--brass);border-color:var(--brass);color:#1B1405;}
+  .btn.brass:hover{background:var(--brass-light);}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+
+  /* ---------- RESULTS ---------- */
+  #results{display:none;}
+  .headline{
+    background:var(--ink);color:var(--paper-text);border-radius:8px;padding:32px 30px;
+    display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;
+    border:1px solid var(--brass);
+  }
+  .headline-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-ink);margin-bottom:10px;}
+  .headline-value{font-family:var(--serif);font-size:clamp(28px,4vw,42px);font-weight:600;}
+  .headline-value .plus{color:var(--forest);}
+  .headline-value .minus{color:#D98F76;}
+  .headline-sub{font-family:var(--mono);font-size:12.5px;color:var(--muted-ink);margin-top:8px;}
+  .stat{text-align:right;}
+  .stat .n{font-family:var(--serif);font-size:26px;}
+  .stat .l{font-family:var(--mono);font-size:11px;color:var(--muted-ink);text-transform:uppercase;letter-spacing:.08em;}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin:28px 0 0;}
+  .tab{
+    font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;
+    padding:9px 16px;border:1px solid var(--line);background:#fff;cursor:pointer;border-radius:4px 4px 0 0;
+    color:var(--muted);
+  }
+  .tab.active{background:var(--paper-2);color:var(--ink-text);border-color:var(--ink);border-bottom-color:var(--paper-2);position:relative;top:1px;}
+
+  .chart-card{
+    background:
+      linear-gradient(var(--paper-2), var(--paper-2)),
+      repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(27,35,51,0.06) 32px),
+      repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(27,35,51,0.06) 32px);
+    border:1px solid var(--ink);border-top:none;border-radius:0 0 8px 8px;padding:24px 20px 12px;
+  }
+  .legend{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:6px;font-family:var(--mono);font-size:12px;}
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .swatch{width:16px;height:3px;display:inline-block;border-radius:2px;}
+
+  .breakeven-tag{
+    font-family:var(--mono);font-size:12px;background:var(--brass);color:#1B1405;
+    padding:4px 10px;border-radius:3px;display:inline-block;margin-top:14px;
+  }
+
+  /* table */
+  .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px;min-width:760px;}
+  thead th{
+    text-align:right;padding:12px 14px;background:var(--ink);color:var(--paper-text);
+    font-weight:500;font-size:11px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;
+  }
+  thead th:first-child, tbody td:first-child{text-align:left;}
+  tbody td{padding:10px 14px;text-align:right;border-top:1px solid var(--line);white-space:nowrap;}
+  tbody tr:nth-child(even){background:rgba(27,35,51,0.025);}
+  tbody tr.flip{background:rgba(185,138,70,0.12);}
+  td.pos{color:var(--forest);}
+  td.neg{color:var(--rust);}
+
+  /* assumptions summary */
+  .assump{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .assump div{background:#fff;padding:14px 16px;}
+  .assump .k{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
+  .assump .v{font-family:var(--serif);font-size:17px;margin-top:3px;}
+  @media (max-width:760px){.assump{grid-template-columns:repeat(2,1fr);}}
+
+  footer{
+    border-top:1px solid var(--line);padding:28px 24px;text-align:center;
+    font-family:var(--mono);font-size:11.5px;color:var(--muted);
+  }
+  .disclaimer{max-width:640px;margin:0 auto 10px;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="mark">Ledger — a rent vs. buy planning tool</div>
+    <h1 class="hero-title">Draw the plan before you sign <em>anything.</em></h1>
+    <p class="hero-sub">Enter your numbers once. See the full 30-year mortgage math, the year you'd break even, and what selling in year 1, 5, or 15 would net you — plotted against renting and investing the difference.</p>
+    <div class="hero-note">Every figure below is computed live in your browser from the inputs you enter. Nothing is sent anywhere. Export a fixed report when you're done — the exported file won't change even if you come back and adjust the plan.</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INPUTS ============ -->
+  <section class="panel" id="inputs">
+    <div class="panel-head"><span class="panel-num">01</span><h2 class="panel-title">Your numbers</h2></div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="panel-desc" style="margin-top:0">Property &amp; purchase</div>
+        <div class="field">
+          <label for="currency">Currency</label>
+          <select id="currency">
+            <option value="AED" selected>AED</option>
+            <option value="€">EUR (€)</option>
+            <option value="$">USD ($)</option>
+            <option value="£">GBP (£)</option>
+          </select>
+        </div>
+        <div class="field"><label for="price">Property price</label><input type="number" id="price" value="2400000" step="10000"></div>
+        <div class="row-inline">
+          <div class="field"><label for="downpct">Down payment (%)</label><input type="number" id="downpct" value="20" step="1"></div>
+          <div class="field"><label for="buycosts">Buying costs (one-time)</label><input type="number" id="buycosts" value="20000" step="1000"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="panel-desc" style="margin-top:0">Mortgage</div>
+        <div class="row-inline">
+          <div class="field"><label for="rate">Interest rate (%/yr)</label><input type="number" id="rate" value="4" step="0.1"></div>
+          <div class="field"><label for="term">Loan term (years)</label><input type="number" id="term" value="30" step="1"></div>
+        </div>
+        <div class="field hint" style="margin-top:-6px">Fixed monthly annuity — standard repayment mortgage. Rate is treated as constant across the whole term.</div>
+      </div>
+
+      <div class="card">
+        <div class="panel-desc" style="margin-top:0">Renting</div>
+        <div class="row-inline">
+          <div class="field"><label for="rent">Current annual rent</label><input type="number" id="rent" value="130000" step="1000"></div>
+          <div class="field"><label for="rentgrowth">Rent growth (%/yr)</label><input type="number" id="rentgrowth" value="3" step="0.5"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="panel-desc" style="margin-top:0">Ownership costs &amp; investing</div>
+        <div class="row-inline">
+          <div class="field"><label for="expenses">Annual ownership costs</label><input type="number" id="expenses" value="30000" step="1000"></div>
+          <div class="field"><label for="expgrowth">Cost growth (%/yr)</label><input type="number" id="expgrowth" value="2" step="0.5"></div>
+        </div>
+        <div class="field"><label for="investrate">Investment return, uninvested cash (%/yr)</label><input type="number" id="investrate" value="6.5" step="0.1"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="panel-desc" style="margin-top:0">Appreciation scenarios &amp; horizon</div>
+      <div class="grid3">
+        <div class="field"><label for="apprlow">Low appreciation (%/yr)</label><input type="number" id="apprlow" value="1.5" step="0.5"></div>
+        <div class="field"><label for="apprbase">Base appreciation (%/yr)</label><input type="number" id="apprbase" value="3" step="0.5"></div>
+        <div class="field"><label for="apprhigh">High appreciation (%/yr)</label><input type="number" id="apprhigh" value="7" step="0.5"></div>
+      </div>
+      <div class="field" style="max-width:220px"><label for="horizon">Analysis horizon (years)</label><input type="number" id="horizon" value="20" step="1"></div>
+
+      <details class="advanced">
+        <summary>Advanced: selling costs &amp; exit penalties</summary>
+        <div class="row-inline">
+          <div class="field"><label for="sellpct">Selling costs (% of sale price)</label><input type="number" id="sellpct" value="0" step="0.5"><div class="hint">Default 0 — assumes buyer pays agent commission and there's no capital gains tax, as in the UAE. Change this for other markets.</div></div>
+          <div class="field"><label for="exitpenalty">Early mortgage exit penalty (% of balance)</label><input type="number" id="exitpenalty" value="0" step="0.5"><div class="hint">Some lenders charge a fee for settling a mortgage early. Leave at 0 if not applicable.</div></div>
+        </div>
+      </details>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn brass" id="calcBtn">Build the plan</button>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <div id="results">
+
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">02</span><h2 class="panel-title">The headline</h2></div>
+      <div class="headline">
+        <div>
+          <div class="headline-label">At year <span id="hzYear"></span>, base scenario</div>
+          <div class="headline-value" id="headlineValue">—</div>
+          <div class="headline-sub" id="headlineSub"></div>
+        </div>
+        <div class="stat">
+          <div class="n" id="breakevenStat">—</div>
+          <div class="l">Break-even year</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">03</span><h2 class="panel-title">Net worth over time</h2></div>
+      <p class="panel-desc">Buy line = property value minus remaining mortgage minus selling costs, as if sold that year. Rent line = your down payment and closing costs, plus every year's cash-flow saving, invested and compounding.</p>
+      <div class="tabs">
+        <div class="tab" data-scn="low">Low</div>
+        <div class="tab active" data-scn="base">Base</div>
+        <div class="tab" data-scn="high">High</div>
+      </div>
+      <div class="chart-card">
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--brass)"></i>Buy — net equity if sold</span>
+          <span><i class="swatch" style="background:var(--slate)"></i>Rent — invested portfolio</span>
+        </div>
+        <canvas id="chart" height="120"></canvas>
+        <div id="breakevenTag"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">04</span><h2 class="panel-title">How the rent portfolio grows</h2></div>
+      <p class="panel-desc">Every month, buying and renting cost different amounts. Whichever is cheaper that month, the difference gets saved and starts compounding immediately — it doesn't wait for year-end. "Interest earned" below is growth from compounding alone, isolated from new money added that year.</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Year</th><th>Buy cost (mortgage + upkeep)</th><th>Rent cost</th><th>Balance saved</th><th>Interest earned</th><th>Portfolio balance</th>
+          </tr></thead>
+          <tbody id="breakdownBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">05</span><h2 class="panel-title">Sell at any year</h2></div>
+      <p class="panel-desc">Every row is a standalone exit scenario: sell the property that year, net of remaining mortgage, versus having rented and invested instead. Scenario tabs above also filter this table.</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Year</th><th>Property value</th><th>Mortgage balance</th><th>Buy net equity</th><th>Rent portfolio</th><th>Margin (Buy − Rent)</th>
+          </tr></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">06</span><h2 class="panel-title">Assumptions on record</h2></div>
+      <div class="assump" id="assumpGrid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="panel-num">07</span><h2 class="panel-title">Take it with you</h2></div>
+      <p class="panel-desc">Export a fixed snapshot of this exact plan. Once exported, the file won't change — it's a record of this scenario, not a live tool.</p>
+      <div class="btn-row">
+        <button class="btn" id="exportHtml">Export HTML report</button>
+        <button class="btn secondary" id="exportXlsx">Export Excel workbook</button>
+      </div>
+    </section>
+
+  </div>
+
+</main>
+
+<footer>
+  <div class="disclaimer">This is a planning aid, not financial advice. It assumes constant rates for simplicity — real mortgage rates, rents, and property values move year to year. Run the low/base/high scenarios and treat the middle as a guide, not a guarantee.</div>
+  Ledger · built for long-term thinking
+</footer>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  let chart = null;
+  let SERIES = null; // {low:[...], base:[...], high:[...]}
+  let INPUTS = null;
+  let activeScn = 'base';
+
+  function fmtMoney(n, cur){
+    const sign = n < 0 ? '−' : '';
+    const abs = Math.abs(Math.round(n));
+    return sign + cur + ' ' + abs.toLocaleString('en-US');
+  }
+  function fmtCompact(n, cur){
+    const sign = n < 0 ? '−' : '';
+    const abs = Math.abs(n);
+    if(abs >= 1000000) return sign + cur + (abs/1000000).toFixed(2) + 'M';
+    if(abs >= 1000) return sign + cur + (abs/1000).toFixed(0) + 'k';
+    return sign + cur + abs.toFixed(0);
+  }
+
+  function monthlyPayment(loan, annualRatePct, years){
+    const i = annualRatePct/100/12;
+    const n = years*12;
+    if(n<=0) return 0;
+    if(i===0) return loan/n;
+    return loan*i/(1-Math.pow(1+i,-n));
+  }
+  function balanceAfterMonths(loan, annualRatePct, years, k){
+    const i = annualRatePct/100/12;
+    const n = years*12;
+    if(k>=n) return 0;
+    const M = monthlyPayment(loan, annualRatePct, years);
+    if(i===0) return Math.max(0, loan - M*k);
+    return Math.max(0, loan*Math.pow(1+i,k) - M*(Math.pow(1+i,k)-1)/i);
+  }
+
+  function readInputs(){
+    return {
+      currency: $('currency').value,
+      price: parseFloat($('price').value)||0,
+      downPct: parseFloat($('downpct').value)||0,
+      buyCosts: parseFloat($('buycosts').value)||0,
+      rate: parseFloat($('rate').value)||0,
+      term: parseFloat($('term').value)||1,
+      rent: parseFloat($('rent').value)||0,
+      rentGrowth: parseFloat($('rentgrowth').value)||0,
+      expenses: parseFloat($('expenses').value)||0,
+      expGrowth: parseFloat($('expgrowth').value)||0,
+      investRate: parseFloat($('investrate').value)||0,
+      apprLow: parseFloat($('apprlow').value)||0,
+      apprBase: parseFloat($('apprbase').value)||0,
+      apprHigh: parseFloat($('apprhigh').value)||0,
+      horizon: Math.max(1, parseInt($('horizon').value)||1),
+      sellPct: parseFloat($('sellpct').value)||0,
+      exitPenaltyPct: parseFloat($('exitpenalty').value)||0,
+    };
+  }
+
+  function computeSeries(inp, apprPct){
+    const loan = inp.price * (1 - inp.downPct/100);
+    const downAmt = inp.price * inp.downPct/100;
+    const M = monthlyPayment(loan, inp.rate, inp.term);
+    const nMonths = inp.term*12;
+    const iMonthly = inp.investRate/100/12;
+    let portfolio = downAmt + inp.buyCosts; // day 0 lump sum, invested immediately, already compounding
+    const rows = [];
+    for(let y=1; y<=inp.horizon; y++){
+      const rentY = inp.rent * Math.pow(1+inp.rentGrowth/100, y-1);
+      const expY = inp.expenses * Math.pow(1+inp.expGrowth/100, y-1);
+      const rentMonthly = rentY/12;
+      const expMonthly = expY/12;
+      const startPortfolio = portfolio;
+      let yearBuyCash = 0, yearRentCash = 0;
+      for(let m=1; m<=12; m++){
+        const globalMonth = (y-1)*12 + m;
+        const mortgagePmt = globalMonth <= nMonths ? M : 0;
+        const buyMonthly = mortgagePmt + expMonthly;
+        const balance = buyMonthly - rentMonthly; // positive => renting cheaper this month => saved & invested
+        portfolio = portfolio*(1+iMonthly) + balance;
+        yearBuyCash += buyMonthly;
+        yearRentCash += rentMonthly;
+      }
+      const yearBalance = yearBuyCash - yearRentCash;
+      const yearGrowth = portfolio - startPortfolio - yearBalance; // interest earned only, isolated from new savings
+      const propertyValue = inp.price * Math.pow(1+apprPct/100, y);
+      const mortgageBalance = balanceAfterMonths(loan, inp.rate, inp.term, y*12);
+      const sellingCost = propertyValue * inp.sellPct/100;
+      const exitPenalty = mortgageBalance * inp.exitPenaltyPct/100;
+      const buyEquity = propertyValue - mortgageBalance - sellingCost - exitPenalty;
+      const margin = buyEquity - portfolio;
+      rows.push({year:y, propertyValue, mortgageBalance, buyEquity, rentPortfolio:portfolio, margin,
+                 rentY, expY, buyCashOut:yearBuyCash, rentCashOut:yearRentCash, yearBalance, yearGrowth, portfolioStart:startPortfolio});
+    }
+    return rows;
+  }
+
+  function findBreakeven(rows){
+    for(let i=0;i<rows.length;i++){
+      if(rows[i].margin >= 0) return rows[i].year;
+    }
+    return null; // never in horizon
+  }
+
+  function buildChart(cur){
+    const ctx = $('chart').getContext('2d');
+    if(chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type:'line',
+      data:{ labels:[], datasets:[
+        {label:'Buy net equity', data:[], borderColor:'#B98A46', backgroundColor:'rgba(185,138,70,0.08)', borderWidth:2.5, pointRadius:0, tension:0.15, fill:false},
+        {label:'Rent portfolio', data:[], borderColor:'#4C7A94', backgroundColor:'rgba(76,122,148,0.08)', borderWidth:2.5, pointRadius:0, tension:0.15, fill:false},
+      ]},
+      options:{
+        responsive:true,
+        interaction:{mode:'index', intersect:false},
+        plugins:{ legend:{display:false},
+          tooltip:{
+            backgroundColor:'#101B2D', titleFont:{family:'IBM Plex Mono'}, bodyFont:{family:'IBM Plex Mono'},
+            callbacks:{ label: c => c.dataset.label+': '+fmtCompact(c.parsed.y, cur) }
+          }
+        },
+        scales:{
+          x:{ grid:{color:'rgba(27,35,51,0.08)'}, ticks:{font:{family:'IBM Plex Mono', size:11}} },
+          y:{ grid:{color:'rgba(27,35,51,0.08)'}, ticks:{font:{family:'IBM Plex Mono', size:11}, callback:v=>fmtCompact(v,cur)} }
+        }
+      }
+    });
+  }
+
+  function updateChart(rows, cur){
+    chart.data.labels = rows.map(r=>'Y'+r.year);
+    chart.data.datasets[0].data = rows.map(r=>r.buyEquity);
+    chart.data.datasets[1].data = rows.map(r=>r.rentPortfolio);
+    chart.update();
+  }
+
+  function renderTable(rows, cur){
+    const be = findBreakeven(rows);
+    const body = $('tableBody');
+    body.innerHTML = rows.map((r,idx)=>{
+      const flip = r.year===be ? ' flip' : '';
+      const mCls = r.margin>=0 ? 'pos' : 'neg';
+      const mSign = r.margin>=0 ? '+' : '';
+      return `<tr class="${flip}">
+        <td>${r.year}</td>
+        <td>${fmtMoney(r.propertyValue,cur)}</td>
+        <td>${fmtMoney(r.mortgageBalance,cur)}</td>
+        <td>${fmtMoney(r.buyEquity,cur)}</td>
+        <td>${fmtMoney(r.rentPortfolio,cur)}</td>
+        <td class="${mCls}">${mSign}${fmtMoney(r.margin,cur)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderBreakdown(rows, cur){
+    const body = $('breakdownBody');
+    body.innerHTML = rows.map(r=>{
+      const bCls = r.yearBalance>=0 ? 'pos' : 'neg';
+      const bSign = r.yearBalance>=0 ? '+' : '';
+      return `<tr>
+        <td>${r.year}</td>
+        <td>${fmtMoney(r.buyCashOut,cur)}</td>
+        <td>${fmtMoney(r.rentCashOut,cur)}</td>
+        <td class="${bCls}">${bSign}${fmtMoney(r.yearBalance,cur)}</td>
+        <td class="pos">+${fmtMoney(r.yearGrowth,cur)}</td>
+        <td>${fmtMoney(r.rentPortfolio,cur)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderHeadline(rows, cur){
+    const last = rows[rows.length-1];
+    const be = findBreakeven(rows);
+    $('hzYear').textContent = last.year;
+    const cls = last.margin>=0 ? 'plus' : 'minus';
+    const who = last.margin>=0 ? 'Buying' : 'Renting';
+    $('headlineValue').innerHTML = `${who} is ahead by <span class="${cls}">${fmtMoney(Math.abs(last.margin), cur)}</span>`;
+    $('headlineSub').textContent = `Buy net equity ${fmtMoney(last.buyEquity,cur)} vs. rent portfolio ${fmtMoney(last.rentPortfolio,cur)} after ${last.year} years.`;
+    $('breakevenStat').textContent = be ? ('Year '+be) : ('Beyond '+rows.length);
+  }
+
+  function renderAssumptions(inp){
+    const cur = inp.currency;
+    const items = [
+      ['Property price', fmtMoney(inp.price,cur)],
+      ['Down payment', inp.downPct+'% ('+fmtMoney(inp.price*inp.downPct/100,cur)+')'],
+      ['Buying costs', fmtMoney(inp.buyCosts,cur)],
+      ['Mortgage', inp.rate+'% / '+inp.term+' yr'],
+      ['Rent (year 1)', fmtMoney(inp.rent,cur)+' (+'+inp.rentGrowth+'%/yr)'],
+      ['Ownership costs (year 1)', fmtMoney(inp.expenses,cur)+' (+'+inp.expGrowth+'%/yr)'],
+      ['Investment return', inp.investRate+'%/yr'],
+      ['Appreciation (low/base/high)', inp.apprLow+'% / '+inp.apprBase+'% / '+inp.apprHigh+'%'],
+      ['Horizon', inp.horizon+' years'],
+      ['Selling costs', inp.sellPct+'% of sale price'],
+      ['Early exit penalty', inp.exitPenaltyPct+'% of balance'],
+    ];
+    $('assumpGrid').innerHTML = items.map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  }
+
+  function setActiveTab(scn){
+    activeScn = scn;
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.scn===scn));
+    const rows = SERIES[scn];
+    updateChart(rows, INPUTS.currency);
+    renderTable(rows, INPUTS.currency);
+    renderBreakdown(rows, INPUTS.currency);
+    if(scn==='base') renderHeadline(rows, INPUTS.currency);
+  }
+
+  function runCalculation(){
+    INPUTS = readInputs();
+    SERIES = {
+      low: computeSeries(INPUTS, INPUTS.apprLow),
+      base: computeSeries(INPUTS, INPUTS.apprBase),
+      high: computeSeries(INPUTS, INPUTS.apprHigh),
+    };
+    $('results').style.display = 'block';
+    buildChart(INPUTS.currency);
+    renderAssumptions(INPUTS);
+    setActiveTab('base');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelector('.tab[data-scn="base"]').classList.add('active');
+    $('results').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  $('calcBtn').addEventListener('click', runCalculation);
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click', ()=> setActiveTab(t.dataset.scn));
+  });
+
+  // ---------- EXPORT: EXCEL ----------
+  $('exportXlsx').addEventListener('click', function(){
+    if(!SERIES) return;
+    const wb = XLSX.utils.book_new();
+    const assumpRows = [['Assumption','Value']].concat([
+      ['Property price', INPUTS.price],
+      ['Down payment %', INPUTS.downPct],
+      ['Buying costs', INPUTS.buyCosts],
+      ['Mortgage rate %', INPUTS.rate],
+      ['Mortgage term (yrs)', INPUTS.term],
+      ['Rent (year 1)', INPUTS.rent],
+      ['Rent growth %', INPUTS.rentGrowth],
+      ['Ownership costs (year 1)', INPUTS.expenses],
+      ['Cost growth %', INPUTS.expGrowth],
+      ['Investment return %', INPUTS.investRate],
+      ['Appreciation low %', INPUTS.apprLow],
+      ['Appreciation base %', INPUTS.apprBase],
+      ['Appreciation high %', INPUTS.apprHigh],
+      ['Horizon (yrs)', INPUTS.horizon],
+      ['Selling costs %', INPUTS.sellPct],
+      ['Early exit penalty %', INPUTS.exitPenaltyPct],
+      ['Currency', INPUTS.currency],
+    ]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(assumpRows), 'Assumptions');
+    ['low','base','high'].forEach(scn=>{
+      const header = ['Year','Property value','Mortgage balance','Buy net equity','Rent portfolio','Margin (Buy-Rent)'];
+      const data = [header].concat(SERIES[scn].map(r=>[r.year, Math.round(r.propertyValue), Math.round(r.mortgageBalance), Math.round(r.buyEquity), Math.round(r.rentPortfolio), Math.round(r.margin)]));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), scn.charAt(0).toUpperCase()+scn.slice(1));
+    });
+    XLSX.writeFile(wb, 'rent-vs-buy-plan.xlsx');
+  });
+
+  // ---------- EXPORT: HTML SNAPSHOT ----------
+  $('exportHtml').addEventListener('click', function(){
+    if(!SERIES) return;
+    const cur = INPUTS.currency;
+    const rows = SERIES.base;
+    const be = findBreakeven(rows);
+    const last = rows[rows.length-1];
+    const chartImg = chart.toBase64Image();
+    const tableRows = rows.map(r=>{
+      const flip = r.year===be;
+      const mCls = r.margin>=0 ? 'color:#2f5c40' : 'color:#8a3f2c';
+      const mSign = r.margin>=0 ? '+' : '';
+      return `<tr style="${flip?'background:#f3e6cf;':''}">
+        <td>${r.year}</td><td>${fmtMoney(r.propertyValue,cur)}</td><td>${fmtMoney(r.mortgageBalance,cur)}</td>
+        <td>${fmtMoney(r.buyEquity,cur)}</td><td>${fmtMoney(r.rentPortfolio,cur)}</td>
+        <td style="${mCls}">${mSign}${fmtMoney(r.margin,cur)}</td></tr>`;
+    }).join('');
+    const assumpHtml = document.getElementById('assumpGrid').outerHTML;
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rent vs Buy — Fixed Plan Snapshot</title>
+    <style>
+      body{font-family:Georgia,serif;background:#F6F1E7;color:#1B2333;max-width:900px;margin:40px auto;padding:0 20px;}
+      h1{font-size:28px;} .muted{color:#6B6152;font-family:monospace;font-size:12px;}
+      table{width:100%;border-collapse:collapse;font-family:monospace;font-size:13px;margin-top:20px;}
+      th{text-align:right;background:#101B2D;color:#F1EAD9;padding:8px 10px;font-size:11px;text-transform:uppercase;}
+      th:first-child, td:first-child{text-align:left;}
+      td{text-align:right;padding:7px 10px;border-top:1px solid #ddd;}
+      img{max-width:100%;border:1px solid #101B2D;border-radius:6px;margin-top:10px;}
+      .assump{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#ddd;border:1px solid #ddd;margin-top:16px;font-family:monospace;font-size:12px;}
+      .assump div{background:#fff;padding:10px;}
+    </style></head><body>
+      <div class="muted">FIXED SNAPSHOT — generated ${new Date().toISOString().slice(0,10)} — this file will not recalculate</div>
+      <h1>Rent vs Buy — ${inp_currency_label(cur)} plan, base scenario (${INPUTS.apprBase}%/yr appreciation)</h1>
+      <p>At year ${last.year}, ${last.margin>=0?'buying':'renting'} is ahead by <b>${fmtMoney(Math.abs(last.margin),cur)}</b>. Break-even year: <b>${be?('Year '+be):('beyond '+rows.length)}</b>.</p>
+      <img src="${chartImg}">
+      <table><thead><tr><th>Year</th><th>Property value</th><th>Mortgage balance</th><th>Buy net equity</th><th>Rent portfolio</th><th>Margin</th></tr></thead>
+      <tbody>${tableRows}</tbody></table>
+      ${assumpHtml}
+    </body></html>`;
+    function inp_currency_label(c){return c;}
+    const blob = new Blob([html], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'rent-vs-buy-snapshot.html';
+    a.click();
+  });
+
+})();
+</script>
+</body>
+</html>
