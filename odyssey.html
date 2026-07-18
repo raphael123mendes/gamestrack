@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Odyssey — An Epic Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --abyss:#0A0E1A;
+  --sea:#111C33;
+  --wine:#2B1420;
+  --gold:#C9A227;
+  --gold-bright:#EFD98B;
+  --marble:#E7E1D3;
+  --mist:#8A96AC;
+  --line:rgba(201,162,39,.35);
+  --serif-display:'Cinzel',serif;
+  --serif-body:'EB Garamond',Georgia,serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--abyss);
+  color:var(--marble);
+  font-family:var(--serif-body);
+  font-size:19px;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+::selection{background:var(--gold);color:var(--abyss)}
+
+/* ---------- star field & sea ---------- */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.sea-glow{
+  position:fixed;left:0;right:0;bottom:-30vh;height:70vh;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 100%, rgba(43,20,32,.75), rgba(17,28,51,.4) 55%, transparent 75%);
+}
+
+/* ---------- progress rail ---------- */
+#rail{position:fixed;left:0;top:0;bottom:0;width:4px;background:rgba(255,255,255,.05);z-index:50}
+#rail-fill{width:100%;height:0%;background:linear-gradient(var(--gold-bright),var(--gold));box-shadow:0 0 12px rgba(201,162,39,.7)}
+#rail-ship{position:fixed;left:-9px;top:0;z-index:51;font-size:15px;transform:translateY(-50%);transition:top .1s linear;color:var(--gold-bright);text-shadow:0 0 8px rgba(239,217,139,.8)}
+
+/* ---------- top nav ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.7rem 1.4rem;
+  background:linear-gradient(rgba(10,14,26,.92),rgba(10,14,26,.75) 70%,transparent);
+  backdrop-filter:blur(6px);
+}
+nav .brand{font-family:var(--serif-display);font-weight:700;letter-spacing:.35em;font-size:.8rem;color:var(--gold)}
+nav .links{display:flex;gap:1.1rem;flex-wrap:wrap}
+nav a{color:var(--mist);text-decoration:none;font-family:var(--serif-display);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;transition:color .25s}
+nav a:hover,nav a:focus-visible{color:var(--gold-bright)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--gold-bright);outline-offset:3px}
+
+/* ---------- shared layout ---------- */
+main{position:relative;z-index:1}
+section{position:relative;padding:6.5rem 1.5rem;max-width:1080px;margin:0 auto}
+.eyebrow{
+  font-family:var(--serif-display);font-size:.68rem;letter-spacing:.45em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:1.1rem;display:flex;align-items:center;gap:.9rem;
+}
+.eyebrow::after{content:"";height:1px;flex:0 0 70px;background:linear-gradient(90deg,var(--gold),transparent)}
+h1,h2,h3{font-family:var(--serif-display);font-weight:600;color:var(--marble)}
+h2{font-size:clamp(1.9rem,4.5vw,3rem);line-height:1.15;margin-bottom:1.4rem}
+h3{font-size:1.15rem;letter-spacing:.06em;color:var(--gold-bright);margin:1.6rem 0 .5rem}
+p{max-width:64ch;margin-bottom:1.05rem;color:#CFC9BC}
+p strong{color:var(--marble)}
+em{color:var(--gold-bright);font-style:italic}
+.quote{
+  border-left:2px solid var(--gold);padding:.4rem 0 .4rem 1.3rem;margin:1.6rem 0;
+  font-style:italic;font-size:1.15rem;color:var(--marble);max-width:56ch;
+}
+.quote small{display:block;font-style:normal;font-family:var(--serif-display);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--mist);margin-top:.5rem}
+
+/* meander divider */
+.meander{
+  height:26px;margin:0 auto;max-width:1080px;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='26' viewBox='0 0 52 26'%3E%3Cpath d='M2 24V2h22v14h-12v-6h4' fill='none' stroke='%23C9A227' stroke-width='2'/%3E%3Cpath d='M28 24V2h22v14h-12v-6h4' fill='none' stroke='%23C9A227' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat:repeat-x;background-position:center;
+}
+
+/* ---------- hero ---------- */
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;max-width:none;padding-top:8rem}
+#hero .over{font-family:var(--serif-display);letter-spacing:.6em;font-size:.72rem;color:var(--mist);text-transform:uppercase;margin-bottom:1.6rem;animation:fadeUp 1.4s .2s both}
+#hero h1{
+  font-size:clamp(3rem,11vw,7.5rem);font-weight:700;letter-spacing:.12em;
+  background:linear-gradient(180deg,var(--gold-bright) 0%,var(--gold) 55%,#8C6B3F 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:fadeUp 1.4s .5s both;
+}
+#hero .sub{margin-top:1.4rem;font-style:italic;font-size:clamp(1rem,2.4vw,1.35rem);color:var(--marble);max-width:44ch;animation:fadeUp 1.4s .9s both}
+#hero .sub small{display:block;font-style:normal;font-family:var(--serif-display);letter-spacing:.3em;font-size:.6rem;color:var(--mist);margin-top:.8rem;text-transform:uppercase}
+.scroll-cue{margin-top:4rem;color:var(--gold);font-size:1.5rem;animation:bob 2.4s ease-in-out infinite, fadeUp 1.4s 1.3s both}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+
+/* ---------- reveal on scroll ---------- */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s ease}
+.reveal.on{opacity:1;transform:translateY(0)}
+
+/* ---------- chapter seals ---------- */
+.seal{
+  width:92px;height:92px;border-radius:50%;flex:0 0 auto;
+  border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 26px rgba(201,162,39,.22), inset 0 0 18px rgba(201,162,39,.12);
+  background:radial-gradient(circle at 35% 30%, rgba(239,217,139,.10), rgba(10,14,26,.6));
+  font-size:2.3rem;
+}
+.chapter-head{display:flex;gap:1.6rem;align-items:center;margin-bottom:1.6rem;flex-wrap:wrap}
+.chapter-head .num{font-family:var(--serif-display);font-size:.66rem;letter-spacing:.4em;color:var(--mist);text-transform:uppercase;margin-bottom:.4rem}
+.chapter-head h2{margin-bottom:0}
+
+/* ---------- expandables ---------- */
+details{
+  margin:1.3rem 0;border:1px solid var(--line);border-radius:6px;
+  background:linear-gradient(rgba(17,28,51,.55),rgba(10,14,26,.55));
+  overflow:hidden;
+}
+summary{
+  cursor:pointer;list-style:none;padding:.95rem 1.2rem;
+  font-family:var(--serif-display);font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  transition:background .3s;
+}
+summary:hover{background:rgba(201,162,39,.07)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:1.1rem;color:var(--gold-bright);transition:transform .3s}
+details[open] summary::after{transform:rotate(45deg)}
+details .inner{padding:.2rem 1.3rem 1.2rem;border-top:1px dashed var(--line)}
+details .inner p{font-size:1rem}
+
+/* ---------- character gallery ---------- */
+.cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:1.1rem;margin-top:2.2rem}
+.card{
+  border:1px solid var(--line);border-radius:8px;padding:1.4rem 1.2rem;
+  background:linear-gradient(160deg,rgba(17,28,51,.7),rgba(10,14,26,.85));
+  cursor:pointer;transition:transform .35s,border-color .35s,box-shadow .35s;
+  position:relative;
+}
+.card:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 14px 34px rgba(0,0,0,.5),0 0 22px rgba(201,162,39,.14)}
+.card .glyph{font-size:2rem;margin-bottom:.7rem;display:block;filter:drop-shadow(0 0 8px rgba(201,162,39,.4))}
+.card h3{margin:0 0 .15rem;font-size:1.05rem}
+.card .role{font-family:var(--serif-display);font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:var(--mist);margin-bottom:.7rem}
+.card .bio{font-size:.95rem;color:#C4BEB1}
+.card .more{max-height:0;overflow:hidden;transition:max-height .6s ease;font-size:.92rem;color:#B9B3A6}
+.card.open .more{max-height:420px}
+.card .more p{margin-top:.8rem;font-size:.92rem}
+.card .hint{position:absolute;top:1rem;right:1rem;color:var(--gold);font-size:.85rem;opacity:.7;transition:transform .3s}
+.card.open .hint{transform:rotate(45deg)}
+
+/* ---------- map ---------- */
+#map-wrap{max-width:1150px}
+.map-frame{
+  border:1px solid var(--line);border-radius:10px;padding:1rem;
+  background:radial-gradient(ellipse at 50% 30%,rgba(17,28,51,.9),rgba(10,14,26,.95));
+  box-shadow:inset 0 0 60px rgba(0,0,0,.6);
+}
+#medmap{width:100%;height:auto;display:block}
+.stop{cursor:pointer}
+.stop circle.dot{fill:var(--gold-bright);transition:r .25s}
+.stop circle.pulse{fill:none;stroke:var(--gold);stroke-width:1;opacity:.8;animation:pulse 2.6s ease-out infinite}
+@keyframes pulse{0%{r:5;opacity:.8}100%{r:16;opacity:0}}
+.stop text{fill:var(--marble);font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:.08em;paint-order:stroke;stroke:rgba(10,14,26,.85);stroke-width:3px}
+.stop:hover circle.dot{r:7}
+.stop:hover text{fill:var(--gold-bright)}
+.landmass{fill:#1A2740;stroke:#2E3F60;stroke-width:1}
+#route{fill:none;stroke:var(--gold);stroke-width:2;stroke-dasharray:6 7;filter:drop-shadow(0 0 4px rgba(201,162,39,.6))}
+.map-cap{font-size:.9rem;color:var(--mist);text-align:center;margin-top:.9rem;font-style:italic}
+
+/* back-to-map link */
+.to-map{
+  display:inline-block;margin-top:1.4rem;font-family:var(--serif-display);font-size:.62rem;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--gold);text-decoration:none;
+  border:1px solid var(--line);padding:.55rem 1.1rem;border-radius:4px;transition:all .3s;
+}
+.to-map:hover{background:rgba(201,162,39,.1);border-color:var(--gold)}
+
+/* finale acts */
+.acts{counter-reset:act;margin-top:1.5rem}
+.act{border-left:1px solid var(--line);padding:0 0 2rem 1.6rem;position:relative}
+.act::before{
+  counter-increment:act;content:counter(act,upper-roman);
+  position:absolute;left:-1.05rem;top:-.2rem;width:2.1rem;height:2.1rem;border-radius:50%;
+  background:var(--abyss);border:1px solid var(--gold);color:var(--gold-bright);
+  font-family:var(--serif-display);font-size:.7rem;display:flex;align-items:center;justify-content:center;
+}
+.act h3{margin-top:0}
+
+/* epilogue */
+#epilogue{text-align:center;padding-bottom:9rem}
+#epilogue .quote{margin-left:auto;margin-right:auto;border:none;padding:0;font-size:1.3rem}
+footer{position:relative;z-index:1;text-align:center;padding:2rem;color:var(--mist);font-size:.8rem;border-top:1px solid rgba(255,255,255,.06)}
+
+@media (max-width:640px){
+  nav .links{display:none}
+  section{padding:4.5rem 1.1rem}
+  .seal{width:70px;height:70px;font-size:1.7rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="sea-glow"></div>
+<div id="rail"><div id="rail-fill"></div></div>
+<div id="rail-ship">⛵</div>
+
+<nav>
+  <span class="brand">ΟΔΥΣΣΕΙΑ</span>
+  <div class="links">
+    <a href="#prologue">Prologue</a>
+    <a href="#cast">Characters</a>
+    <a href="#map">Map</a>
+    <a href="#ch1">The Voyage</a>
+    <a href="#finale">Ithaca</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section id="hero">
+  <div class="over">Homer · Circa 8th Century BC</div>
+  <h1>THE ODYSSEY</h1>
+  <p class="sub">"Sing to me of the man, Muse — the man of twists and turns, driven time and again off course, once he had plundered the hallowed heights of Troy."
+    <small>Book I · Invocation of the Muse</small>
+  </p>
+  <div class="scroll-cue">▾</div>
+</section>
+
+<div class="meander"></div>
+
+<!-- ═══════════ PROLOGUE ═══════════ -->
+<section id="prologue" class="reveal">
+  <div class="eyebrow">Prologue · Before the Voyage</div>
+  <div class="chapter-head">
+    <div class="seal">🐎</div>
+    <div>
+      <div class="num">The Road to Troy</div>
+      <h2>Why Odysseus Went to War</h2>
+    </div>
+  </div>
+
+  <p>Before he was the wanderer, Odysseus was a king — ruler of the small, rocky island of <strong>Ithaca</strong>, newly married to the clever <strong>Penelope</strong>, father to an infant son, <strong>Telemachus</strong>. He wanted nothing more than to stay home. Fate had other plans.</p>
+
+  <h3>Helen, and the oath that bound Greece</h3>
+  <p>Years earlier, <strong>Helen of Sparta</strong> — said to be the most beautiful woman in the world — had dozens of kings and princes competing for her hand. To prevent a war among the rejected suitors, it was Odysseus himself who proposed the <em>Oath of Tyndareus</em>: every suitor swore to defend whichever man Helen married. She chose <strong>Menelaus</strong>. The oath seemed a clever peacekeeping trick — until the Trojan prince <strong>Paris</strong> carried Helen off to Troy. The trap Odysseus had built snapped shut on Odysseus himself.</p>
+
+  <h3>The reluctant hero</h3>
+  <p>When <strong>Agamemnon</strong>, Menelaus's brother and the most powerful king in Greece, summoned the oath-bound heroes, Odysseus feigned madness — plowing his fields with an ox and a donkey yoked together, sowing salt instead of seed. The recruiter Palamedes placed baby Telemachus in the plow's path. Odysseus swerved. Sane after all. He sailed for Troy.</p>
+
+  <h3>Ten years of war</h3>
+  <p>At Troy, brute force belonged to <strong>Achilles</strong>, the near-invincible warrior whose rage drives Homer's other epic, the <em>Iliad</em>. But strategy belonged to Odysseus. When Achilles quarreled with Agamemnon and withdrew from battle, when Achilles fell to Paris's arrow, when the war ground into its tenth hopeless year — it was Odysseus's mind, not any sword, that ended it.</p>
+
+  <h3>The Wooden Horse</h3>
+  <p>His masterstroke: a colossal hollow horse, left as a false offering while the Greek fleet pretended to sail away. The Trojans dragged it inside their unbreachable walls. That night, Odysseus and his hidden soldiers slipped out, opened the gates — and Troy burned. Victory. But in the sack of the city, the Greeks desecrated temples and defied the gods. The sea god <strong>Poseidon</strong> and others would make the journey home a punishment. For Odysseus, that journey would take <em>ten more years</em>.</p>
+
+  <details>
+    <summary>Learn more · The oath, the madness, the horse</summary>
+    <div class="inner">
+      <p><strong>The Oath of Tyndareus</strong> is why the Trojan War became a pan-Greek expedition rather than a private feud: over a thousand ships, by tradition, answered the call — the face that "launched a thousand ships."</p>
+      <p><strong>The feigned madness</strong> tells us who Odysseus is before the epic begins: a man who values home and family over glory — the inverse of Achilles, who chose a short glorious life over a long quiet one. Odysseus never forgives Palamedes for exposing him.</p>
+      <p><strong>The Trojan Horse</strong> is barely narrated in the Iliad or Odyssey — Homer's audience knew it by heart. Its fullest ancient telling is in Virgil's <em>Aeneid</em>, from the Trojan point of view. The horse became the eternal symbol of victory by cunning — <em>mētis</em> — over strength, which is the signature of Odysseus and the engine of the entire Odyssey.</p>
+    </div>
+  </details>
+</section>
+
+<div class="meander"></div>
+
+<!-- ═══════════ CHARACTERS ═══════════ -->
+<section id="cast" class="reveal">
+  <div class="eyebrow">Dramatis Personae</div>
+  <h2>The Characters</h2>
+  <p>Mortals and gods, faithful and treacherous. <em>Tap any card to reveal more.</em></p>
+
+  <div class="cast">
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">🏹</span>
+      <h3>Odysseus</h3>
+      <div class="role">King of Ithaca · The Hero</div>
+      <div class="bio">Master strategist, "man of twists and turns." His weapon is his mind; his weakness, his pride.</div>
+      <div class="more"><p>Epithet: <em>polytropos</em> — "of many turns." Beloved of Athena for his cunning, hated by Poseidon for blinding his son. His journey home is a test of every human capacity: courage, restraint, patience, and above all identity — again and again he must decide when to be "Nobody" and when to declare his name.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">🧵</span>
+      <h3>Penelope</h3>
+      <div class="role">Queen of Ithaca · The Faithful</div>
+      <div class="bio">Besieged by 108 suitors for years, she outwits them all — Odysseus's true equal in cunning.</div>
+      <div class="more"><p>Her famous ruse: she promises to choose a suitor once she finishes weaving a burial shroud for old Laertes — then unravels her work every night for three years. Her final test of the bow, and her secret test of the marriage bed, prove her a strategist worthy of her husband.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">⚔️</span>
+      <h3>Telemachus</h3>
+      <div class="role">Son · The Coming of Age</div>
+      <div class="bio">An infant when his father left; now a young man who must find his courage — and his father.</div>
+      <div class="more"><p>The Odyssey's first four books (the "Telemachy") follow his own journey to Pylos and Sparta seeking news of Odysseus. He grows from a helpless boy into the warrior who stands beside his father in the final battle.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">🦉</span>
+      <h3>Athena</h3>
+      <div class="role">Goddess of Wisdom · The Ally</div>
+      <div class="bio">Odysseus's divine patron. She admires him as the mortal mirror of her own cleverness.</div>
+      <div class="more"><p>She disguises him, counsels Telemachus, pleads his case before Zeus, and stage-manages the finale. Her symbol is the owl; her gift is <em>mētis</em> — cunning intelligence. The epic opens because she seizes the moment Poseidon is away to free Odysseus from Calypso.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">🔱</span>
+      <h3>Poseidon</h3>
+      <div class="role">God of the Sea · The Antagonist</div>
+      <div class="bio">Lord of every wave between Troy and Ithaca — and the father of the Cyclops Odysseus blinded.</div>
+      <div class="more"><p>Poseidon cannot kill Odysseus (fate forbids it) but he can make the sea itself an enemy: storms, shipwrecks, ten years of delay. His grudge is the engine of the plot — a reminder that in Homer's world, pride against the gods always collects its price.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">👁️</span>
+      <h3>Polyphemus</h3>
+      <div class="role">The Cyclops · Son of Poseidon</div>
+      <div class="bio">A one-eyed giant shepherd who eats his guests. Blinded by "Nobody."</div>
+      <div class="more"><p>His violation of <em>xenia</em> — the sacred guest-host bond — marks him as monstrous. His curse, prayed to his father Poseidon, is answered almost word for word: Odysseus will come home late, alone, in another man's ship, to find trouble in his house.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">🪄</span>
+      <h3>Circe</h3>
+      <div class="role">Sorceress of Aeaea</div>
+      <div class="bio">Turns men into swine — until Odysseus resists her magic. Enemy turned indispensable guide.</div>
+      <div class="more"><p>Daughter of the sun god Helios. After Odysseus overcomes her spell (with the divine herb <em>moly</em>), she hosts the crew for a year and gives the crucial sailing directions: the Underworld, the Sirens, Scylla and Charybdis. In the Odyssey, knowledge always comes at a strange price.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">🏝️</span>
+      <h3>Calypso</h3>
+      <div class="role">Nymph of Ogygia</div>
+      <div class="bio">Holds Odysseus for seven years, offering immortality. He refuses — he chooses home.</div>
+      <div class="more"><p>Her name means "the concealer." Odysseus's refusal of eternal life with a goddess, in favor of a mortal wife and a rocky island, is the epic's deepest statement: to be human, with all its grief, is worth more than paradise without meaning.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">👑</span>
+      <h3>Agamemnon</h3>
+      <div class="role">High King · Leader at Troy</div>
+      <div class="bio">Commander of the Greek coalition. His own homecoming ends in murder — the dark mirror of Odysseus's.</div>
+      <div class="more"><p>Murdered on his return by his wife Clytemnestra and her lover. His ghost, met in the Underworld, warns Odysseus to trust no wife and to return in secret — advice that shapes the entire Ithaca finale. His fate is the epic's constant warning of what homecoming can become.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">🛡️</span>
+      <h3>Achilles</h3>
+      <div class="role">Greatest Warrior of Troy</div>
+      <div class="bio">Chose glory over long life. In the Underworld, he tells Odysseus he chose wrong.</div>
+      <div class="more"><p>The hero of the Iliad. When Odysseus meets his shade among the dead, Achilles delivers one of literature's great reversals: he would rather be a poor farmhand alive than king of all the dead. Glory, the old heroic currency, is devalued — survival and home are the Odyssey's new gold.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">🌹</span>
+      <h3>Helen &amp; Menelaus</h3>
+      <div class="role">The Cause of the War</div>
+      <div class="bio">The stolen queen and the wronged husband — reconciled in Sparta when Telemachus visits.</div>
+      <div class="more"><p>By the Odyssey's time they live again in uneasy splendor. Helen recognizes Telemachus instantly by his likeness to his father, and tells how Odysseus once entered Troy disguised as a beggar — foreshadowing his return to Ithaca the same way.</p></div>
+    </div>
+
+    <div class="card" tabindex="0">
+      <span class="hint">+</span>
+      <span class="glyph">🐕</span>
+      <h3>The Faithful Few</h3>
+      <div class="role">Eumaeus · Eurycleia · Argos</div>
+      <div class="bio">The swineherd, the old nurse, and the dying dog — the first to know their king returned.</div>
+      <div class="more"><p>Eumaeus the swineherd shelters the disguised beggar with perfect <em>xenia</em>. Eurycleia recognizes Odysseus by the boar-tusk scar on his thigh. And Argos, his old hunting dog, waits twenty years on a dung heap just to see his master once more — wags his tail, and dies. Four lines of Homer; three millennia of tears.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="meander"></div>
+<!-- ═══════════ MAP ═══════════ -->
+<section id="map" class="reveal">
+  <div id="map-wrap">
+  <div class="eyebrow">The Wine-Dark Sea</div>
+  <h2>Map of the Wanderings</h2>
+  <p>Ten years, a few hundred miles as the gull flies. <em>Click any port of call to sail to its chapter.</em> Locations follow the traditional identifications of ancient and modern geographers — Homer left the true map to the imagination.</p>
+
+  <div class="map-frame">
+  <svg id="medmap" viewBox="0 0 1000 560" role="img" aria-label="Stylized map of the Mediterranean with the route of Odysseus">
+    <!-- landmasses (stylized) -->
+    <path class="landmass" d="M330 20 L370 60 L400 110 L415 160 L440 200 L470 235 L500 255 L520 275 L505 285 L470 262 L445 268 L430 250 L405 210 L385 165 L360 115 L330 70 Z"/><!-- Italy -->
+    <path class="landmass" d="M440 285 L500 278 L522 300 L505 335 L455 340 L430 315 Z"/><!-- Sicily -->
+    <path class="landmass" d="M600 90 L660 70 L700 100 L695 150 L720 175 L700 215 L672 250 L640 255 L655 215 L630 195 L640 160 L615 130 Z"/><!-- Greece -->
+    <path class="landmass" d="M760 30 L980 30 L980 240 L860 250 L820 210 L790 170 L800 120 L770 80 Z"/><!-- Anatolia -->
+    <path class="landmass" d="M20 20 L300 20 L340 20 L330 55 L280 80 L200 95 L120 90 L60 70 L20 55 Z"/><!-- Europe north edge -->
+    <path class="landmass" d="M20 460 L250 445 L400 455 L520 445 L700 460 L980 450 L980 545 L20 545 Z"/><!-- North Africa -->
+    <path class="landmass" d="M120 250 L160 265 L150 300 L110 290 Z"/><!-- Sardinia-ish -->
+    <path class="landmass" d="M690 300 L760 290 L820 305 L790 325 L710 320 Z"/><!-- Crete -->
+
+    <!-- route -->
+    <path id="route" d="M828 155
+      C 800 120, 770 100, 742 100
+      C 650 140, 560 300, 470 455
+      C 460 400, 470 350, 478 305
+      C 470 285, 462 270, 452 258
+      C 435 230, 420 210, 415 195
+      C 405 185, 398 180, 390 178
+      C 300 160, 180 130, 118 122
+      C 200 140, 320 165, 390 180
+      C 405 195, 418 210, 432 228
+      C 450 245, 470 258, 497 275
+      C 490 295, 480 310, 472 322
+      C 420 350, 350 375, 298 392
+      C 400 330, 520 240, 640 172
+      C 650 195, 655 215, 657 237
+      " />
+
+    <!-- Troy marker (start) -->
+    <g class="stop" data-target="prologue"><circle class="pulse" cx="828" cy="155" r="5"/><circle class="dot" cx="828" cy="155" r="5"/><text x="840" y="150">TROY ⚑</text></g>
+    <g class="stop" data-target="ch1"><circle class="pulse" cx="742" cy="100" r="5"/><circle class="dot" cx="742" cy="100" r="5"/><text x="700" y="88">CICONES</text></g>
+    <g class="stop" data-target="ch1"><circle class="pulse" cx="470" cy="455" r="5"/><circle class="dot" cx="470" cy="455" r="5"/><text x="424" y="478">LOTUS EATERS</text></g>
+    <g class="stop" data-target="ch2"><circle class="pulse" cx="478" cy="305" r="5"/><circle class="dot" cx="478" cy="305" r="5"/><text x="486" y="322">CYCLOPS</text></g>
+    <g class="stop" data-target="ch3"><circle class="pulse" cx="452" cy="258" r="5"/><circle class="dot" cx="452" cy="258" r="5"/><text x="368" y="255">AEOLUS</text></g>
+    <g class="stop" data-target="ch3"><circle class="pulse" cx="415" cy="195" r="5"/><circle class="dot" cx="415" cy="195" r="5"/><text x="288" y="200">LAESTRYGONIANS</text></g>
+    <g class="stop" data-target="ch4"><circle class="pulse" cx="390" cy="178" r="5"/><circle class="dot" cx="390" cy="178" r="5"/><text x="398" y="170">CIRCE · AEAEA</text></g>
+    <g class="stop" data-target="ch5"><circle class="pulse" cx="118" cy="122" r="5"/><circle class="dot" cx="118" cy="122" r="5"/><text x="80" y="145">UNDERWORLD</text></g>
+    <g class="stop" data-target="ch6"><circle class="pulse" cx="432" cy="228" r="5"/><circle class="dot" cx="432" cy="228" r="5"/><text x="352" y="228">SIRENS</text></g>
+    <g class="stop" data-target="ch7"><circle class="pulse" cx="497" cy="275" r="5"/><circle class="dot" cx="497" cy="275" r="5"/><text x="508" y="272">SCYLLA &amp; CHARYBDIS</text></g>
+    <g class="stop" data-target="ch8"><circle class="pulse" cx="472" cy="322" r="5"/><circle class="dot" cx="472" cy="322" r="5"/><text x="404" y="340">HELIOS' CATTLE</text></g>
+    <g class="stop" data-target="ch9"><circle class="pulse" cx="298" cy="392" r="5"/><circle class="dot" cx="298" cy="392" r="5"/><text x="240" y="414">CALYPSO · OGYGIA</text></g>
+    <g class="stop" data-target="ch10"><circle class="pulse" cx="640" cy="172" r="5"/><circle class="dot" cx="640" cy="172" r="5"/><text x="648" y="164">PHAEACIANS</text></g>
+    <g class="stop" data-target="finale"><circle class="pulse" cx="657" cy="237" r="6"/><circle class="dot" cx="657" cy="237" r="6"/><text x="668" y="245">⌂ ITHACA</text></g>
+  </svg>
+  </div>
+  <div class="map-cap">The golden route traces itself as it enters view — from the ashes of Troy to the hearth of Ithaca.</div>
+  </div>
+</section>
+
+<div class="meander"></div>
+<!-- ═══════════ CHAPTERS ═══════════ -->
+<section id="ch1" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">🌸</div>
+    <div><div class="num">Chapter I · Raiders &amp; Dreamers</div><h2>The Cicones &amp; the Lotus Eaters</h2></div>
+  </div>
+  <p>Twelve ships, some seven hundred men, sail from burning Troy. Flush with victory, they raid the city of <strong>Ismarus</strong> — and linger too long feasting. The Cicones counterattack; seventy-two men die. It's the epic's first lesson: <em>greed and delay kill</em>.</p>
+  <p>Storms then drive the fleet far south to the land of the <strong>Lotus Eaters</strong> — gentle people who offer the sailors a honeyed fruit that erases all longing for home. Those who taste it weep when dragged back to the ships. Odysseus lashes them to the benches and rows away fast.</p>
+  <details><summary>Learn more · The first temptation</summary><div class="inner">
+    <p>The lotus is the first of many temptations to <em>forget</em> — a theme that returns with Circe's year of feasting and Calypso's seven years of paradise. The Odyssey's monsters rarely attack the body first; they attack memory, and with it identity. To forget home is to stop being Odysseus.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<section id="ch2" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">👁️</div>
+    <div><div class="num">Chapter II · The Cave</div><h2>Polyphemus the Cyclops</h2></div>
+  </div>
+  <p>On a wild island, Odysseus and twelve men enter a giant's cave, hoping for a guest-gift. Instead, the one-eyed shepherd <strong>Polyphemus</strong> seals the entrance with a boulder no man can move — and eats two men raw for dinner.</p>
+  <p>Escape demands genius. Odysseus offers the giant strong wine and tells him his name is <strong>"Nobody"</strong> (<em>Outis</em>). When the drunken Cyclops sleeps, the Greeks drive a fire-hardened olive stake into his single eye. Polyphemus screams to his neighbors: <em>"Nobody is killing me!"</em> — and they walk away. At dawn, the men escape strapped beneath the bellies of his sheep.</p>
+  <div class="quote">"Cyclops — if any man asks who blinded you, say it was Odysseus, sacker of cities, son of Laertes, who makes his home in Ithaca!"<small>The fatal boast · Book IX</small></div>
+  <p>It is Odysseus's one catastrophic mistake. With his true name, Polyphemus can curse him — and his father is <strong>Poseidon</strong>. The god of every ocean between here and home now hunts him personally.</p>
+  <details><summary>Learn more · "Nobody," xenia, and the price of a name</summary><div class="inner">
+    <p><strong>The pun is untranslatable perfection:</strong> <em>Outis</em> (Nobody) echoes <em>mētis</em> (cunning) in Greek — so when the Cyclopes hear "Mē tis is killing me," it also sounds like "cunning is killing me." It is.</p>
+    <p><strong>Xenia</strong> — sacred hospitality — is the moral law of the epic. Polyphemus inverts it grotesquely: instead of feeding guests, he feeds <em>on</em> them. Every stop of the journey is a test of xenia, kept or broken, and Zeus himself is its enforcer.</p>
+    <p><strong>Why boast?</strong> A hero's deeds only exist if attached to his name — anonymous glory is no glory in the heroic code. Odysseus must choose between safety as Nobody and identity as Odysseus. He chooses his name, and pays with ten years.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<section id="ch3" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">🌬️</div>
+    <div><div class="num">Chapter III · So Close</div><h2>Aeolus &amp; the Bag of Winds — then the Laestrygonians</h2></div>
+  </div>
+  <p><strong>Aeolus</strong>, keeper of the winds, gives Odysseus a magnificent gift: an ox-hide bag containing every storm wind, leaving only the gentle west wind to blow them home. For nine days Odysseus steers without sleep. On the tenth, <em>Ithaca is in sight</em> — men on shore tending fires. Exhausted, he closes his eyes.</p>
+  <p>His crew, convinced the bag hides gold their captain won't share, open it. The winds explode outward and hurl the fleet all the way back. Aeolus, seeing a man so obviously cursed by the gods, refuses to help twice.</p>
+  <p>Worse follows: the <strong>Laestrygonians</strong>, giant cannibals, spear the fleet like fish in their harbor. Eleven ships of twelve are destroyed. Of the seven hundred who left Troy, one ship's crew remains.</p>
+  <details><summary>Learn more · The tragedy of the crew</summary><div class="inner">
+    <p>The bag of winds is the epic's cruelest near-miss, and it establishes a pattern: Odysseus's worst wounds come not from monsters but from <em>his own men's</em> distrust and appetite — a foreshadowing of the cattle of Helios. Homer's opening lines already told us: the crew "perished by their own recklessness."</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<section id="ch4" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">🪄</div>
+    <div><div class="num">Chapter IV · The Sorceress</div><h2>Circe of Aeaea</h2></div>
+  </div>
+  <p>On Circe's island, a scouting party follows the sound of beautiful singing to a marble house ringed by strangely tame wolves and lions. The goddess feasts the men — and with a tap of her wand turns them into <strong>pigs</strong>, their human minds trapped inside.</p>
+  <p>Marching to the rescue, Odysseus is met by the god <strong>Hermes</strong>, who gives him a black-rooted, white-flowered herb — <strong>moly</strong> — that makes him immune to the spell. When Circe's wand fails and Odysseus draws his sword, the astonished goddess recognizes the man prophecy foretold. She restores the crew, and the enemy becomes a host: they stay a full year, feasting and healing.</p>
+  <p>When they finally ask to leave, Circe gives directions no sailor wants: <em>the way home runs through the land of the dead.</em></p>
+  <details><summary>Learn more · Moly and metamorphosis</summary><div class="inner">
+    <p>Moly is the first "magic herb" in Western literature, and only gods can pull it from the earth. Symbolically it is divine wisdom against base appetite: Circe's magic works on men who gorge themselves; it fails against the man forewarned and self-possessed. The pig transformation literalizes what the lotus began — losing one's human self through indulgence.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<section id="ch5" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">🕯️</div>
+    <div><div class="num">Chapter V · The Land of the Dead</div><h2>The Underworld</h2></div>
+  </div>
+  <p>At the world's western edge, where sun never shines, Odysseus digs a trench, pours libations, and sacrifices sheep. The shades of the dead crowd toward the blood — and speak.</p>
+  <p>The blind prophet <strong>Tiresias</strong> gives the fatal warning: <em>do not touch the cattle of the Sun.</em> He also foretells the suitors in his hall, and a strange final journey Odysseus must one day take inland, carrying an oar. Then come the personal ghosts: his mother <strong>Anticlea</strong>, who died of grief waiting for him — three times he tries to embrace her, three times she drifts through his arms like smoke. <strong>Agamemnon</strong>, murdered by his own wife, warns him to return home in secret. And <strong>Achilles</strong>, greatest of warriors, delivers the epic's thunderclap:</p>
+  <div class="quote">"I would rather serve as a hired hand to a landless man, and be alive on earth, than be king over all the perished dead."<small>Achilles' shade · Book XI</small></div>
+  <details><summary>Learn more · The Nekyia</summary><div class="inner">
+    <p>This episode, the <em>Nekyia</em>, became the template for every literary descent to the dead — Virgil's Aeneas, Dante's Inferno. Its function is transformation: Odysseus meets the war-hero code (Achilles) and rejects it, meets his own possible fate (Agamemnon) and learns from it, and touches pure grief (his mother). He goes in a raider; he comes out a man who only wants home.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<section id="ch6" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">🎶</div>
+    <div><div class="num">Chapter VI · The Song</div><h2>The Sirens</h2></div>
+  </div>
+  <p>Their song promises not pleasure but <em>knowledge</em> — all that happens on earth, all the glory of Troy. No sailor who hears it ever goes home; the Sirens' meadow is heaped with rotting bones.</p>
+  <p>Circe's counsel makes Odysseus the only mortal to hear the song and live: he plugs his crew's ears with softened beeswax and has himself <strong>lashed to the mast</strong>, ordering that if he begs for release, they must only bind him tighter. The song comes; he strains against the ropes, raging to be freed; the crew rows on, deaf and steady, until the voices fade astern.</p>
+  <details><summary>Learn more · The first "commitment device"</summary><div class="inner">
+    <p>Philosophers and economists still call binding-your-future-self a "Ulysses pact" — used today in everything from savings plans to medical directives. Note what tempts Odysseus: not lust, but <em>information and fame</em> — the Sirens offer to sing his own Trojan glory back to him. The past, sung sweetly, is the trap.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<section id="ch7" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">🌊</div>
+    <div><div class="num">Chapter VII · The Strait</div><h2>Scylla &amp; Charybdis</h2></div>
+  </div>
+  <p>A narrow strait, two horrors. On one cliff, <strong>Scylla</strong>: six heads on serpent necks, each mouth with three rows of teeth. Below the other, <strong>Charybdis</strong>: a whirlpool that swallows the sea whole three times a day and vomits it back.</p>
+  <p>Circe's arithmetic is merciless: sail near Charybdis and lose <em>everything</em>; sail near Scylla and lose <em>six men</em>. Odysseus — for the only time in the epic — is told there is no clever way out. He hugs Scylla's cliff. Six heads strike; six of his best men are snatched screaming into the air, calling his name. He calls it the most pitiful thing his eyes ever saw.</p>
+  <details><summary>Learn more · The impossible choice</summary><div class="inner">
+    <p>"Between Scylla and Charybdis" remains our phrase for a dilemma with no good option. The episode is the Odyssey's meditation on command: leadership sometimes means choosing a known, certain loss to prevent a total one — and carrying it. Odysseus doesn't warn the crew about Scylla; had they known, they'd have dropped their oars and doomed everyone.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<section id="ch8" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">☀️</div>
+    <div><div class="num">Chapter VIII · The Forbidden Feast</div><h2>The Cattle of Helios</h2></div>
+  </div>
+  <p>On the island of Thrinacia graze the immortal cattle of the sun god <strong>Helios</strong> — the herds Tiresias and Circe both swore must never be touched. Odysseus makes his crew vow the same. Then the winds die for a month, food runs out, and while their captain sleeps, the starving crew slaughters the sacred herd.</p>
+  <p>The omens are horrific — the hides crawl, the meat on the spits lows like living cattle. When they sail, Helios's price is paid: Zeus's thunderbolt shatters the ship. Every man drowns. Odysseus alone, clinging to wreckage, survives — swept back through Charybdis itself, hanging from a fig tree above the whirlpool until his broken keel resurfaces.</p>
+  <p>He drifts nine days, and washes ashore on Ogygia. Alone.</p>
+  <details><summary>Learn more · Free will in Homer</summary><div class="inner">
+    <p>Homer flags this in the poem's very first lines: the crew died "through their own blind recklessness — fools, who devoured the cattle of the Sun." Amid all the gods and fate, the Odyssey insists that mortals choose, and their choices matter. The men were warned twice, swore an oath, and broke it. The gods didn't doom them; hunger plus faithlessness did.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<section id="ch9" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">🏝️</div>
+    <div><div class="num">Chapter IX · Seven Years</div><h2>Calypso's Island</h2></div>
+  </div>
+  <p>The nymph <strong>Calypso</strong> finds the castaway, heals him, loves him — and keeps him. Her island is paradise: cedar smoke, singing looms, vines heavy with grapes. She offers the one gift no mortal refuses: <strong>immortality</strong>, agelessness, eternity at her side.</p>
+  <p>He refuses. For seven years, every day, Odysseus sits on the shore and weeps toward the horizon. At last Athena wins Zeus's ruling; Hermes flies down with the order: release him. Calypso, bitter but bound, helps him build a raft. He admits Penelope cannot rival a goddess — <em>and chooses her anyway</em>.</p>
+  <div class="quote">"She is mortal, and you are deathless and unaging. Even so — I long, all my days, to see the day of my homecoming."<small>Odysseus to Calypso · Book V</small></div>
+  <p>Poseidon spots the raft and smashes it in a final storm. Naked, half-drowned, stripped of everything from Troy, Odysseus crawls ashore on one last island.</p>
+  <details><summary>Learn more · Choosing mortality</summary><div class="inner">
+    <p>This is where Homer actually <em>begins</em> the poem — everything before is told by Odysseus in flashback at the Phaeacian court. The refusal of immortality is the epic's philosophical core: an endless life with no home, no struggle, no story, is a kind of death. "Calypso" means <em>the one who conceals</em> — she offers eternity at the price of disappearance.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<section id="ch10" class="reveal">
+  <div class="chapter-head">
+    <div class="seal">🚢</div>
+    <div><div class="num">Chapter X · The Storyteller</div><h2>Nausicaa &amp; the Phaeacians</h2></div>
+  </div>
+  <p>On Scheria, the princess <strong>Nausicaa</strong>, washing clothes at the river with her maids, finds a salt-crusted stranger and — with courage and perfect courtesy — brings him to the palace of her father, King <strong>Alcinous</strong>. The Phaeacians are hosts without flaw: they bathe, feast, and honor the nameless guest before ever asking who he is.</p>
+  <p>Then a blind bard sings of the Trojan Horse — and the stranger hides his face and weeps. Pressed at last, he stands: <em>"I am Odysseus, son of Laertes, known to all men for my cunning."</em> Through the night he tells everything you have just read — the Cyclops, the dead, the Sirens, the sun god's cattle. The Phaeacians load him with treasure and, in one enchanted night-crossing, their ship lays him — asleep — on the sands of <strong>Ithaca</strong>.</p>
+  <details><summary>Learn more · The poem inside the poem</summary><div class="inner">
+    <p>Books IX–XII, the famous adventures, are Odysseus's own after-dinner tale — making him the epic's second poet and raising a sly question scholars still enjoy: is the master trickster a perfectly reliable narrator? The blind bard Demodocus, singing of Troy, is often read as Homer's self-portrait.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<div class="meander"></div>
+
+<!-- ═══════════ FINALE ═══════════ -->
+<section id="finale" class="reveal">
+  <div class="eyebrow">The Final Act · Twenty Years Gone</div>
+  <div class="chapter-head">
+    <div class="seal">🏹</div>
+    <div><div class="num">Homecoming</div><h2>Ithaca: The Beggar, the Bow, and the Bed</h2></div>
+  </div>
+  <p>Home at last — but home is occupied. <strong>108 suitors</strong> squat in his palace, devouring his herds, pressuring Penelope to declare him dead and remarry, and plotting to murder Telemachus. Remembering Agamemnon's fate, Odysseus arrives not as a king but as Athena's creation: a wrinkled, ragged <strong>beggar</strong>.</p>
+
+  <div class="acts">
+    <div class="act">
+      <h3>The Beggar at the Door</h3>
+      <p>Sheltered first by the loyal swineherd <strong>Eumaeus</strong>, Odysseus reveals himself to <strong>Telemachus</strong> — a reunion twenty years in the making — and together they plot. In his own hall he begs scraps from men feasting on his own cattle; the suitor Antinous strikes him with a footstool. Old <strong>Argos</strong>, his dying dog, knows him at once. So does the nurse <strong>Eurycleia</strong>, washing his feet, when her fingers find the boar-tusk scar — he seizes her throat and swears her to silence.</p>
+    </div>
+    <div class="act">
+      <h3>The Contest of the Bow</h3>
+      <p>Penelope — perhaps sensing more than she says — announces a trial: she will marry whichever man can string <strong>Odysseus's great bow</strong> and shoot an arrow through the sockets of twelve axes in a row. Suitor after suitor strains; none can even bend it. The beggar asks for a try. The hall jeers — then falls silent as he strings the bow effortlessly, like a bard stringing a lyre, and sends the arrow clean through all twelve axes. Zeus thunders overhead.</p>
+    </div>
+    <div class="act">
+      <h3>The Reckoning</h3>
+      <p>He strips off his rags, leaps to the threshold, and the next arrow tears through Antinous's throat. <em>"Dogs! You thought I would never come home from Troy."</em> The doors are barred. With Telemachus, Eumaeus, and Athena at his side, the archer-king clears his hall of all hundred and eight. The treacherous are punished; the disloyal maids and the goatherd Melanthius follow. The hall is purged with fire and sulfur.</p>
+    </div>
+    <div class="act">
+      <h3>The Secret of the Bed</h3>
+      <p>Penelope, cautious after twenty years of impostors and heartbreak, sets one final trap: she orders the servants to <em>move the marriage bed</em> out of the bedchamber. Odysseus erupts — impossible! He built that bed himself around a <strong>living olive tree</strong>, its trunk carved into a bedpost, rooted in the earth; no one could move it without cutting it down. It is the secret only husband and wife share. Penelope's knees give way. She runs to him, and the woman who out-waited an ocean of suitors holds her husband at last. Athena delays the dawn so the night can be long.</p>
+    </div>
+    <div class="act">
+      <h3>Peace</h3>
+      <p>One reunion remains: old <strong>Laertes</strong>, his father, grieving in his orchard. When the suitors' kinsmen march for revenge, three generations — Laertes, Odysseus, Telemachus — stand together, until Athena, with Zeus's blessing, casts peace over Ithaca. The wandering is over.</p>
+    </div>
+  </div>
+
+  <details><summary>Learn more · Symbols of the finale</summary><div class="inner">
+    <p><strong>The bow</strong> is identity as a physical test — only the true Odysseus has the strength and the craft to string it. Homer compares him to a musician: violence and artistry in one gesture.</p>
+    <p><strong>The scar</strong> is the body as biography: earned in a boyhood boar hunt, it is the mark by which the nurse, the swineherd, and finally his father know him. You are the sum of your wounds.</p>
+    <p><strong>The olive-tree bed</strong> is the epic's master symbol: a marriage literally <em>rooted</em>, living, and immovable — the fixed point the whole ten-thousand-mile spiral of the poem turns around. The olive is Athena's tree; even the bed is under wisdom's protection.</p>
+    <p><strong>Penelope's test</strong> makes the ending symmetrical: the man of twists and turns is finally out-tricked — by his wife. Homer calls her <em>periphrōn</em>, "circumspect"; ancient readers already saw her as Odysseus's intellectual equal, and the recognition scene as a duel of equals ending in a draw.</p>
+  </div></details>
+  <a class="to-map" href="#map">⚓ Return to the map</a>
+</section>
+
+<div class="meander"></div>
+
+<!-- ═══════════ EPILOGUE ═══════════ -->
+<section id="epilogue" class="reveal">
+  <div class="eyebrow" style="justify-content:center">Epilogue</div>
+  <h2>Why the Odyssey Endures</h2>
+  <p style="margin:0 auto 1rem;max-width:60ch">Twenty-eight centuries on, every homecoming story — every veteran's return, every long road back — is still told in its shadow. The Odyssey's answer to the heroic age is quietly radical: the greatest journey is the one home, the greatest strength is endurance, and a mortal life, fully lived with the people you love, outweighs eternity.</p>
+  <div class="quote">"There is nothing stronger and better than when a man and a woman keep house together with one heart and mind."<small>Odysseus to Nausicaa · Book VI</small></div>
+</section>
+
+</main>
+
+<footer>Retold from Homer's Odyssey · An interactive reading companion</footer>
+
+<script>
+/* ---------- star field ---------- */
+const cv=document.getElementById('stars'),cx=cv.getContext('2d');
+let stars=[];const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function sizeStars(){cv.width=innerWidth;cv.height=innerHeight;
+  stars=Array.from({length:Math.min(180,innerWidth/6)},()=>({
+    x:Math.random()*cv.width,y:Math.random()*cv.height,
+    r:Math.random()*1.3+.2,p:Math.random()*Math.PI*2,s:.4+Math.random()*1.2}));}
+sizeStars();addEventListener('resize',sizeStars);
+function drawStars(t){cx.clearRect(0,0,cv.width,cv.height);
+  for(const st of stars){const a=reduced? .7 : .35+.5*Math.abs(Math.sin(t/1400*st.s+st.p));
+    cx.globalAlpha=a;cx.fillStyle= st.r>1 ? '#EFD98B':'#DCE4F2';
+    cx.beginPath();cx.arc(st.x,st.y,st.r,0,7);cx.fill();}
+  cx.globalAlpha=1;
+  if(!reduced)requestAnimationFrame(drawStars);}
+requestAnimationFrame(drawStars);
+
+/* ---------- progress rail + ship ---------- */
+const fill=document.getElementById('rail-fill'),ship=document.getElementById('rail-ship');
+function onScroll(){const h=document.documentElement;
+  const p=h.scrollTop/(h.scrollHeight-h.clientHeight);
+  fill.style.height=(p*100)+'%';
+  ship.style.top=(p*innerHeight*0.96+innerHeight*0.02)+'px';}
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+/* ---------- reveal on scroll ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}
+}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ---------- route draw animation ---------- */
+const route=document.getElementById('route');
+if(route){const L=route.getTotalLength();
+  route.style.strokeDasharray=L;route.style.strokeDashoffset=L;
+  const mio=new IntersectionObserver(es=>{if(es[0].isIntersecting){
+    route.style.transition= reduced ? 'none' : 'stroke-dashoffset 6s ease-in-out';
+    requestAnimationFrame(()=>route.style.strokeDashoffset='0');
+    setTimeout(()=>{route.style.strokeDasharray='6 7';route.style.strokeDashoffset='0';}, reduced?0:6200);
+    mio.disconnect();}},{threshold:.35});
+  mio.observe(route);}
+
+/* ---------- map stop navigation ---------- */
+document.querySelectorAll('.stop').forEach(s=>{
+  s.addEventListener('click',()=>{const t=document.getElementById(s.dataset.target);
+    if(t)t.scrollIntoView({behavior: reduced?'auto':'smooth'});});
+  s.setAttribute('tabindex','0');s.setAttribute('role','link');
+  s.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();s.click();}});
+});
+
+/* ---------- character cards ---------- */
+document.querySelectorAll('.card').forEach(c=>{
+  const toggle=()=>c.classList.toggle('open');
+  c.addEventListener('click',toggle);
+  c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+});
+</script>
+</body>
+</html>
