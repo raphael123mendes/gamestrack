@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Abu Dhabi Field Guide | Guia de Abu Dhabi</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+  :root{
+    --dune:#EBDFC4;
+    --dune-deep:#DCCBA0;
+    --gulf:#0E3B36;
+    --gulf-deep:#082622;
+    --gold:#B8874A;
+    --gold-light:#D9AD6E;
+    --rust:#B5562F;
+    --ink:#17231F;
+    --paper:#FBF6EA;
+    --line:#D7C79E;
+    --muted:#6B6250;
+    --r-lg:22px;
+    --r-md:14px;
+    --shadow: 0 18px 40px -18px rgba(15,30,25,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--dune);
+    color:var(--ink);
+    font-family:'Newsreader', serif;
+    padding-bottom:60px;
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(184,135,74,.16), transparent 40%),
+      radial-gradient(circle at 88% 4%, rgba(14,59,54,.12), transparent 35%);
+  }
+  h1,h2,h3,h4,.display{font-family:'Space Grotesk', sans-serif; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono', monospace; letter-spacing:0.02em;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  /* ===== Lattice signature (SVG pattern, echoes Al Bahr Towers' mashrabiya sunscreen) ===== */
+  .lattice-panel{ transform-origin:center; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+  .lattice-hero .lattice-panel{ animation: panelBreathe 9s ease-in-out infinite; }
+  .lattice-hero .lattice-panel:nth-child(odd){ animation-delay:.6s; }
+  @keyframes panelBreathe{
+    0%,100%{ transform:scale(1) rotate(0deg); opacity:.55;}
+    50%{ transform:scale(.55) rotate(12deg); opacity:.9;}
+  }
+  .card:hover .lattice-panel{ transform:scale(.5) rotate(10deg); }
+
+  /* ===== Header ===== */
+  header{
+    position:relative;
+    background: linear-gradient(160deg, var(--gulf-deep) 0%, var(--gulf) 62%, #1c5850 100%);
+    color:var(--paper);
+    padding:4.5rem 1.5rem 6.5rem;
+    text-align:center;
+    overflow:hidden;
+  }
+  header .lattice-hero{ position:absolute; inset:0; opacity:.5; pointer-events:none; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:.5rem;
+    font-size:.72rem; text-transform:uppercase; letter-spacing:.18em;
+    color:var(--gold-light); margin-bottom:1.1rem; position:relative; z-index:2;
+  }
+  .eyebrow::before, .eyebrow::after{ content:""; width:22px; height:1px; background:var(--gold-light); opacity:.7; }
+  header h1{ font-size:2.7rem; font-weight:700; position:relative; z-index:2; max-width:720px; margin:0 auto .7rem; line-height:1.08; }
+  header p.sub{ font-family:'Newsreader', serif; font-style:italic; opacity:.82; font-size:1.12rem; max-width:520px; margin:0 auto; position:relative; z-index:2; }
+
+  .lang-switcher{
+    position:absolute; top:1.4rem; right:1.4rem; z-index:3;
+    background: rgba(251,246,234,.1);
+    border:1px solid rgba(251,246,234,.3);
+    color:var(--paper);
+    padding:.55rem 1.1rem;
+    border-radius:30px;
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:500;
+    font-size:.78rem;
+    backdrop-filter:blur(8px);
+    transition:all .2s ease;
+  }
+  .lang-switcher:hover{ background: rgba(251,246,234,.2); }
+
+  /* ===== Controls ===== */
+  .controls-container{ max-width:1250px; margin:-3rem auto 2.5rem; padding:0 1.5rem; position:relative; z-index:4; }
+  .search-box{
+    width:100%; padding:1.05rem 1.4rem; font-size:1rem;
+    font-family:'Newsreader', serif;
+    border:1px solid var(--line); border-radius:16px;
+    box-shadow:var(--shadow); outline:none; background:var(--paper);
+    margin-bottom:1.1rem; color:var(--ink);
+  }
+  .search-box:focus{ border-color:var(--gold); }
+  .search-box::placeholder{ color:var(--muted); font-style:italic; }
+
+  .filter-tags{ display:flex; gap:.55rem; flex-wrap:wrap; justify-content:center; }
+  .tag-btn{
+    background:var(--paper); border:1px solid var(--line);
+    padding:.55rem 1.1rem; border-radius:30px; cursor:pointer;
+    font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:.76rem;
+    letter-spacing:.03em; color:var(--muted); transition:all .18s ease;
+  }
+  .tag-btn:hover{ border-color:var(--gold); color:var(--ink); }
+  .tag-btn.active{ background:var(--gulf); color:var(--paper); border-color:var(--gulf); }
+
+  /* ===== Layout ===== */
+  .main-layout{ max-width:1250px; margin:0 auto; padding:0 1.5rem; display:grid; grid-template-columns:1fr; gap:2rem; }
+  @media (min-width:950px){ .main-layout{ grid-template-columns:1.2fr .8fr; } }
+
+  #map{ height:420px; border-radius:var(--r-lg); box-shadow:var(--shadow); border:1px solid var(--line); z-index:1; }
+  @media (min-width:950px){ #map{ height:auto; position:sticky; top:1.5rem; align-self:start; } }
+
+  .district{ margin-bottom:2.2rem; }
+  .district-head{ display:flex; align-items:baseline; gap:.75rem; margin-bottom:1rem; padding-bottom:.5rem; border-bottom:1px solid var(--line); }
+  .district-head .count{ font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--muted); }
+  .district-head h2{ font-size:1.15rem; font-weight:700; color:var(--gulf); }
+
+  .cards-grid{ display:grid; grid-template-columns:1fr; gap:1.3rem; }
+  @media (min-width:640px) and (max-width:949px){ .cards-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (min-width:1400px){ .cards-grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .card{
+    background:var(--paper); border-radius:var(--r-lg); overflow:hidden;
+    border:1px solid var(--line); box-shadow:0 1px 2px rgba(20,30,25,.05);
+    display:flex; flex-direction:column; cursor:pointer;
+    transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s cubic-bezier(.16,1,.3,1);
+  }
+  .card:hover{ transform:translateY(-4px); box-shadow:var(--shadow); }
+
+  .plate{
+    position:relative; height:150px; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .plate svg.icon{ width:46px; height:46px; position:relative; z-index:2; }
+  .plate .badge{
+    position:absolute; top:.85rem; left:.85rem; z-index:3;
+    padding:.3rem .75rem; font-size:.66rem; font-family:'IBM Plex Mono',monospace;
+    font-weight:600; border-radius:20px; text-transform:uppercase; letter-spacing:.05em;
+    background:rgba(23,35,31,.55); color:var(--paper); backdrop-filter:blur(4px);
+  }
+  .plate .idx{
+    position:absolute; bottom:.7rem; right:.9rem; z-index:3;
+    font-family:'IBM Plex Mono',monospace; font-size:2.1rem; font-weight:600;
+    color:rgba(255,255,255,.28);
+  }
+
+  .card-body{ padding:1.25rem 1.35rem 1.4rem; display:flex; flex-direction:column; flex-grow:1; }
+  .card h3{ font-family:'Space Grotesk',sans-serif; font-size:1.12rem; font-weight:700; margin-bottom:.25rem; line-height:1.25; }
+  .card .meta{ font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--muted); margin-bottom:.7rem; }
+  .card p{ font-size:.92rem; color:#3d3529; line-height:1.55; flex-grow:1; margin-bottom:1.1rem; }
+
+  .card-actions{ display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--line); padding-top:.75rem; }
+  .btn-more{ font-family:'IBM Plex Mono',monospace; font-size:.74rem; font-weight:600; color:var(--rust); }
+  .btn-map-pin{
+    background:var(--dune-deep); border:none; padding:.4rem .75rem; border-radius:8px;
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.7rem; color:var(--ink); cursor:pointer;
+  }
+  .btn-map-pin:hover{ background:var(--gold-light); }
+
+  .empty-msg{ text-align:center; padding:3rem 1rem; color:var(--muted); font-style:italic; }
+
+  /* ===== Modal ===== */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(8,38,34,.7); backdrop-filter:blur(8px);
+    z-index:1000; display:flex; justify-content:center; align-items:center; padding:1.5rem;
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  .modal-overlay.active{ opacity:1; pointer-events:auto; }
+  .modal-content{
+    background:var(--paper); width:100%; max-width:700px; max-height:90vh; border-radius:24px;
+    overflow-y:auto; box-shadow:0 25px 60px -12px rgba(0,0,0,.4); position:relative;
+    transform:translateY(16px); transition:transform .3s ease;
+  }
+  .modal-overlay.active .modal-content{ transform:translateY(0); }
+  .modal-close{
+    position:absolute; top:1.1rem; right:1.1rem; background:rgba(251,246,234,.9); border:none;
+    width:36px; height:36px; border-radius:50%; font-size:1.1rem; cursor:pointer; z-index:10;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-plate{ position:relative; height:220px; display:flex; align-items:center; justify-content:center; }
+  .modal-plate svg.icon{ width:72px; height:72px; }
+  .modal-body{ padding:2rem; }
+  .modal-body .badge{
+    display:inline-block; margin-bottom:.7rem; padding:.3rem .8rem; border-radius:20px;
+    font-family:'IBM Plex Mono',monospace; font-size:.68rem; text-transform:uppercase;
+    background:var(--gulf); color:var(--paper);
+  }
+  .modal-body h2{ font-family:'Space Grotesk',sans-serif; font-size:1.65rem; font-weight:700; margin-bottom:.35rem; }
+  .modal-body .meta{ font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--muted); margin-bottom:1.2rem; }
+  .modal-section{ margin-top:1.3rem; }
+  .modal-section h4{ font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.05em; font-size:.75rem; margin-bottom:.5rem; color:var(--rust); }
+  .modal-section p{ color:#3d3529; line-height:1.65; font-size:1rem; }
+  .modal-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem;
+    margin-top:1.4rem; background:var(--dune); padding:1.1rem; border-radius:14px;
+  }
+  .modal-grid-item small{ font-family:'IBM Plex Mono',monospace; color:var(--muted); font-size:.68rem; text-transform:uppercase; }
+  .modal-grid-item p{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:.88rem; margin-top:3px; }
+  .modal-footer{ margin-top:1.6rem; }
+  .btn-google-maps{
+    background:var(--rust); color:var(--paper); text-decoration:none; padding:.8rem 1.4rem;
+    border-radius:12px; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.82rem;
+    display:inline-flex; align-items:center; gap:6px; transition:background .2s;
+  }
+  .btn-google-maps:hover{ background:#943f21; }
+
+  .leaflet-popup-content-wrapper{ background:var(--paper); border-radius:10px; }
+  .leaflet-popup-content h4{ font-family:'Space Grotesk',sans-serif; margin-bottom:2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="lattice-hero" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <button class="lang-switcher" id="langToggle">🇧🇷 PT-BR</button>
+  <div class="eyebrow" id="headerEyebrow">A FIELD GUIDE</div>
+  <h1 id="headerTitle">Abu Dhabi, Plate by Plate</h1>
+  <p class="sub" id="headerSubtitle">Sixteen landmarks across six districts — towers, deserts of marble, race tracks, and shoreline — mapped for a family visit.</p>
+</header>
+
+<div class="controls-container">
+  <input type="text" id="searchInput" class="search-box" placeholder="Search landmarks by name or location..." />
+  <div class="filter-tags" id="filterTags">
+    <button class="tag-btn active" data-category="All" id="tagAll">All</button>
+    <button class="tag-btn" data-category="Modern" id="tagModern">Modern</button>
+    <button class="tag-btn" data-category="Culture" id="tagCulture">Culture</button>
+    <button class="tag-btn" data-category="Heritage" id="tagHeritage">Heritage</button>
+    <button class="tag-btn" data-category="Yas Island" id="tagYas">Yas Island</button>
+    <button class="tag-btn" data-category="Shopping & Malls" id="tagShopping">Shopping & Malls</button>
+    <button class="tag-btn" data-category="Beaches & Leisure" id="tagLeisure">Beaches & Leisure</button>
+  </div>
+</div>
+
+<main class="main-layout">
+  <div id="districtsContainer"></div>
+  <div id="map"></div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-plate" id="modalPlate"></div>
+    <div class="modal-body">
+      <span class="badge" id="modalCategory">Category</span>
+      <h2 id="modalTitle">Landmark Title</h2>
+      <div class="meta" id="modalMeta">Location • Era</div>
+      <div class="modal-section">
+        <h4 id="labelOverview">About this Attraction</h4>
+        <p id="modalDescription"></p>
+      </div>
+      <div class="modal-grid">
+        <div class="modal-grid-item"><small id="labelHours">Visiting Hours</small><p id="modalHours"></p></div>
+        <div class="modal-grid-item"><small id="labelBestTime">Best Time to Visit</small><p id="modalBestTime"></p></div>
+      </div>
+      <div class="modal-footer">
+        <a id="modalMapLink" href="#" target="_blank" class="btn-google-maps">🗺️ Open in Google Maps</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ================= Palette per category (used for plate gradients) ================= */
+const PALETTES = {
+  "Modern":              ["#0E3B36","#1C5850"],
+  "Culture":             ["#B8874A","#8C5E2A"],
+  "Heritage":             ["#8C5E2A","#5C3A18"],
+  "Yas Island":          ["#B5562F","#7E3A1D"],
+  "Shopping & Malls":    ["#3E4A63","#232C3D"],
+  "Beaches & Leisure":   ["#1C7A8C","#0E4F5C"]
+};
+
+/* Simple inline line-icon set (stroke, currentColor) keyed by name */
+const ICONS = {
+  facade:  `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><rect x="8" y="6" width="14" height="36" rx="1"/><rect x="26" y="6" width="14" height="36" rx="1"/><path d="M10 12h10M10 18h10M10 24h10M10 30h10M10 36h10M28 12h10M28 18h10M28 24h10M28 30h10M28 36h10"/></svg>`,
+  lean:    `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M20 6l14 4-6 32-16-4z" stroke-linejoin="round"/><path d="M20 14l12 3M18 22l12 3M16 30l12 3"/></svg>`,
+  tower:   `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M24 4v40M14 44h20M17 4l7-4 7 4M12 16h24M10 26h28M8 36h32"/></svg>`,
+  dome:    `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M8 40h32M10 40V26a14 14 0 0 1 28 0v14"/><path d="M24 12V6M20 6h8"/></svg>`,
+  gallery: `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><circle cx="24" cy="24" r="18"/><path d="M6 24h36M24 6a26 26 0 0 1 0 36 26 26 0 0 1 0-36z"/></svg>`,
+  fort:    `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M8 44V18l6-4v6l6-4v6l4-3 4 3v-6l6 4v-6l6 4v26z"/><path d="M8 44h32"/></svg>`,
+  village: `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M6 44h36M10 44V24l14-12 14 12v20"/><path d="M20 44V32h8v12"/></svg>`,
+  ticket:  `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M6 18a4 4 0 0 0 0 8v8h36v-8a4 4 0 0 1 0-8v-8H6z"/><path d="M20 12v24" stroke-dasharray="3 3"/></svg>`,
+  wave:    `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M4 20c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 8 4M4 30c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 8 4"/></svg>`,
+  track:   `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M6 30c4-14 12-20 18-20s16 6 18 20-8 12-18 12-22 2-18-12z"/><circle cx="24" cy="24" r="3" fill="#FBF6EA" stroke="none"/></svg>`,
+  bag:     `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M10 16h28l-2 26H12z"/><path d="M17 16v-4a7 7 0 0 1 14 0v4"/></svg>`,
+  palm:    `<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="#FBF6EA" stroke-width="1.6"><path d="M24 44V24"/><path d="M24 24c-4-8-12-10-18-8 2 6 8 10 18 8zM24 24c4-8 12-10 18-8-2 6-8 10-18 8zM24 22c-2-6-8-10-14-10 2 6 6 10 14 10zM24 22c2-6 8-10 14-10-2 6-6 10-14 10z"/></svg>`
+};
+
+/* ================= Attractions data ================= */
+const attractions = [
+  { id:1, category:"Modern", icon:"facade", coords:[24.4566,54.4009],
+    en:{ name:"Al Bahr Towers", era:"Contemporary · 2012", location:"Al Salam Street",
+      description:"Twin office towers wrapped in 2,000 umbrella-like glass panels that open and close by computer as the sun moves. The screens reinterpret the mashrabiya lattice of old Arabian houses, cutting interior heat gain by roughly half.",
+      hours:"Best viewed from the street, anytime", bestTime:"Midday, when the sunscreens are fully closed" },
+    pt:{ name:"Al Bahr Towers", era:"Contemporânea · 2012", location:"Rua Al Salam",
+      description:"Torres gêmeas revestidas por 2.000 painéis de vidro que abrem e fecham por computador conforme o sol se move. As telas reinterpretam o mashrabiya das casas árabes antigas, reduzindo o calor interno pela metade.",
+      hours:"Vista externa a qualquer momento", bestTime:"Meio-dia, com as telas totalmente fechadas" } },
+
+  { id:2, category:"Modern", icon:"lean", coords:[24.4373,54.3862],
+    en:{ name:"Capital Gate", era:"Contemporary · 2011", location:"Al Khaleej Al Arabi Street, near ADNEC",
+      description:"Certified by Guinness World Records as the furthest-leaning man-made tower on earth — 18 degrees west, four times more than Pisa. The 35-storey building houses the Andaz hotel and a rooftop lounge.",
+      hours:"Open 24/7 · hotel and lounge access", bestTime:"Sunset, for the skyline lighting" },
+    pt:{ name:"Capital Gate", era:"Contemporânea · 2011", location:"Rua Al Khaleej Al Arabi, perto do ADNEC",
+      description:"Certificada pelo Guinness como a torre mais inclinada do mundo — 18 graus para o oeste, quatro vezes mais que Pisa. O prédio de 35 andares abriga o hotel Andaz e um lounge no topo.",
+      hours:"Aberto 24h · acesso ao hotel e lounge", bestTime:"Pôr do sol, pela iluminação do horizonte" } },
+
+  { id:3, category:"Culture", icon:"dome", coords:[24.4128,54.4750],
+    en:{ name:"Sheikh Zayed Grand Mosque", era:"Modern Traditional · 2007", location:"Al Rawdah",
+      description:"One of the world's largest mosques: 82 white marble domes, over a thousand columns, gold-gilded chandeliers, and the world's largest hand-knotted carpet covering the main prayer hall.",
+      hours:"9:00 AM – 10:00 PM · Fri 4:30 PM – 10:00 PM", bestTime:"4:30 PM, for sunset and blue-hour lighting" },
+    pt:{ name:"Grande Mesquita Sheikh Zayed", era:"Tradicional Moderna · 2007", location:"Al Rawdah",
+      description:"Uma das maiores mesquitas do mundo: 82 cúpulas de mármore branco, mais de mil colunas, lustres banhados a ouro e o maior tapete feito à mão do planeta, cobrindo o salão principal.",
+      hours:"9h – 22h · Sexta 16h30 – 22h", bestTime:"16h30, para o pôr do sol e a luz azul do entardecer" } },
+
+  { id:4, category:"Culture", icon:"gallery", coords:[24.5335,54.3987],
+    en:{ name:"Louvre Abu Dhabi", era:"Contemporary · 2017", location:"Saadiyat Cultural District",
+      description:"Jean Nouvel's museum city floats on the Gulf under a 180-metre perforated dome that filters daylight into a shifting 'rain of light' over the galleries below.",
+      hours:"10:00 AM – 6:30 PM · Closed Mondays", bestTime:"Morning, before the galleries fill up" },
+    pt:{ name:"Louvre Abu Dhabi", era:"Contemporânea · 2017", location:"Distrito Cultural de Saadiyat",
+      description:"A cidade-museu projetada por Jean Nouvel flutua sobre o Golfo sob uma cúpula perfurada de 180 metros, que filtra a luz do dia em uma 'chuva de luz' sobre as galerias abaixo.",
+      hours:"10h – 18h30 · Fechado às segundas", bestTime:"Manhã, antes das galerias encherem" } },
+
+  { id:5, category:"Heritage", icon:"fort", coords:[24.4772,54.3567],
+    en:{ name:"Qasr Al Hosn", era:"Historic · 1761", location:"Downtown Abu Dhabi",
+      description:"The birthplace of the city. Built first as a coral-and-sea-stone watchtower guarding Abu Dhabi's only freshwater well, it later grew into the ruling family's palace and now anchors a museum precinct.",
+      hours:"9:00 AM – 8:00 PM daily", bestTime:"Late afternoon, golden light on the coral walls" },
+    pt:{ name:"Qasr Al Hosn", era:"Histórica · 1761", location:"Centro de Abu Dhabi",
+      description:"O berço da cidade. Construído como uma torre de vigia de coral e pedra para proteger o único poço de água doce de Abu Dhabi, tornou-se o palácio da família real e hoje é um complexo de museus.",
+      hours:"9h – 20h, todos os dias", bestTime:"Final da tarde, com luz dourada nas paredes de coral" } },
+
+  { id:6, category:"Heritage", icon:"village", coords:[24.4738,54.3187],
+    en:{ name:"Heritage Village", era:"Living Museum", location:"Corniche Breakwater",
+      description:"A reconstructed Bedouin settlement on the breakwater, with palm-frond barasti huts, a working potter and weaver, and a small souq — a quiet counterpoint to the glass towers across the water.",
+      hours:"9:00 AM – 5:00 PM (Fri from 3:30 PM)", bestTime:"Late morning, cooler and quieter" },
+    pt:{ name:"Heritage Village", era:"Museu Vivo", location:"Quebra-mar da Corniche",
+      description:"Um vilarejo beduíno reconstruído no quebra-mar, com cabanas de palha barasti, um oleiro e tecelão em atividade e um pequeno souq — um contraponto tranquilo às torres de vidro do outro lado da água.",
+      hours:"9h – 17h (sexta a partir das 15h30)", bestTime:"Fim da manhã, mais fresco e tranquilo" } },
+
+  { id:7, category:"Yas Island", icon:"ticket", coords:[24.4838,54.6053],
+    en:{ name:"Ferrari World Abu Dhabi", era:"Theme Park · 2010", location:"Yas Island",
+      description:"The world's largest indoor theme park, under a red-steel roof shaped like a Ferrari GT racing curve. Home to Formula Rossa, the fastest roller coaster on earth at up to 240 km/h.",
+      hours:"11:00 AM – 8:00 PM (varies by season)", bestTime:"Opening time, to beat the queues on Formula Rossa" },
+    pt:{ name:"Ferrari World Abu Dhabi", era:"Parque Temático · 2010", location:"Ilha de Yas",
+      description:"O maior parque temático coberto do mundo, sob um teto de aço vermelho com a curva de um carro de corrida da Ferrari. Lar da Formula Rossa, a montanha-russa mais rápida do planeta, a até 240 km/h.",
+      hours:"11h – 20h (varia por temporada)", bestTime:"Horário de abertura, para evitar filas na Formula Rossa" } },
+
+  { id:8, category:"Yas Island", icon:"wave", coords:[24.4880,54.6068],
+    en:{ name:"Yas Waterworld", era:"Water Park · 2013", location:"Yas Island",
+      description:"43 rides, slides and attractions built around a fictional pearl-diving story, including Liwa Loop — a near-vertical slide once the steepest of its kind in the world.",
+      hours:"10:00 AM – 6:00 PM (varies by season)", bestTime:"Weekday mornings, outside school holidays" },
+    pt:{ name:"Yas Waterworld", era:"Parque Aquático · 2013", location:"Ilha de Yas",
+      description:"43 atrações construídas em torno de uma história fictícia de mergulho em busca de pérolas, incluindo o Liwa Loop — um tobogã quase vertical, já o mais íngreme do gênero no mundo.",
+      hours:"10h – 18h (varia por temporada)", bestTime:"Manhãs de dia útil, fora de férias escolares" } },
+
+  { id:9, category:"Yas Island", icon:"track", coords:[24.4672,54.6031],
+    en:{ name:"Yas Marina Circuit", era:"Motorsport · 2009", location:"Yas Island",
+      description:"Host of the Formula 1 Abu Dhabi Grand Prix, its pit lane running beneath the Yas Viceroy hotel. Outside race week, visitors can drive the track themselves or take a passenger lap.",
+      hours:"Varies with events; track-day bookings year-round", bestTime:"Evening laps, when the circuit lights come on" },
+    pt:{ name:"Yas Marina Circuit", era:"Automobilismo · 2009", location:"Ilha de Yas",
+      description:"Sede do Grande Prêmio de Fórmula 1 de Abu Dhabi, com o pit lane passando sob o hotel Yas Viceroy. Fora da semana de corrida, é possível dirigir na pista ou dar uma volta como passageiro.",
+      hours:"Varia conforme eventos; reservas de track-day o ano todo", bestTime:"Voltas à noite, quando as luzes do circuito acendem" } },
+
+  { id:10, category:"Shopping & Malls", icon:"bag", coords:[24.4959,54.3803],
+    en:{ name:"The Galleria Al Maryah Island", era:"Retail · 2013", location:"Al Maryah Island",
+      description:"Abu Dhabi's luxury retail address, with a light-filled promenade along the Maryah waterfront, high-end flagship stores, and a broad food hall facing the canal.",
+      hours:"10:00 AM – 10:00 PM", bestTime:"Evening, for the waterfront promenade" },
+    pt:{ name:"The Galleria Al Maryah Island", era:"Varejo · 2013", location:"Ilha de Al Maryah",
+      description:"O endereço de luxo de Abu Dhabi, com uma passarela iluminada à beira-mar de Al Maryah, lojas de grandes marcas e um amplo espaço gastronômico voltado para o canal.",
+      hours:"10h – 22h", bestTime:"À noite, pela orla iluminada" } },
+
+  { id:11, category:"Shopping & Malls", icon:"bag", coords:[24.4751,54.3195],
+    en:{ name:"Marina Mall", era:"Retail · 2001", location:"Breakwater, Corniche West",
+      description:"An older, family-favourite mall on the breakwater with an ice rink, an observation deck in the adjoining Marina Mall Tower, and views back over the Corniche skyline.",
+      hours:"10:00 AM – 10:00 PM (Fri from 2:00 PM)", bestTime:"Late afternoon, before the tower deck sunset" },
+    pt:{ name:"Marina Mall", era:"Varejo · 2001", location:"Quebra-mar, Corniche Oeste",
+      description:"Um shopping mais antigo e querido pelas famílias no quebra-mar, com pista de patinação no gelo, mirante na torre anexa e vista para o horizonte da Corniche.",
+      hours:"10h – 22h (sexta a partir das 14h)", bestTime:"Final da tarde, antes do pôr do sol no mirante" } },
+
+  { id:12, category:"Shopping & Malls", icon:"bag", coords:[24.4967,54.3814],
+    en:{ name:"Abu Dhabi Mall", era:"Retail · 2001", location:"Tourist Club Area",
+      description:"A central, easy-to-reach mall next to the Trade Centre with a wide mix of international and regional brands, a large hypermarket, and direct access from several downtown hotels.",
+      hours:"10:00 AM – 10:00 PM", bestTime:"Weekday afternoons, to avoid the weekend crowds" },
+    pt:{ name:"Abu Dhabi Mall", era:"Varejo · 2001", location:"Área do Tourist Club",
+      description:"Um shopping central e de fácil acesso ao lado do Trade Centre, com grande variedade de marcas internacionais e regionais, um hipermercado amplo e acesso direto a vários hotéis do centro.",
+      hours:"10h – 22h", bestTime:"Tardes de dia útil, para evitar o movimento do fim de semana" } },
+
+  { id:13, category:"Beaches & Leisure", icon:"palm", coords:[24.4764,54.3300],
+    en:{ name:"Corniche Beach", era:"Public Beach", location:"Corniche Road",
+      description:"An eight-kilometre Blue Flag-certified beach and promenade along the city's waterfront, with soft white sand, shaded family sections, and a dedicated cycling track running its full length.",
+      hours:"6:00 AM – 10:00 PM daily", bestTime:"Early morning or after 4:00 PM, once the heat breaks" },
+    pt:{ name:"Corniche Beach", era:"Praia Pública", location:"Corniche Road",
+      description:"Uma praia de oito quilômetros com certificação Bandeira Azul ao longo da orla da cidade, com areia branca e macia, áreas de sombra para famílias e uma ciclovia em toda a extensão.",
+      hours:"6h – 22h, todos os dias", bestTime:"Início da manhã ou após as 16h, quando o calor cede" } },
+
+  { id:14, category:"Beaches & Leisure", icon:"palm", coords:[24.5445,54.4235],
+    en:{ name:"Saadiyat Public Beach", era:"Public Beach", location:"Saadiyat Island",
+      description:"A protected nine-kilometre stretch of natural beach next to the Saadiyat Cultural District, known for calm, shallow water and as a nesting site for hawksbill turtles.",
+      hours:"8:00 AM – 8:00 PM daily", bestTime:"Morning, for calmer water and cooler sand" },
+    pt:{ name:"Saadiyat Public Beach", era:"Praia Pública", location:"Ilha de Saadiyat",
+      description:"Um trecho protegido de nove quilômetros de praia natural ao lado do Distrito Cultural de Saadiyat, conhecido pela água calma e rasa e por ser ninhal de tartarugas-de-pente.",
+      hours:"8h – 20h, todos os dias", bestTime:"Manhã, com água mais calma e areia mais fresca" } },
+
+  { id:15, category:"Beaches & Leisure", icon:"palm", coords:[24.4614,54.3172],
+    en:{ name:"Emirates Palace Beach", era:"Private / Hotel Beach", location:"West Corniche",
+      description:"A private stretch of white sand behind the gold-domed Emirates Palace Mandarin Oriental, with calm shallow water framed by the hotel's own marina and skyline views back toward the city.",
+      hours:"Day access via hotel/beach club booking", bestTime:"Late afternoon into golden hour" },
+    pt:{ name:"Emirates Palace Beach", era:"Praia Privativa / Hotel", location:"Corniche Oeste",
+      description:"Um trecho privativo de areia branca atrás do Emirates Palace Mandarin Oriental, de cúpulas douradas, com água calma e rasa emoldurada pela marina do hotel e vista para o horizonte da cidade.",
+      hours:"Acesso diário via reserva no hotel/beach club", bestTime:"Final da tarde, na hora dourada" } },
+
+  { id:16, category:"Modern", icon:"tower", coords:[24.4658,54.3222],
+    en:{ name:"Etihad Towers", era:"Contemporary · 2011", location:"Corniche West",
+      description:"A cluster of five curved towers rising by the water, one of them home to the Observation Deck at 300 — a 300-metre-high viewing floor with 360-degree views over the Corniche and the Gulf.",
+      hours:"Observation Deck: 9:00 AM – midnight", bestTime:"Sunset, for the deck's changing light over the water" },
+    pt:{ name:"Etihad Towers", era:"Contemporânea · 2011", location:"Corniche Oeste",
+      description:"Um conjunto de cinco torres curvas à beira-mar; uma delas abriga o Observation Deck at 300, um mirante a 300 metros de altura com vista de 360 graus sobre a Corniche e o Golfo.",
+      hours:"Observation Deck: 9h – meia-noite", bestTime:"Pôr do sol, pela luz sobre a água vista do mirante" } }
+];
+
+const DISTRICT_ORDER = ["Modern","Culture","Heritage","Yas Island","Shopping & Malls","Beaches & Leisure"];
+
+let currentLang='en', currentModalItem=null, currentCategory='All', searchQuery='';
+
+const translations = {
+  en:{ eyebrow:"A FIELD GUIDE", title:"Abu Dhabi, Plate by Plate",
+    subtitle:"Sixteen landmarks across six districts — towers, deserts of marble, race tracks, and shoreline — mapped for a family visit.",
+    searchPlaceholder:"Search landmarks by name or location...", viewOnMap:"📍 Map", readMore:"Explore Details →",
+    noResults:"No locations found matching your search.", langBtn:"🇧🇷 PT-BR",
+    labelOverview:"About this Attraction", labelHours:"Visiting Hours", labelBestTime:"Best Time to Visit",
+    categories:{ All:"All", Modern:"Modern", Culture:"Culture", Heritage:"Heritage", "Yas Island":"Yas Island", "Shopping & Malls":"Shopping & Malls", "Beaches & Leisure":"Beaches & Leisure" } },
+  pt:{ eyebrow:"UM GUIA DE CAMPO", title:"Abu Dhabi, Placa por Placa",
+    subtitle:"Dezesseis pontos em seis regiões — torres, desertos de mármore, autódromo e litoral — mapeados para uma visita em família.",
+    searchPlaceholder:"Pesquisar por nome ou localização...", viewOnMap:"📍 Mapa", readMore:"Ver Detalhes →",
+    noResults:"Nenhum local encontrado para a sua pesquisa.", langBtn:"🇬🇧 English",
+    labelOverview:"Sobre a Atração", labelHours:"Horário de Visitação", labelBestTime:"Melhor Horário para Visitar",
+    categories:{ All:"Todos", Modern:"Moderna", Culture:"Cultura", Heritage:"Patrimônio", "Yas Island":"Ilha de Yas", "Shopping & Malls":"Shoppings e Mercados", "Beaches & Leisure":"Praias e Lazer" } }
+};
+
+/* ---- lattice pattern generator (hero + plates) ---- */
+function buildLatticeSVG(el, cols, rows, colorA, colorB){
+  const cellW = 400/cols, cellH = 260/rows;
+  let html = '';
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const cx = c*cellW + cellW/2, cy = r*cellH + cellH/2;
+      const size = Math.min(cellW,cellH)*0.42;
+      const fill = (r+c)%2===0 ? colorA : colorB;
+      html += `<g class="lattice-panel"><polygon points="${cx},${cy-size} ${cx+size},${cy} ${cx},${cy+size} ${cx-size},${cy}" fill="${fill}" opacity="0.6"/></g>`;
+    }
+  }
+  el.innerHTML = html;
+}
+buildLatticeSVG(document.querySelector('.lattice-hero'), 16, 8, '#D9AD6E', '#FBF6EA');
+
+function platePattern(category){
+  const [a,b] = PALETTES[category] || ["#0E3B36","#1C5850"];
+  let diamonds='';
+  for(let r=0;r<3;r++){
+    for(let c=0;c<7;c++){
+      const cx=c*22+ (r%2? 11:0), cy=r*30+10, s=10;
+      diamonds += `<polygon points="${cx},${cy-s} ${cx+s},${cy} ${cx},${cy+s} ${cx-s},${cy}" fill="#fff" opacity="0.06"/>`;
+    }
+  }
+  return `background:linear-gradient(135deg, ${a}, ${b});`;
+}
+function plateSVGOverlay(){
+  return `<svg width="100%" height="100%" style="position:absolute;inset:0;" preserveAspectRatio="none" viewBox="0 0 300 150">
+    ${Array.from({length:24}).map((_,i)=>{
+      const c=i%8, r=Math.floor(i/8), cx=c*40+20, cy=r*55+25, s=16;
+      return `<g class="lattice-panel"><polygon points="${cx},${cy-s} ${cx+s},${cy} ${cx},${cy+s} ${cx-s},${cy}" fill="#fff" opacity="0.07"/></g>`;
+    }).join('')}
+  </svg>`;
+}
+
+function renderDistricts(){
+  const container = document.getElementById('districtsContainer');
+  container.innerHTML = '';
+  let anyResults = false;
+
+  DISTRICT_ORDER.forEach(cat=>{
+    if(currentCategory!=='All' && currentCategory!==cat) return;
+    const items = attractions.filter(item=>{
+      const loc = item[currentLang];
+      const matchesSearch = loc.name.toLowerCase().includes(searchQuery) || loc.location.toLowerCase().includes(searchQuery);
+      return item.category===cat && matchesSearch;
+    });
+    if(items.length===0) return;
+    anyResults = true;
+
+    const section = document.createElement('div');
+    section.className='district';
+    section.innerHTML = `<div class="district-head"><h2>${translations[currentLang].categories[cat]}</h2><span class="count mono">${String(items.length).padStart(2,'0')} SITE${items.length>1?'S':''}</span></div>
+      <div class="cards-grid"></div>`;
+    const grid = section.querySelector('.cards-grid');
+
+    items.forEach((item,i)=>{
+      const loc = item[currentLang];
+      const card = document.createElement('div');
+      card.className='card';
+      card.onclick = ()=>openModal(item);
+      card.innerHTML = `
+        <div class="plate" style="${platePattern(item.category)}">
+          ${plateSVGOverlay()}
+          <span class="badge">${translations[currentLang].categories[item.category]}</span>
+          <span class="idx mono">${String(item.id).padStart(2,'0')}</span>
+          ${ICONS[item.icon]}
+        </div>
+        <div class="card-body">
+          <h3>${loc.name}</h3>
+          <div class="meta mono">${loc.location} · ${loc.era}</div>
+          <p>${loc.description.slice(0,108)}…</p>
+          <div class="card-actions">
+            <span class="btn-more">${translations[currentLang].readMore}</span>
+            <button class="btn-map-pin" onclick="event.stopPropagation(); focusOnMap(${item.coords[0]}, ${item.coords[1]}, '${loc.name.replace(/'/g,"\\'")}')">${translations[currentLang].viewOnMap}</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+    container.appendChild(section);
+  });
+
+  if(!anyResults){
+    container.innerHTML = `<p class="empty-msg">${translations[currentLang].noResults}</p>`;
+  }
+  renderMapMarkers();
+}
+
+/* ---- Map ---- */
+const map = L.map('map', { scrollWheelZoom:false }).setView([24.4667,54.3667], 11);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  maxZoom:19, attribution:'© OpenStreetMap © CARTO'
+}).addTo(map);
+
+let markers=[];
+function renderMapMarkers(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  const goldIcon = L.divIcon({
+    className:'', html:`<div style="width:16px;height:16px;background:#B5562F;border:2px solid #FBF6EA;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,.35);"></div>`,
+    iconSize:[16,16], iconAnchor:[8,16]
+  });
+  const visible = attractions.filter(item=>{
+    if(currentCategory!=='All' && item.category!==currentCategory) return false;
+    const loc=item[currentLang];
+    return loc.name.toLowerCase().includes(searchQuery) || loc.location.toLowerCase().includes(searchQuery);
+  });
+  visible.forEach(item=>{
+    const loc=item[currentLang];
+    const marker=L.marker(item.coords,{icon:goldIcon}).addTo(map);
+    marker.bindPopup(`<div style="max-width:200px"><h4 style="margin-bottom:2px;">${loc.name}</h4><small style="color:#6B6250;">${loc.location}</small></div>`);
+    marker._name = loc.name;
+    markers.push(marker);
+  });
+}
+
+function focusOnMap(lat,lng,name){
+  map.flyTo([lat,lng],14,{duration:1.3});
+  const m = markers.find(mk=>mk._name===name);
+  if(m) m.openPopup();
+  if(window.innerWidth<950) document.getElementById('map').scrollIntoView({behavior:'smooth'});
+}
+
+/* ---- Modal ---- */
+function openModal(item){
+  currentModalItem=item;
+  const loc=item[currentLang];
+  const plate=document.getElementById('modalPlate');
+  plate.style.cssText = `position:relative; height:220px; display:flex; align-items:center; justify-content:center; ${platePattern(item.category)}`;
+  plate.innerHTML = plateSVGOverlay() + ICONS[item.icon].replace('width="46" height="46"','width="72" height="72"');
+  document.getElementById('modalCategory').innerText = translations[currentLang].categories[item.category];
+  document.getElementById('modalTitle').innerText = loc.name;
+  document.getElementById('modalMeta').innerText = `${loc.location} · ${loc.era}`;
+  document.getElementById('modalDescription').innerText = loc.description;
+  document.getElementById('modalHours').innerText = loc.hours;
+  document.getElementById('modalBestTime').innerText = loc.bestTime;
+  document.getElementById('modalMapLink').href = `https://www.google.com/maps/search/?api=1&query=${item.coords[0]},${item.coords[1]}`;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('active'); }
+
+function updateLanguageUI(){
+  const t = translations[currentLang];
+  document.getElementById('headerEyebrow').innerText = t.eyebrow;
+  document.getElementById('headerTitle').innerText = t.title;
+  document.getElementById('headerSubtitle').innerText = t.subtitle;
+  document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+  document.getElementById('langToggle').innerText = t.langBtn;
+  document.getElementById('labelOverview').innerText = t.labelOverview;
+  document.getElementById('labelHours').innerText = t.labelHours;
+  document.getElementById('labelBestTime').innerText = t.labelBestTime;
+  document.getElementById('tagAll').innerText = t.categories.All;
+  document.getElementById('tagModern').innerText = t.categories.Modern;
+  document.getElementById('tagCulture').innerText = t.categories.Culture;
+  document.getElementById('tagHeritage').innerText = t.categories.Heritage;
+  document.getElementById('tagYas').innerText = t.categories["Yas Island"];
+  document.getElementById('tagShopping').innerText = t.categories["Shopping & Malls"];
+  document.getElementById('tagLeisure').innerText = t.categories["Beaches & Leisure"];
+  renderDistricts();
+}
+
+document.getElementById('langToggle').addEventListener('click', ()=>{
+  currentLang = currentLang==='en' ? 'pt' : 'en';
+  updateLanguageUI();
+});
+document.getElementById('searchInput').addEventListener('input', e=>{
+  searchQuery = e.target.value.toLowerCase();
+  renderDistricts();
+});
+document.getElementById('filterTags').addEventListener('click', e=>{
+  if(e.target.classList.contains('tag-btn')){
+    document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentCategory = e.target.getAttribute('data-category');
+    renderDistricts();
+  }
+});
+document.getElementById('modalOverlay').addEventListener('click', e=>{
+  if(e.target.id==='modalOverlay') closeModal();
+});
+
+updateLanguageUI();
+</script>
+</body>
+</html>
