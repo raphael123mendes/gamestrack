@@ -1,6 +1,13 @@
 {
   "games": [
     {
+      "file": "gituristico2.html",
+      "name": "Abu Dhabi Field Guide | Guia de Abu Dhabi",
+      "description": "",
+      "emoji": "🎮",
+      "tags": []
+    },
+    {
       "file": "guiaturistico.html",
       "name": "Abu Dhabi Travel Guide | Guia de Viagem de Abu Dhabi",
       "description": "",
