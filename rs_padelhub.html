@@ -4,6 +4,14 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Padel RR — Match Hub</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#051424"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Padel RR"/>
+<link rel="icon" href="icon-192.png"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -72,6 +80,335 @@ input[type=number]{-moz-appearance:textfield;}
 .score-pill.selected{border-color:#DFFF00;background:#1E293B;color:#DFFF00;}
 .cfg-btn{border:1px solid #273647;background:#051424;border-radius:0.75rem;padding:0.875rem 1rem;cursor:pointer;transition:all 0.2s;text-align:left;width:100%;}
 .cfg-btn.selected{border-color:#DFFF00;background:#1E293B;}
+
+/* ═══ COURT VIEW — TABLET DISPLAY ═══ */
+.cv-shell{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;background:#030e1a;}
+.cv-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#051424;border-bottom:2px solid rgba(223,255,0,0.15);flex-shrink:0;}
+.cv-hdr-logo{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#DFFF00;letter-spacing:-0.02em;}
+.cv-hdr-center{text-align:center;}
+.cv-hdr-round{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:0.04em;}
+.cv-hdr-phase{font-size:10px;color:#DFFF00;font-weight:600;letter-spacing:0.06em;margin-top:1px;}
+.cv-hdr-right{display:flex;align-items:center;gap:10px;}
+.cv-hdr-pbar{width:90px;height:5px;background:#1a2940;border-radius:3px;overflow:hidden;}
+.cv-hdr-pfill{height:100%;background:#DFFF00;border-radius:3px;transition:width 0.3s;}
+.cv-hdr-ptext{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:#94a3b8;font-weight:700;}
+.cv-exit-btn{background:none;border:1px solid #273647;border-radius:8px;padding:6px 10px;color:#94a3b8;font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif;cursor:pointer;letter-spacing:0.04em;}
+
+/* Round tabs */
+.cv-tabs{display:flex;align-items:stretch;background:#051424;border-bottom:1px solid #1a2940;flex-shrink:0;}
+.cv-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 8px;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;position:relative;}
+.cv-tab.active{border-bottom-color:#DFFF00;background:rgba(223,255,0,0.04);}
+.cv-tab-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#475569;transition:color 0.2s;}
+.cv-tab.active .cv-tab-label{color:#DFFF00;}
+.cv-tab-round{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#94a3b8;transition:color 0.2s;}
+.cv-tab.active .cv-tab-round{color:#fff;}
+.cv-tab-icon{font-size:16px;color:#334155;margin-bottom:1px;}
+.cv-tab.active .cv-tab-icon{color:#DFFF00;}
+.cv-tab-live-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;position:absolute;top:6px;right:calc(50% - 28px);animation:cvpulse 1.5s infinite;}
+@keyframes cvpulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* Scrollable body */
+.cv-body{flex:1;overflow-y:auto;overflow-x:hidden;min-height:0;}
+.cv-body::-webkit-scrollbar{width:5px;}
+.cv-body::-webkit-scrollbar-track{background:transparent;}
+.cv-body::-webkit-scrollbar-thumb{background:#1a2940;border-radius:3px;}
+
+/* Courts area */
+.cv-courts-area{padding:12px 16px;}
+.cv-courts-grid{display:grid;gap:12px;}
+.cv-courts-grid.cv-c1{grid-template-columns:1fr;}
+.cv-courts-grid.cv-c2{grid-template-columns:1fr 1fr;}
+.cv-courts-grid.cv-c3plus{grid-template-columns:1fr 1fr 1fr;}
+
+/* Court card */
+.cv-court{background:#0d1c2d;border:1.5px solid #1a2940;border-radius:14px;overflow:hidden;position:relative;}
+.cv-court.cv-live-border{border-color:rgba(223,255,0,0.25);}
+.cv-court-top{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(223,255,0,0.03);border-bottom:1px solid #1a2940;}
+.cv-court-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#DFFF00;display:flex;align-items:center;gap:5px;}
+.cv-court-num .material-symbols-outlined{font-size:14px;}
+.cv-court-status{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:2px 7px;border-radius:4px;}
+.cv-court-status.cv-live{background:rgba(74,222,128,0.15);color:#4ade80;}
+.cv-court-status.cv-done{background:rgba(100,116,139,0.15);color:#64748b;}
+.cv-court-status.cv-next-st{background:rgba(96,165,250,0.12);color:#60a5fa;}
+.cv-court-body{padding:10px 12px;}
+
+.cv-team-row{display:flex;align-items:center;gap:8px;padding:6px 0;}
+.cv-team-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;flex-shrink:0;background:#1a2940;border:2px solid transparent;}
+.cv-team-avatar.cv-ta{color:#DFFF00;border-color:rgba(223,255,0,0.5);}
+.cv-team-avatar.cv-tb{color:#60a5fa;border-color:rgba(96,165,250,0.4);}
+.cv-team-info{flex:1;min-width:0;}
+.cv-team-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
+.cv-team-sub{font-size:9px;color:#64748b;margin-top:1px;display:flex;align-items:center;gap:3px;}
+.cv-team-sub .material-symbols-outlined{font-size:10px;}
+.cv-streak-fire{color:#FF6B35;}
+.cv-team-score{font-family:'Barlow Condensed',sans-serif;font-weight:800;color:#DFFF00;min-width:0;text-align:right;line-height:1;font-size:38px;flex-shrink:0;}
+.cv-team-score.cv-losing{color:#334155;}
+.cv-score-input{width:56px;height:56px;background-color:#030e1a !important;border:2px solid #273647;color:#DFFF00 !important;font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;text-align:center;border-radius:10px;outline:none;flex-shrink:0;-webkit-appearance:none;-moz-appearance:textfield;transition:border-color 0.2s,box-shadow 0.2s;box-shadow:none;}
+.cv-score-input::-webkit-outer-spin-button,.cv-score-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.cv-score-input:focus{border-color:#DFFF00;box-shadow:0 0 16px rgba(223,255,0,0.2) !important;background-color:#030e1a !important;color:#DFFF00 !important;}
+.cv-score-input.cv-won{border-color:#DFFF00;box-shadow:0 0 12px rgba(223,255,0,0.15) !important;background-color:#030e1a !important;color:#DFFF00 !important;}
+.cv-court-divider{height:1px;background:#1a2940;margin:2px 0;}
+.cv-vs-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#475569;font-weight:700;text-align:center;padding:4px 0;}
+.cv-edit-row{text-align:right;margin-top:6px;}
+.cv-edit-icon{color:#273647;font-size:14px;cursor:pointer;padding:4px;}
+.cv-edit-icon:hover{color:#DFFF00;}
+
+/* 1 court = bigger everything */
+.cv-courts-grid.cv-c1 .cv-team-avatar{width:44px;height:44px;font-size:14px;}
+.cv-courts-grid.cv-c1 .cv-team-name{font-size:22px;}
+.cv-courts-grid.cv-c1 .cv-team-score{font-size:56px;}
+.cv-courts-grid.cv-c1 .cv-score-input{width:76px;height:76px;font-size:44px;}
+.cv-courts-grid.cv-c1 .cv-court-body{padding:16px 20px;}
+.cv-courts-grid.cv-c1 .cv-team-row{padding:10px 0;}
+
+/* 3+ courts = compact */
+.cv-courts-grid.cv-c3plus .cv-team-avatar{width:26px;height:26px;font-size:9px;}
+.cv-courts-grid.cv-c3plus .cv-team-name{font-size:13px;}
+.cv-courts-grid.cv-c3plus .cv-team-score{font-size:28px;}
+.cv-courts-grid.cv-c3plus .cv-score-input{width:44px;height:44px;font-size:22px;border-radius:8px;}
+.cv-courts-grid.cv-c3plus .cv-court-body{padding:8px 10px;}
+.cv-courts-grid.cv-c3plus .cv-team-row{padding:4px 0;gap:6px;}
+
+/* Sitout strip */
+.cv-sitout-strip{display:flex;align-items:center;gap:8px;padding:6px 16px 0;flex-wrap:wrap;}
+.cv-sitout-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(30,41,59,0.4);border:1px solid rgba(223,255,0,0.08);border-radius:6px;font-size:11px;color:#64748b;}
+.cv-sitout-chip .material-symbols-outlined{font-size:12px;color:#DFFF00;}
+.cv-sitout-label{font-size:10px;color:#334155;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+
+/* Insights row */
+.cv-insights{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px 16px;}
+.cv-insight{background:#0d1c2d;border:1.5px solid #1a2940;border-radius:12px;padding:12px;position:relative;overflow:hidden;}
+.cv-insight.cv-feat{border-color:rgba(223,255,0,0.2);}
+.cv-insight-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.cv-insight-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cv-insight-icon.cv-gold{background:rgba(223,255,0,0.08);}
+.cv-insight-icon.cv-gold .material-symbols-outlined{color:#DFFF00;font-size:20px;}
+.cv-insight-icon.cv-fire{background:rgba(255,107,53,0.1);}
+.cv-insight-icon.cv-fire .material-symbols-outlined{color:#FF6B35;font-size:20px;}
+.cv-insight-icon.cv-pair{background:rgba(168,85,247,0.1);}
+.cv-insight-icon.cv-pair .material-symbols-outlined{color:#a855f7;font-size:20px;}
+.cv-insight-meta{flex:1;min-width:0;}
+.cv-insight-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#475569;}
+.cv-insight-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cv-insight-stat{font-size:11px;color:#94a3b8;line-height:1.5;}
+.cv-insight-stat b{color:#DFFF00;font-weight:700;}
+.cv-insight-badge{position:absolute;top:8px;right:8px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.04em;}
+.cv-insight-badge.cv-streak{background:rgba(255,107,53,0.12);color:#FF6B35;}
+.cv-insight-badge.cv-top{background:rgba(223,255,0,0.08);color:#DFFF00;}
+.cv-insight-badge.cv-pairb{background:rgba(168,85,247,0.1);color:#a855f7;}
+
+/* Leaderboards */
+.cv-boards{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 12px;}
+.cv-board{background:#0d1c2d;border:1.5px solid #1a2940;border-radius:12px;padding:12px;display:flex;flex-direction:column;overflow:hidden;}
+.cv-board-title{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.cv-board-title .material-symbols-outlined{font-size:16px;color:#DFFF00;}
+.cv-board-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;}
+.cv-board-list{display:flex;flex-direction:column;gap:5px;}
+.cv-board-row{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;background:#0a1929;}
+.cv-board-row.cv-r1{background:rgba(223,255,0,0.05);border:1px solid rgba(223,255,0,0.1);}
+.cv-board-rank{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;min-width:18px;}
+.cv-rank-g{color:#DFFF00;}.cv-rank-s{color:#94a3b8;}.cv-rank-b{color:#475569;}.cv-rank-n{color:#273647;}
+.cv-board-av{width:24px;height:24px;border-radius:50%;background:#1a2940;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:800;color:#475569;flex-shrink:0;}
+.cv-board-row.cv-r1 .cv-board-av{color:#DFFF00;border:1px solid rgba(223,255,0,0.25);}
+.cv-board-nm{font-size:12px;font-weight:600;color:#cbd5e1;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cv-board-bar{width:40px;height:4px;background:#1a2940;border-radius:2px;overflow:hidden;flex-shrink:0;}
+.cv-board-bar-fill{height:100%;border-radius:2px;background:#DFFF00;}
+.cv-board-val{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;flex-shrink:0;}
+.cv-val-pos{color:#DFFF00;}.cv-val-neg{color:#f87171;}
+.cv-board-empty{text-align:center;padding:16px 0;color:#334155;font-size:11px;}
+
+/* Action bar */
+.cv-action-bar{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 16px;background:#051424;border-top:1px solid #1a2940;}
+.cv-action-btn{flex:1;height:50px;border:none;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.04em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.cv-action-btn.cv-primary{background:#DFFF00;color:#191e00;}
+.cv-action-btn.cv-secondary{background:#1a2940;color:#94a3b8;border:1px solid #273647;}
+.cv-action-btn:disabled{opacity:0.4;cursor:default;}
+.cv-action-btn .material-symbols-outlined{font-size:18px;}
+
+/* ═══ NX — APPROVED DESIGN v1 (lime = leader/win · purple = Team A · orange = Team B) ═══ */
+.nx-wrap{max-width:1180px;margin:0 auto;padding:16px 20px;box-sizing:border-box;}
+.nx-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;}
+.nx-kicker{font-size:12px;font-weight:700;letter-spacing:0.12em;color:#DFFF00;text-transform:uppercase;}
+.nx-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:32px;color:#fff;line-height:1;margin:4px 0 0;}
+.nx-sub{font-size:13px;color:#9fb0c6;margin-top:4px;}
+.nx-hint{display:flex;gap:8px;align-items:center;padding:10px 14px;border-radius:12px;background:#0d1c2d;border:1px solid #1c2b3c;font-size:13px;color:#c6d3e4;}
+.nx-hint svg{flex-shrink:0;}
+.nx-av{width:36px;height:36px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;box-sizing:border-box;color:#fff;flex-shrink:0;border:2px solid #A78BFA;background:rgba(167,139,250,0.14);font-family:'Inter',sans-serif;}
+.nx-av.b{border-color:#FB923C;background:rgba(251,146,60,0.14);}
+.nx-av.l{border-color:#DFFF00;background:rgba(223,255,0,0.12);}
+
+/* Score entry */
+.nx-courts{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));margin-top:16px;}
+.nx-court{border-radius:20px;background:#0d1c2d;border:1px solid #1c2b3c;overflow:hidden;display:flex;flex-direction:column;}
+.nx-court.done{border-color:#3d4a12;}
+.nx-court-hd{height:52px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1c2b3c;}
+.nx-court-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;color:#fff;letter-spacing:0.04em;}
+.nx-chip{padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.06em;background:#1c2b3c;color:#9fb0c6;}
+.nx-court.done .nx-chip{background:rgba(52,211,153,0.16);color:#6EE7B7;}
+.nx-court-bd{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);padding:18px;background:#0a1a2b;}
+.nx-net{display:flex;justify-content:center;}
+.nx-net::before{content:'';width:2px;background:repeating-linear-gradient(to bottom,#3b4a5c 0 6px,transparent 6px 12px);}
+.nx-side{border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;background:#0d1c2d;border:2px solid #1c2b3c;min-width:0;transition:background 0.2s,border-color 0.2s;}
+.nx-side.win{background:rgba(223,255,0,0.08);border-color:#DFFF00;}
+.nx-side-top{display:flex;justify-content:space-between;align-items:center;height:22px;}
+.nx-lbl{font-size:11px;font-weight:700;letter-spacing:0.12em;}
+.nx-a .nx-lbl{color:#A78BFA;}.nx-b .nx-lbl{color:#FB923C;}
+.nx-win{display:none;padding:3px 8px;border-radius:6px;background:#DFFF00;color:#191e00;font-size:11px;font-weight:800;letter-spacing:0.08em;}
+.nx-side.win .nx-win{display:inline-block;}
+.nx-pl{display:flex;align-items:center;gap:10px;min-width:0;}
+.nx-pname{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nx-gl{font-size:11px;font-weight:700;letter-spacing:0.12em;color:#9fb0c6;margin-top:4px;}
+.nx-in{width:100%;height:96px;box-sizing:border-box;border-radius:14px;border:2px solid #273647;background-color:#010f1f !important;color:#DFFF00 !important;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:64px;outline:none;padding:0;-moz-appearance:textfield;}
+.nx-in::placeholder{color:#273647;}
+.nx-in:focus{border-color:#DFFF00;box-shadow:0 0 0 4px rgba(223,255,0,0.18) !important;}
+.nx-court-ft{min-height:44px;padding:0 20px;display:flex;align-items:center;gap:8px;border-top:1px solid #1c2b3c;font-size:13px;color:#9fb0c6;}
+.nx-dot{width:8px;height:8px;border-radius:999px;background:#5b6b80;flex-shrink:0;}
+.nx-court.done .nx-dot{background:#6EE7B7;}
+.nx-courts.many .nx-in{height:72px;font-size:48px;}
+.nx-courts.many .nx-pname{font-size:20px;}
+.nx-sitout{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;font-size:13px;color:#9fb0c6;}
+.nx-sitout-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:999px;background:#0d1c2d;border:1px solid #1c2b3c;color:#fff;font-weight:600;}
+.nx-sitout-chip .nx-av{width:28px;height:28px;font-size:11px;border-color:#5b6b80;background:#122131;}
+.nx-bar{position:fixed;left:0;right:0;bottom:64px;z-index:40;background:rgba(5,20,36,0.96);border-top:1px solid #1c2b3c;backdrop-filter:blur(8px);}
+.nx-bar-in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;box-sizing:border-box;}
+.nx-bar-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.nx-bar-count{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;color:#fff;}
+.nx-bar-next{font-size:13px;color:#9fb0c6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nx-submit{height:60px;padding:0 36px;border-radius:16px;border:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:0.06em;display:flex;align-items:center;gap:10px;background:#1c2b3c;color:#9fb0c6;cursor:pointer;flex-shrink:0;}
+.nx-submit.ready{background:#DFFF00;color:#191e00;}
+.nx-submit:disabled{opacity:0.4;cursor:default;}
+
+/* Rankings */
+.nx-tabs{display:flex;padding:4px;border-radius:12px;background:#0d1c2d;border:1px solid #1c2b3c;gap:2px;}
+.nx-tab{height:36px;padding:0 18px;border-radius:9px;border:none;background:transparent;color:#9fb0c6;font-weight:600;font-size:14px;cursor:pointer;}
+.nx-tab.on{background:#DFFF00;color:#191e00;font-weight:700;}
+.nx-rk-grid{display:grid;grid-template-columns:380px minmax(0,1fr);gap:22px;margin-top:18px;}
+.nx-card{border-radius:20px;background:#0d1c2d;border:1px solid #1c2b3c;}
+.nx-podium{padding:22px 22px 0;display:flex;flex-direction:column;overflow:hidden;min-height:420px;}
+.nx-pod-lbl{font-size:12px;font-weight:700;letter-spacing:0.12em;color:#9fb0c6;}
+.nx-pod-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end;flex-grow:1;padding-top:12px;}
+.nx-pod{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;}
+.nx-pod .nx-av{width:64px;height:64px;font-size:18px;}
+.nx-pod.p1 .nx-av{width:84px;height:84px;font-size:24px;box-shadow:0 0 16px rgba(223,255,0,0.30);}
+.nx-pod.p2 .nx-av{border-color:#A78BFA;background:rgba(167,139,250,0.14);}
+.nx-pod.p3 .nx-av{border-color:#FB923C;background:rgba(251,146,60,0.14);}
+.nx-pod-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;color:#fff;line-height:1.05;text-align:center;max-width:100%;overflow-wrap:anywhere;}
+.nx-pod.p1 .nx-pod-name{font-size:28px;}
+.nx-pod-stat{font-size:12px;color:#9fb0c6;}
+.nx-pod-blk{width:100%;box-sizing:border-box;border-radius:12px 12px 0 0;border:1px solid;border-bottom:none;display:flex;justify-content:center;padding-top:12px;}
+.nx-pod-blk span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:44px;line-height:1;}
+.nx-pod.p1 .nx-pod-blk{height:240px;background:rgba(223,255,0,0.10);border-color:rgba(223,255,0,0.40);color:#DFFF00;}
+.nx-pod.p2 .nx-pod-blk{height:170px;background:rgba(167,139,250,0.10);border-color:rgba(167,139,250,0.40);color:#A78BFA;}
+.nx-pod.p3 .nx-pod-blk{height:120px;background:rgba(251,146,60,0.10);border-color:rgba(251,146,60,0.40);color:#FB923C;}
+.nx-right{display:flex;flex-direction:column;gap:14px;min-width:0;}
+.nx-hl-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.nx-hl{min-height:58px;box-sizing:border-box;border-radius:14px;background:#0d1c2d;border:1px solid #1c2b3c;padding:10px 16px;display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;}
+.nx-hl-k{font-size:10px;font-weight:700;letter-spacing:0.12em;}
+.nx-hl-v{font-size:15px;color:#fff;line-height:1.3;}
+.nx-table{overflow:hidden;}
+.nx-tr{display:grid;grid-template-columns:46px 40px minmax(0,1fr) 64px 130px 70px;align-items:center;min-height:60px;padding:0 18px;border-bottom:1px solid #13243a;}
+.nx-tr:last-child{border-bottom:none;}
+.nx-th{min-height:40px;font-size:11px;font-weight:700;letter-spacing:0.12em;color:#9fb0c6;border-bottom:1px solid #1c2b3c;}
+.nx-tr.lead{background:rgba(223,255,0,0.06);}
+.nx-pos{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;color:#7d8ea5;}
+.nx-tr.lead .nx-pos{color:#DFFF00;}
+.nx-mv{font-size:12px;font-weight:700;color:#7d8ea5;}
+.nx-mv.up{color:#DFFF00;}
+.nx-who{display:flex;align-items:center;gap:12px;min-width:0;}
+.nx-who .nx-av{width:34px;height:34px;font-size:12px;}
+.nx-who-nm{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;}
+.nx-who-sub{font-size:11px;color:#7d8ea5;}
+.nx-wl{text-align:center;font-size:15px;font-weight:600;color:#c6d3e4;}
+.nx-rate{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:#c6d3e4;}
+.nx-rate-bar{width:70px;height:6px;border-radius:999px;background:#1c2b3c;overflow:hidden;flex-shrink:0;}
+.nx-rate-bar i{display:block;height:6px;border-radius:999px;background:#A78BFA;}
+.nx-tr.lead .nx-rate-bar i{background:#DFFF00;}
+.nx-net-v{text-align:right;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:#7d8ea5;}
+.nx-net-v.pos{color:#fff;}
+.nx-empty{padding:40px 16px;text-align:center;color:#7d8ea5;font-size:14px;}
+.nx-actions{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-top:20px;}
+.nx-btn{height:52px;border-radius:14px;border:1px solid #273647;background:#0d1c2d;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.05em;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
+.nx-btn.pri{background:#DFFF00;color:#191e00;border-color:#DFFF00;}
+.nx-btn:disabled{opacity:0.5;cursor:default;}
+
+/* Wall display */
+.nx-dsp{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;background:#010f1f;padding:20px 24px;box-sizing:border-box;gap:16px;}
+.nx-dsp-hd{display:flex;align-items:center;gap:18px;flex-shrink:0;}
+.nx-dsp-logo{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;color:#DFFF00;}
+.nx-dsp-round{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;color:#fff;letter-spacing:0.03em;flex-grow:1;}
+.nx-dsp-round span{color:#5b6b80;}
+.nx-rot{display:flex;align-items:center;gap:10px;font-size:14px;color:#9fb0c6;background:none;border:none;cursor:pointer;padding:8px;}
+.nx-rot i{display:block;height:6px;border-radius:999px;background:#273647;width:10px;transition:all 0.3s;}
+.nx-rot i.on{width:28px;background:#DFFF00;}
+.nx-icon-btn{width:44px;height:44px;border-radius:12px;border:1px solid #273647;background:#0d1c2d;color:#9fb0c6;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.nx-dsp-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:20px;}
+.nx-dsp-body.full{grid-template-columns:minmax(0,1fr);}
+.nx-np{display:flex;flex-direction:column;gap:14px;min-height:0;}
+.nx-np-k{font-size:13px;font-weight:700;letter-spacing:0.14em;color:#DFFF00;}
+.nx-np-grid{flex:1;min-height:0;display:grid;gap:14px;grid-auto-rows:minmax(0,1fr);}
+.nx-np-grid.g2{grid-template-columns:repeat(2,minmax(0,1fr));}
+.nx-np-card{border-radius:22px;background:#0d1c2d;border:1px solid #1c2b3c;padding:18px 22px;display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:0;overflow:hidden;}
+.nx-np-ct{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;letter-spacing:0.08em;color:#9fb0c6;}
+.nx-np-m{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px;}
+.nx-np-team{display:flex;flex-direction:column;gap:10px;min-width:0;}
+.nx-np-team.r{align-items:flex-end;}
+.nx-np-p{display:flex;align-items:center;gap:12px;min-width:0;}
+.nx-np-team.r .nx-np-p{flex-direction:row-reverse;}
+.nx-np-p .nx-av{width:44px;height:44px;font-size:15px;}
+.nx-np-nm{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:36px;color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nx-np-vs{text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;color:#5b6b80;}
+.nx-np-sc{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:44px;color:#fff;}
+.nx-np-sc b{color:#DFFF00;}
+.nx-np-grid.small .nx-np-nm{font-size:26px;}
+.nx-np-grid.small .nx-np-p .nx-av{width:34px;height:34px;font-size:12px;}
+.nx-np-grid.small .nx-np-card{padding:12px 16px;gap:8px;}
+.nx-lb{border-radius:22px;background:#0d1c2d;border:1px solid #1c2b3c;padding:16px 18px;display:flex;flex-direction:column;gap:4px;min-height:0;}
+.nx-lb-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.nx-lb-row{flex:1 1 0;min-height:0;display:grid;grid-template-columns:36px 40px minmax(0,1fr) 56px 54px;align-items:center;gap:8px;border-radius:12px;padding:0 10px;}
+.nx-lb-row.lead{background:rgba(223,255,0,0.07);}
+.nx-lb-row .nx-av{width:34px;height:34px;font-size:12px;}
+.nx-lb-pos{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#7d8ea5;}
+.nx-lb-row.lead .nx-lb-pos{color:#DFFF00;}
+.nx-lb-nm{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nx-lb-nm small{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:#7d8ea5;margin-left:4px;}
+.nx-lb-nm small.up{color:#DFFF00;}
+.nx-lb-wl{font-size:15px;font-weight:600;color:#c6d3e4;text-align:right;}
+.nx-lb-net{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;text-align:right;color:#7d8ea5;}
+.nx-lb-net.pos{color:#fff;}
+.nx-dsp-full{overflow:auto;}
+.nx-dsp-full .nx-tr{min-height:0;flex:1 1 0;}
+.nx-dsp-ft{flex-shrink:0;min-height:56px;box-sizing:border-box;border-radius:16px;background:#0d1c2d;border:1px solid #1c2b3c;display:flex;align-items:center;gap:18px;padding:0 20px;font-size:16px;overflow:hidden;white-space:nowrap;}
+.nx-dsp-ft b{font-size:12px;font-weight:700;letter-spacing:0.14em;color:#9fb0c6;}
+.nx-dsp-ft span{color:#fff;font-weight:600;}
+.nx-dsp-ft em{color:#273647;font-style:normal;}
+
+@media (max-width:900px){
+  .nx-rk-grid{grid-template-columns:1fr;}
+  .nx-podium{min-height:340px;}
+  .nx-pod.p1 .nx-pod-blk{height:150px;}.nx-pod.p2 .nx-pod-blk{height:110px;}.nx-pod.p3 .nx-pod-blk{height:80px;}
+  .nx-dsp-body{grid-template-columns:1fr;overflow:auto;}
+  .nx-actions{grid-template-columns:1fr 1fr;}
+  .nx-actions .pri{grid-column:1/-1;}
+}
+@media (max-width:640px){
+  .nx-wrap{padding:12px 14px;}
+  .nx-title{font-size:26px;}
+  .nx-court-bd{padding:10px;grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr);}
+  .nx-side{padding:10px;gap:8px;}
+  .nx-pname{font-size:17px;}
+  .nx-pl .nx-av{width:28px;height:28px;font-size:11px;}
+  .nx-in{height:72px;font-size:46px;}
+  .nx-bar-in{padding:10px 14px;gap:10px;}
+  .nx-bar-next{display:none;}
+  .nx-bar-count{font-size:18px;}
+  .nx-submit{height:52px;padding:0 18px;font-size:18px;}
+  .nx-hl-row{grid-template-columns:1fr;}
+  .nx-tr{grid-template-columns:34px 30px minmax(0,1fr) 46px 58px;padding:0 10px;}
+  .nx-tr .nx-rate{display:none;}
+  .nx-who .nx-av{display:none;}
+  .nx-who-nm{font-size:20px;}
+  .nx-np-nm{font-size:24px;}
+}
 </style>
 </head>
 <body class="min-h-screen">
@@ -81,6 +418,9 @@ input[type=number]{-moz-appearance:textfield;}
   <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#DFFF00;letter-spacing:-0.02em;">PADEL RR</div>
   <div class="flex items-center gap-3">
     <span id="round-badge" class="hidden text-xs font-bold tracking-widest uppercase text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant"></span>
+    <button id="pwa-install-btn" class="hidden items-center gap-1.5 bg-court-green text-on-primary-fixed px-3 h-8 rounded-full text-xs font-bold" style="font-family:'Barlow Condensed',sans-serif;letter-spacing:0.04em;" onclick="pwaInstall()">
+      <span class="material-symbols-outlined" style="font-size:15px;">install_mobile</span>INSTALL APP
+    </button>
   </div>
 </header>
 
@@ -223,117 +563,108 @@ input[type=number]{-moz-appearance:textfield;}
 </main>
 <nav class="fixed bottom-0 left-0 w-full bg-surface-glass backdrop-blur-xl border-t border-outline-variant h-16 px-4 pb-1 flex justify-around items-center z-50">
   <button class="nav-tab active" onclick="navigateTo('schedule')"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">event_note</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Schedule</span></button>
-  <button class="nav-tab" onclick="navigateTo('scoring')"><span class="material-symbols-outlined" style="font-size:20px;">sports_tennis</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Courts</span></button>
-  <button class="nav-tab" onclick="navigateTo('standings')"><span class="material-symbols-outlined" style="font-size:20px;">leaderboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Standings</span></button>
+  <button class="nav-tab" onclick="navigateTo('scoring')"><span class="material-symbols-outlined" style="font-size:20px;">scoreboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Scores</span></button>
+  <button class="nav-tab" onclick="navigateTo('standings')"><span class="material-symbols-outlined" style="font-size:20px;">leaderboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Rankings</span></button>
+  <button class="nav-tab" onclick="navigateTo('courtview')"><span class="material-symbols-outlined" style="font-size:20px;">tv</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Display</span></button>
 </nav>
 </div>
 
 <!-- ═══════════════════ SCREEN: SCORING ═══════════════════ -->
-<div id="screen-scoring" class="screen min-h-screen pb-36 pt-20">
-<main class="max-w-container-max mx-auto px-margin-mobile md:px-12 py-stack-md space-y-stack-md">
-  <div class="flex items-center justify-between">
+<div id="screen-scoring" class="screen min-h-screen pt-16" style="padding-bottom:170px;">
+<main class="nx-wrap">
+  <div class="nx-head">
     <div>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.05em;" class="text-court-green uppercase block" id="scoring-round-label">Round 1</span>
-      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;" class="text-on-surface" id="scoring-phase-label">Live Session</h1>
+      <div class="nx-kicker" id="scoring-round-label">Round 1</div>
+      <h1 class="nx-title" id="scoring-phase-label">Type the games each team won</h1>
+      <div class="nx-sub" id="scoring-meta"></div>
     </div>
-    <div class="flex gap-2">
-      <div class="flex items-center bg-surface-container-high px-3 py-2 rounded-xl border border-outline-variant" id="scoring-mode-badge">
-        <span class="material-symbols-outlined mr-2 text-court-green" style="font-size:16px;">groups</span>
-        <span class="text-xs font-bold">Classic</span>
-      </div>
-      <div class="flex items-center bg-surface-container-high px-3 py-2 rounded-xl border border-outline-variant" id="scoring-score-badge">
-        <span class="material-symbols-outlined mr-2 text-court-green" style="font-size:16px;">scoreboard</span>
-        <span class="text-xs font-bold" id="scoring-score-label">3 Games</span>
-      </div>
+    <div class="nx-hint">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DFFF00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M9 2h6"></path></svg>
+      <span>Time ran out? Type the score as it stands. Ties are fine.</span>
     </div>
   </div>
-  <div id="court-cards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
-  <div id="sitout-section" class="hidden">
-    <section class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="material-symbols-outlined text-on-surface-variant">hotel_class</span>
-        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;" class="text-on-surface">Sit-out Teams</h2>
-      </div>
-      <div id="sitout-chips" class="flex flex-wrap gap-4"></div>
-    </section>
-  </div>
+  <div id="court-cards" class="nx-courts"></div>
+  <div id="sitout-section" class="nx-sitout hidden"></div>
 </main>
 <!-- Submit + Nav -->
-<div class="fixed bottom-0 left-0 w-full z-40">
-  <div class="flex justify-center mb-3 px-margin-mobile">
-    <button id="submit-btn" onclick="submitRound()" class="w-full max-w-md h-14 bg-court-green hover:bg-[#cde500] active:scale-95 transition-all text-on-primary-fixed rounded-2xl shadow-[0_8px_30px_rgba(223,255,0,0.2)] flex items-center justify-center gap-3">
-      <span class="material-symbols-outlined">check_circle</span>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.05em;">SUBMIT ROUND</span>
+<div class="nx-bar">
+  <div class="nx-bar-in">
+    <div class="nx-bar-txt">
+      <span class="nx-bar-count" id="nx-entered">0 of 0 courts entered</span>
+      <span class="nx-bar-next" id="nx-next"></span>
+    </div>
+    <button id="submit-btn" type="button" class="nx-submit" onclick="nxSubmit()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+      <span id="submit-label">SUBMIT ROUND</span>
     </button>
   </div>
+</div>
+<div class="fixed bottom-0 left-0 w-full z-40">
   <nav class="bg-surface-glass backdrop-blur-xl border-t border-outline-variant h-16 px-4 pb-1 flex justify-around items-center">
     <button class="nav-tab" onclick="navigateTo('schedule')"><span class="material-symbols-outlined" style="font-size:20px;">event_note</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Schedule</span></button>
-    <button class="nav-tab active" onclick="navigateTo('scoring')"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">sports_tennis</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Courts</span></button>
-    <button class="nav-tab" onclick="navigateTo('standings')"><span class="material-symbols-outlined" style="font-size:20px;">leaderboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Standings</span></button>
+    <button class="nav-tab active" onclick="navigateTo('scoring')"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">scoreboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Scores</span></button>
+    <button class="nav-tab" onclick="navigateTo('standings')"><span class="material-symbols-outlined" style="font-size:20px;">leaderboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Rankings</span></button>
+    <button class="nav-tab" onclick="navigateTo('courtview')"><span class="material-symbols-outlined" style="font-size:20px;">tv</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Display</span></button>
   </nav>
 </div>
 </div>
 
 <!-- ═══════════════════ SCREEN: STANDINGS ═══════════════════ -->
-<div id="screen-standings" class="screen min-h-screen pb-28 pt-20">
-<main class="max-w-container-max mx-auto px-margin-mobile md:px-12 py-stack-md space-y-stack-lg">
-  <div>
-    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;" class="text-white">SESSION SUMMARY</h1>
-    <p class="text-xs text-on-surface-variant" id="standings-subtitle"></p>
+<div id="screen-standings" class="screen min-h-screen pb-28 pt-16">
+<main class="nx-wrap">
+  <div class="nx-head">
+    <div>
+      <div class="nx-kicker">Rankings</div>
+      <h1 class="nx-title" id="standings-subtitle">After round 0</h1>
+    </div>
+    <div class="nx-tabs" id="rank-tabs" role="tablist" aria-label="Ranking type"></div>
   </div>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-gutter" id="stats-bar"></div>
-  <section class="space-y-3">
-    <div class="flex items-center justify-between">
-      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;" class="text-white">TOP PERFORMERS</h2>
-      <span class="material-symbols-outlined text-court-green">stars</span>
+  <div class="nx-rk-grid">
+    <section class="nx-card nx-podium" aria-label="Top three">
+      <span class="nx-pod-lbl">TOP 3</span>
+      <div class="nx-pod-row" id="nx-podium"></div>
+    </section>
+    <div class="nx-right">
+      <div class="nx-hl-row" id="nx-highlights"></div>
+      <section class="nx-card nx-table" aria-label="Full ranking" id="rankings-body"></section>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter" id="top-performers"></div>
-  </section>
-  <section class="space-y-3">
-    <div class="flex items-center justify-between">
-      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;" class="text-white">RANKINGS</h2>
-      <div class="flex bg-surface-container-low rounded-lg p-1 gap-1" id="rank-tabs"></div>
-    </div>
-    <div class="glass-card rounded-xl overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead><tr class="bg-surface-container-highest/50 border-b border-outline-variant">
-            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant" style="width:52px;">#</th>
-            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Team / Player</th>
-            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-center">P</th>
-            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-center">W</th>
-            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-center">GW</th>
-            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant text-center">GL</th>
-            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-court-green text-center">+/-</th>
-          </tr></thead>
-          <tbody id="rankings-body" class="divide-y divide-outline-variant/30"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-  <section class="space-y-3 pb-4">
-    <button id="continue-btn" onclick="navigateTo('scoring')" class="w-full bg-court-green text-on-primary-fixed h-14 rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(223,255,0,0.3)]" style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.05em;">
-      <span class="material-symbols-outlined">sports_tennis</span> CONTINUE SESSION
-    </button>
-    <div class="grid grid-cols-2 gap-3">
-      <button onclick="exportCSV()" class="bg-surface-container-high border border-outline-variant text-white h-12 rounded-xl flex items-center justify-center gap-2 hover:border-court-green hover:text-court-green transition-all" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;">
-        <span class="material-symbols-outlined" style="font-size:18px;">csv</span> EXPORT CSV
-      </button>
-      <button onclick="exportHTML()" class="bg-surface-container-high border border-outline-variant text-white h-12 rounded-xl flex items-center justify-center gap-2 hover:border-court-green hover:text-court-green transition-all" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;">
-        <span class="material-symbols-outlined" style="font-size:18px;">html</span> EXPORT HTML
-      </button>
-    </div>
-    <button onclick="confirmReset()" class="w-full flex items-center justify-center gap-2 text-error text-sm font-bold py-3 rounded-xl hover:bg-error-container/20 transition-colors">
-      <span class="material-symbols-outlined" style="font-size:18px;">refresh</span> Reset &amp; Clear All Data
-    </button>
-  </section>
+  </div>
+  <div class="nx-actions">
+    <button id="continue-btn" type="button" class="nx-btn pri" onclick="navigateTo('scoring')"><span class="material-symbols-outlined">scoreboard</span> CONTINUE SESSION</button>
+    <button type="button" class="nx-btn" onclick="exportCSV()"><span class="material-symbols-outlined" style="font-size:18px;">csv</span> EXPORT CSV</button>
+    <button type="button" class="nx-btn" onclick="exportHTML()"><span class="material-symbols-outlined" style="font-size:18px;">html</span> EXPORT HTML</button>
+  </div>
+  <button type="button" onclick="confirmReset()" class="w-full flex items-center justify-center gap-2 text-error text-sm font-bold py-3 mt-3 rounded-xl hover:bg-error-container/20 transition-colors">
+    <span class="material-symbols-outlined" style="font-size:18px;">refresh</span> Reset &amp; Clear All Data
+  </button>
 </main>
 <nav class="fixed bottom-0 left-0 w-full bg-surface-glass backdrop-blur-xl border-t border-outline-variant h-16 px-4 pb-1 flex justify-around items-center z-50">
   <button class="nav-tab" onclick="navigateTo('schedule')"><span class="material-symbols-outlined" style="font-size:20px;">event_note</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Schedule</span></button>
-  <button class="nav-tab" onclick="navigateTo('scoring')"><span class="material-symbols-outlined" style="font-size:20px;">sports_tennis</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Courts</span></button>
-  <button class="nav-tab active" onclick="navigateTo('standings')"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">leaderboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Standings</span></button>
+  <button class="nav-tab" onclick="navigateTo('scoring')"><span class="material-symbols-outlined" style="font-size:20px;">scoreboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Scores</span></button>
+  <button class="nav-tab active" onclick="navigateTo('standings')"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">leaderboard</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Rankings</span></button>
+  <button class="nav-tab" onclick="navigateTo('courtview')"><span class="material-symbols-outlined" style="font-size:20px;">tv</span><span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Display</span></button>
 </nav>
 </div>
+
+<!-- ═══════════════════ SCREEN: COURT VIEW (WALL DISPLAY) ═══════════════════ -->
+<div id="screen-courtview" class="screen">
+<div class="nx-dsp">
+  <div class="nx-dsp-hd">
+    <span class="nx-dsp-logo">PADEL RR</span>
+    <span class="nx-dsp-round" id="cv-round-label">ROUND 1 <span>/ 1</span></span>
+    <button type="button" class="nx-rot" id="nx-rot" onclick="nxDspToggle()" aria-label="Switch view">
+      <span id="nx-rot-txt">Rankings in 15s</span>
+      <i id="nx-rot-a" class="on"></i><i id="nx-rot-b"></i>
+    </button>
+    <button id="pwa-install-btn-cv" class="hidden" style="align-items:center;gap:5px;background:#DFFF00;color:#191e00;border:none;padding:8px 12px;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.04em;" onclick="pwaInstall()"><span class="material-symbols-outlined" style="font-size:16px;">install_mobile</span>INSTALL</button>
+    <button type="button" class="nx-icon-btn" onclick="nxFullscreen()" aria-label="Full screen"><span class="material-symbols-outlined">fullscreen</span></button>
+    <button type="button" class="nx-icon-btn" onclick="navigateTo('scoring')" aria-label="Exit display"><span class="material-symbols-outlined">close</span></button>
+  </div>
+  <div class="nx-dsp-body" id="nx-dsp-body"></div>
+  <div class="nx-dsp-ft" id="nx-dsp-ft"></div>
+</div>
+</div>
+
 <!-- Edit Score Modal -->
 <div id="edit-modal" class="hidden fixed inset-0 z-[70] flex items-end md:items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeEditModal()"></div>
@@ -486,80 +817,86 @@ const PRESETS = {
 {
   playersCount: 5,
   courtsCount: 1,
+  description: "5 Individual Players, 1 Court, 15 Rounds. Every possible match played exactly once. 12 games and 3 sit-outs per player, never 2 in a row. Everyone partners everyone 3x (all by round 5), faces everyone 6x. 0% back-to-back partners. Max 4 consecutive games.",
   rounds: [
-    { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [4] },
-    { round: 2,  courts: [{ courtId: 1, teamA: [1, 4], teamB: [0, 3] }], sitOuts: [2] },
-    { round: 3,  courts: [{ courtId: 1, teamA: [2, 4], teamB: [1, 3] }], sitOuts: [0] },
-    { round: 4,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 1] }], sitOuts: [3] },
-    { round: 5,  courts: [{ courtId: 1, teamA: [3, 0], teamB: [2, 4] }], sitOuts: [1] },
-    { round: 6,  courts: [{ courtId: 1, teamA: [1, 2], teamB: [0, 3] }], sitOuts: [4] },
-    { round: 7,  courts: [{ courtId: 1, teamA: [0, 4], teamB: [1, 3] }], sitOuts: [2] },
-    { round: 8,  courts: [{ courtId: 1, teamA: [3, 4], teamB: [2, 1] }], sitOuts: [0] },
-    { round: 9,  courts: [{ courtId: 1, teamA: [1, 0], teamB: [4, 2] }], sitOuts: [3] },
-    { round: 10, courts: [{ courtId: 1, teamA: [2, 3], teamB: [0, 4] }], sitOuts: [1] },
-    { round: 11, courts: [{ courtId: 1, teamA: [2, 0], teamB: [1, 3] }], sitOuts: [4] },
-    { round: 12, courts: [{ courtId: 1, teamA: [0, 3], teamB: [4, 1] }], sitOuts: [2] },
-    { round: 13, courts: [{ courtId: 1, teamA: [3, 4], teamB: [2, 1] }], sitOuts: [0] },
-    { round: 14, courts: [{ courtId: 1, teamA: [4, 1], teamB: [0, 2] }], sitOuts: [3] },
-    { round: 15, courts: [{ courtId: 1, teamA: [0, 4], teamB: [3, 2] }], sitOuts: [1] }
+    { round: 1,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 2] }], sitOuts: [4] },
+    { round: 2,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [3, 4] }], sitOuts: [1] },
+    { round: 3,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 4] }], sitOuts: [3] },
+    { round: 4,  courts: [{ courtId: 1, teamA: [1, 4], teamB: [2, 3] }], sitOuts: [0] },
+    { round: 5,  courts: [{ courtId: 1, teamA: [0, 4], teamB: [1, 3] }], sitOuts: [2] },
+    { round: 6,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [4] },
+    { round: 7,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [2, 4] }], sitOuts: [1] },
+    { round: 8,  courts: [{ courtId: 1, teamA: [0, 4], teamB: [1, 2] }], sitOuts: [3] },
+    { round: 9,  courts: [{ courtId: 1, teamA: [1, 3], teamB: [2, 4] }], sitOuts: [0] },
+    { round: 10, courts: [{ courtId: 1, teamA: [0, 1], teamB: [3, 4] }], sitOuts: [2] },
+    { round: 11, courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 3] }], sitOuts: [4] },
+    { round: 12, courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 3] }], sitOuts: [1] },
+    { round: 13, courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 4] }], sitOuts: [3] },
+    { round: 14, courts: [{ courtId: 1, teamA: [1, 2], teamB: [3, 4] }], sitOuts: [0] },
+    { round: 15, courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 4] }], sitOuts: [2] }
   ]
 },
    {
   playersCount: 6,
   courtsCount: 1,
   hasBlocks: false,
-  description: "6 Individual Players, 1 Court. Exactly 10 games and 5 sit-outs per player. 0% back-to-back sit-outs. Max 4 consecutive games.",
+  description: "6 Individual Players, 1 Court, 21 Rounds. Exactly 14 games and 7 sit-outs per player. Everyone partners everyone by round 8 (2-3x each), faces everyone 5-6x. 0% back-to-back sit-outs or partners. Max 4 consecutive games. Equal games every 3 rounds.",
   rounds: [
     { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }], sitOuts: [4, 5] },
-    { round: 2,  courts: [{ courtId: 1, teamA: [4, 5], teamB: [0, 2] }], sitOuts: [1, 3] },
-    { round: 3,  courts: [{ courtId: 1, teamA: [1, 3], teamB: [4, 0] }], sitOuts: [2, 5] },
-    { round: 4,  courts: [{ courtId: 1, teamA: [2, 5], teamB: [1, 4] }], sitOuts: [0, 3] },
-    { round: 5,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [2, 5] }], sitOuts: [1, 4] },
-    { round: 6,  courts: [{ courtId: 1, teamA: [1, 4], teamB: [3, 5] }], sitOuts: [0, 2] },
-    { round: 7,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 5] }], sitOuts: [3, 4] },
-    { round: 8,  courts: [{ courtId: 1, teamA: [3, 4], teamB: [0, 2] }], sitOuts: [1, 5] },
-    { round: 9,  courts: [{ courtId: 1, teamA: [1, 5], teamB: [3, 4] }], sitOuts: [0, 2] },
-    { round: 10, courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 5] }], sitOuts: [1, 3] },
-    { round: 11, courts: [{ courtId: 1, teamA: [1, 3], teamB: [0, 4] }], sitOuts: [2, 5] },
-    { round: 12, courts: [{ courtId: 1, teamA: [2, 5], teamB: [1, 3] }], sitOuts: [0, 4] },
-    { round: 13, courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 3] }], sitOuts: [1, 5] },
-    { round: 14, courts: [{ courtId: 1, teamA: [1, 5], teamB: [0, 4] }], sitOuts: [2, 3] },
-    { round: 15, courts: [{ courtId: 1, teamA: [2, 3], teamB: [1, 5] }], sitOuts: [0, 4] }
+    { round: 2,  courts: [{ courtId: 1, teamA: [0, 5], teamB: [1, 4] }], sitOuts: [2, 3] },
+    { round: 3,  courts: [{ courtId: 1, teamA: [2, 5], teamB: [3, 4] }], sitOuts: [0, 1] },
+    { round: 4,  courts: [{ courtId: 1, teamA: [0, 4], teamB: [1, 3] }], sitOuts: [2, 5] },
+    { round: 5,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [3, 5] }], sitOuts: [1, 4] },
+    { round: 6,  courts: [{ courtId: 1, teamA: [1, 2], teamB: [4, 5] }], sitOuts: [0, 3] },
+    { round: 7,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 5] }], sitOuts: [2, 4] },
+    { round: 8,  courts: [{ courtId: 1, teamA: [0, 5], teamB: [2, 4] }], sitOuts: [1, 3] },
+    { round: 9,  courts: [{ courtId: 1, teamA: [1, 2], teamB: [3, 4] }], sitOuts: [0, 5] },
+    { round: 10, courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 5] }], sitOuts: [3, 4] },
+    { round: 11, courts: [{ courtId: 1, teamA: [1, 4], teamB: [3, 5] }], sitOuts: [0, 2] },
+    { round: 12, courts: [{ courtId: 1, teamA: [0, 3], teamB: [2, 4] }], sitOuts: [1, 5] },
+    { round: 13, courts: [{ courtId: 1, teamA: [2, 5], teamB: [1, 3] }], sitOuts: [0, 4] },
+    { round: 14, courts: [{ courtId: 1, teamA: [0, 3], teamB: [4, 5] }], sitOuts: [1, 2] },
+    { round: 15, courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 4] }], sitOuts: [3, 5] },
+    { round: 16, courts: [{ courtId: 1, teamA: [2, 3], teamB: [1, 5] }], sitOuts: [0, 4] },
+    { round: 17, courts: [{ courtId: 1, teamA: [0, 5], teamB: [3, 4] }], sitOuts: [1, 2] },
+    { round: 18, courts: [{ courtId: 1, teamA: [0, 4], teamB: [1, 2] }], sitOuts: [3, 5] },
+    { round: 19, courts: [{ courtId: 1, teamA: [0, 1], teamB: [3, 5] }], sitOuts: [2, 4] },
+    { round: 20, courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 3] }], sitOuts: [1, 5] },
+    { round: 21, courts: [{ courtId: 1, teamA: [2, 5], teamB: [1, 4] }], sitOuts: [0, 3] }
   ]
 },
     {
       playersCount: 8,
       courtsCount: 2,
       hasBlocks: true,
+      description: "8 Individual Players, 2 Courts, 7 Rounds (site repeats to 14). 0 sit-outs. Everyone partners everyone exactly once and faces everyone exactly twice per cycle. 0% back-to-back partners, including across the cycle repeat.",
       rounds: [
         { round: 1, courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }], sitOuts: [] },
-        { round: 2, courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 3] }, { courtId: 2, teamA: [4, 6], teamB: [5, 7] }], sitOuts: [] },
-        { round: 3, courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 2] }, { courtId: 2, teamA: [4, 7], teamB: [5, 6] }], sitOuts: [] },
-        { round: 4, courts: [{ courtId: 1, teamA: [0, 1], teamB: [4, 5] }, { courtId: 2, teamA: [2, 3], teamB: [6, 7] }], sitOuts: [] },
-        { round: 5, courts: [{ courtId: 1, teamA: [0, 4], teamB: [1, 5] }, { courtId: 2, teamA: [2, 6], teamB: [3, 7] }], sitOuts: [] },
-        { round: 6, courts: [{ courtId: 1, teamA: [0, 5], teamB: [1, 4] }, { courtId: 2, teamA: [2, 7], teamB: [3, 6] }], sitOuts: [] },
-        { round: 7, courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 6] }, { courtId: 2, teamA: [1, 3], teamB: [5, 7] }], sitOuts: [] },
-        { round: 8, courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 6] }, { courtId: 2, teamA: [1, 5], teamB: [3, 7] }], sitOuts: [] },
-        { round: 9, courts: [{ courtId: 1, teamA: [0, 6], teamB: [2, 4] }, { courtId: 2, teamA: [1, 7], teamB: [3, 5] }], sitOuts: [] }
+        { round: 2, courts: [{ courtId: 1, teamA: [0, 4], teamB: [1, 5] }, { courtId: 2, teamA: [2, 6], teamB: [3, 7] }], sitOuts: [] },
+        { round: 3, courts: [{ courtId: 1, teamA: [0, 6], teamB: [1, 7] }, { courtId: 2, teamA: [2, 4], teamB: [3, 5] }], sitOuts: [] },
+        { round: 4, courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 6] }, { courtId: 2, teamA: [1, 3], teamB: [5, 7] }], sitOuts: [] },
+        { round: 5, courts: [{ courtId: 1, teamA: [0, 5], teamB: [2, 7] }, { courtId: 2, teamA: [1, 4], teamB: [3, 6] }], sitOuts: [] },
+        { round: 6, courts: [{ courtId: 1, teamA: [0, 7], teamB: [3, 4] }, { courtId: 2, teamA: [1, 6], teamB: [2, 5] }], sitOuts: [] },
+        { round: 7, courts: [{ courtId: 1, teamA: [0, 3], teamB: [5, 6] }, { courtId: 2, teamA: [1, 2], teamB: [4, 7] }], sitOuts: [] }
       ]
     },
     {
       playersCount: 12,
       courtsCount: 3,
       hasBlocks: true,
+      description: "12 Individual Players, 3 Courts, 11 Rounds. 0 sit-outs. Everyone partners everyone exactly once and faces everyone exactly twice (whist schedule). 0% back-to-back partners.",
       rounds: [
         { round: 1,  courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }, { courtId: 3, teamA: [8, 9], teamB: [10, 11] }], sitOuts: [] },
-        { round: 2,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [1, 3] }, { courtId: 2, teamA: [4, 6], teamB: [5, 7] }, { courtId: 3, teamA: [8, 10], teamB: [9, 11] }], sitOuts: [] },
-        { round: 3,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [1, 2] }, { courtId: 2, teamA: [4, 7], teamB: [5, 6] }, { courtId: 3, teamA: [8, 11], teamB: [9, 10] }], sitOuts: [] },
-        { round: 4,  courts: [{ courtId: 1, teamA: [0, 4], teamB: [8, 9] }, { courtId: 2, teamA: [1, 5], teamB: [10, 2] }, { courtId: 3, teamA: [3, 6], teamB: [7, 11] }], sitOuts: [] },
-        { round: 5,  courts: [{ courtId: 1, teamA: [0, 8], teamB: [4, 9] }, { courtId: 2, teamA: [1, 10], teamB: [5, 2] }, { courtId: 3, teamA: [3, 7], teamB: [6, 11] }], sitOuts: [] },
-        { round: 6,  courts: [{ courtId: 1, teamA: [0, 9], teamB: [4, 8] }, { courtId: 2, teamA: [1, 2], teamB: [5, 10] }, { courtId: 3, teamA: [3, 11], teamB: [6, 7] }], sitOuts: [] },
-        { round: 7,  courts: [{ courtId: 1, teamA: [0, 5], teamB: [6, 8] }, { courtId: 2, teamA: [1, 4], teamB: [7, 11] }, { courtId: 3, teamA: [2, 3], teamB: [9, 10] }], sitOuts: [] },
-        { round: 8,  courts: [{ courtId: 1, teamA: [0, 6], teamB: [5, 8] }, { courtId: 2, teamA: [1, 7], teamB: [4, 11] }, { courtId: 3, teamA: [2, 9], teamB: [3, 10] }], sitOuts: [] },
-        { round: 9,  courts: [{ courtId: 1, teamA: [0, 8], teamB: [5, 6] }, { courtId: 2, teamA: [1, 11], teamB: [4, 7] }, { courtId: 3, teamA: [2, 10], teamB: [3, 9] }], sitOuts: [] },
-        { round: 10, courts: [{ courtId: 1, teamA: [0, 7], teamB: [10, 11] }, { courtId: 2, teamA: [1, 3], teamB: [8, 4] }, { courtId: 3, teamA: [2, 5], teamB: [6, 9] }], sitOuts: [] },
-        { round: 11, courts: [{ courtId: 1, teamA: [0, 10], teamB: [7, 11] }, { courtId: 2, teamA: [1, 8], teamB: [3, 4] }, { courtId: 3, teamA: [2, 6], teamB: [5, 9] }], sitOuts: [] },
-        { round: 12, courts: [{ courtId: 1, teamA: [0, 11], teamB: [7, 10] }, { courtId: 2, teamA: [1, 4], teamB: [3, 8] }, { courtId: 3, teamA: [2, 9], teamB: [5, 6] }], sitOuts: [] }
+        { round: 2,  courts: [{ courtId: 1, teamA: [0, 9], teamB: [6, 8] }, { courtId: 2, teamA: [1, 2], teamB: [4, 10] }, { courtId: 3, teamA: [3, 7], teamB: [5, 11] }], sitOuts: [] },
+        { round: 3,  courts: [{ courtId: 1, teamA: [0, 10], teamB: [6, 11] }, { courtId: 2, teamA: [1, 7], teamB: [3, 9] }, { courtId: 3, teamA: [2, 4], teamB: [5, 8] }], sitOuts: [] },
+        { round: 4,  courts: [{ courtId: 1, teamA: [0, 2], teamB: [7, 10] }, { courtId: 2, teamA: [1, 5], teamB: [9, 11] }, { courtId: 3, teamA: [3, 6], teamB: [4, 8] }], sitOuts: [] },
+        { round: 5,  courts: [{ courtId: 1, teamA: [0, 5], teamB: [1, 4] }, { courtId: 2, teamA: [2, 6], teamB: [7, 11] }, { courtId: 3, teamA: [3, 8], teamB: [9, 10] }], sitOuts: [] },
+        { round: 6,  courts: [{ courtId: 1, teamA: [0, 11], teamB: [4, 9] }, { courtId: 2, teamA: [1, 6], teamB: [2, 8] }, { courtId: 3, teamA: [3, 10], teamB: [5, 7] }], sitOuts: [] },
+        { round: 7,  courts: [{ courtId: 1, teamA: [0, 6], teamB: [5, 10] }, { courtId: 2, teamA: [1, 11], teamB: [7, 8] }, { courtId: 3, teamA: [2, 9], teamB: [3, 4] }], sitOuts: [] },
+        { round: 8,  courts: [{ courtId: 1, teamA: [0, 3], teamB: [2, 11] }, { courtId: 2, teamA: [1, 9], teamB: [5, 6] }, { courtId: 3, teamA: [4, 7], teamB: [8, 10] }], sitOuts: [] },
+        { round: 9,  courts: [{ courtId: 1, teamA: [0, 8], teamB: [3, 5] }, { courtId: 2, teamA: [1, 10], teamB: [4, 11] }, { courtId: 3, teamA: [2, 7], teamB: [6, 9] }], sitOuts: [] },
+        { round: 10, courts: [{ courtId: 1, teamA: [0, 4], teamB: [7, 9] }, { courtId: 2, teamA: [1, 3], teamB: [6, 10] }, { courtId: 3, teamA: [2, 5], teamB: [8, 11] }], sitOuts: [] },
+        { round: 11, courts: [{ courtId: 1, teamA: [0, 7], teamB: [1, 8] }, { courtId: 2, teamA: [2, 10], teamB: [5, 9] }, { courtId: 3, teamA: [3, 11], teamB: [4, 6] }], sitOuts: [] }
       ]
     }
   ],
@@ -581,117 +918,136 @@ const PRESETS = {
         { round: 6, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 6], teamB: [2, 4] }, { courtId: 2, teamA: [1, 7], teamB: [3, 5] }], sitOuts: [] }
       ]
     },
-  {
+     {
   couplesCount: 5,
   courtsCount: 2,
   roundsCount: 10,
+  description: "5 Couples, 2 Courts, 10 Rounds. Alternates Couples Matchups and Gender Split. Every couple plays every couple exactly once; every man partners every man once (faces each twice), same for women. 8 games and 2 sit-outs per couple, never back-to-back. Max 4 consecutive games.",
   rounds: [
-    { round: 1, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }], sitOuts: [8, 9] },
-    { round: 2, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 6] }, { courtId: 2, teamA: [1, 3], teamB: [5, 7] }], sitOuts: [8, 9] },
-    { round: 3, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [0, 1], teamB: [8, 9] }, { courtId: 2, teamA: [2, 3], teamB: [6, 7] }], sitOuts: [4, 5] },
-    { round: 4, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 8], teamB: [2, 6] }, { courtId: 2, teamA: [1, 9], teamB: [3, 7] }], sitOuts: [4, 5] },
-    { round: 5, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [4, 5], teamB: [8, 9] }, { courtId: 2, teamA: [0, 1], teamB: [6, 7] }], sitOuts: [2, 3] },
-    { round: 6, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [4, 8], teamB: [0, 6] }, { courtId: 2, teamA: [5, 9], teamB: [1, 7] }], sitOuts: [2, 3] },
-    { round: 7, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [2, 3], teamB: [4, 5] }, { courtId: 2, teamA: [0, 1], teamB: [8, 9] }], sitOuts: [6, 7] },
-    { round: 8, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [2, 4], teamB: [0, 8] }, { courtId: 2, teamA: [3, 5], teamB: [1, 9] }], sitOuts: [6, 7] },
-    { round: 9, phase: "Couples Matchups", courts: [{ courtId: 1, teamA: [2, 3], teamB: [8, 9] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }], sitOuts: [0, 1] },
-    { round: 10, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [2, 8], teamB: [4, 6] }, { courtId: 2, teamA: [3, 9], teamB: [5, 7] }], sitOuts: [0, 1] }
+    { round: 1,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }], sitOuts: [8, 9] },
+    { round: 2,  phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [2, 4], teamB: [6, 8] }, { courtId: 2, teamA: [3, 5], teamB: [7, 9] }], sitOuts: [0, 1] },
+    { round: 3,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [4, 5] }, { courtId: 2, teamA: [6, 7], teamB: [8, 9] }], sitOuts: [2, 3] },
+    { round: 4,  phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 6], teamB: [2, 8] }, { courtId: 2, teamA: [1, 7], teamB: [3, 9] }], sitOuts: [4, 5] },
+    { round: 5,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [8, 9] }, { courtId: 2, teamA: [2, 3], teamB: [4, 5] }], sitOuts: [6, 7] },
+    { round: 6,  phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 4], teamB: [2, 6] }, { courtId: 2, teamA: [1, 5], teamB: [3, 7] }], sitOuts: [8, 9] },
+    { round: 7,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [2, 3], teamB: [6, 7] }, { courtId: 2, teamA: [4, 5], teamB: [8, 9] }], sitOuts: [0, 1] },
+    { round: 8,  phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 8], teamB: [4, 6] }, { courtId: 2, teamA: [1, 9], teamB: [5, 7] }], sitOuts: [2, 3] },
+    { round: 9,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [6, 7] }, { courtId: 2, teamA: [2, 3], teamB: [8, 9] }], sitOuts: [4, 5] },
+    { round: 10, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 8] }, { courtId: 2, teamA: [1, 3], teamB: [5, 9] }], sitOuts: [6, 7] }
   ]
-},
+     },
 {
   couplesCount: 6,
   courtsCount: 3,
-  roundsCount: 10,
-  description: "6 Couples, 3 Courts, 10 Rounds. 0 sit-outs. Hybrid Gender Split design using Court 3 for unique breakaway mixed matches. 0% back-to-back repeats.",
+  roundsCount: 12,
+  description: "6 Couples, 3 Courts, 12 Rounds. 0 sit-outs. Alternates All-Mixed (couple vs couple) and Hybrid Gender Split (men's + women's court, remaining 2 couples on court 3). Every couple: 12 games, 4 gender-split matches, never on court 3 in back-to-back split rounds. Every couple meets every couple (1-2x); every man meets every man and every woman meets every woman. 0% back-to-back repeats.",
   rounds: [
     {
       round: 1,
       phase: "All-Mixed Round",
       courts: [
-        { courtId: 1, teamA: [0, 1], teamB: [2, 3] },   // C1 vs C2
-        { courtId: 2, teamA: [4, 5], teamB: [6, 7] },   // C3 vs C4
-        { courtId: 3, teamA: [8, 9], teamB: [10, 11] }  // C5 vs C6
+        { courtId: 1, teamA: [0, 1], teamB: [2, 3] },     // C1 vs C2
+        { courtId: 2, teamA: [4, 5], teamB: [6, 7] },     // C3 vs C4
+        { courtId: 3, teamA: [8, 9], teamB: [10, 11] }    // C5 vs C6
       ]
     },
     {
       round: 2,
       phase: "Hybrid Gender Split",
       courts: [
-        { courtId: 1, teamA: [0, 2], teamB: [4, 6] },   // Men's: M1+M2 vs M3+M4
-        { courtId: 2, teamA: [1, 3], teamB: [5, 7] },   // Women's: W1+W2 vs W3+W4
-        { courtId: 3, teamA: [8, 9], teamB: [2, 3] }    // Mixed Breakaway: C5 vs C2 (Fresh)
+        { courtId: 1, teamA: [2, 4], teamB: [6, 8] },     // Men's: M2+M3 vs M4+M5
+        { courtId: 2, teamA: [3, 5], teamB: [7, 9] },     // Women's: W2+W3 vs W4+W5
+        { courtId: 3, teamA: [0, 1], teamB: [10, 11] }    // Couples: C1 vs C6
       ]
     },
     {
       round: 3,
       phase: "All-Mixed Round",
       courts: [
-        { courtId: 1, teamA: [0, 1], teamB: [4, 5] },   // C1 vs C3
-        { courtId: 2, teamA: [2, 3], teamB: [10, 11] }, // C2 vs C6
-        { courtId: 3, teamA: [6, 7], teamB: [8, 9] }    // C4 vs C5
+        { courtId: 1, teamA: [0, 1], teamB: [8, 9] },     // C1 vs C5
+        { courtId: 2, teamA: [2, 3], teamB: [6, 7] },     // C2 vs C4
+        { courtId: 3, teamA: [4, 5], teamB: [10, 11] }    // C3 vs C6
       ]
     },
     {
       round: 4,
       phase: "Hybrid Gender Split",
       courts: [
-        { courtId: 1, teamA: [0, 8], teamB: [2, 10] },  // Men's: M1+M5 vs M2+M6
-        { courtId: 2, teamA: [1, 9], teamB: [3, 11] },  // Women's: W1+W5 vs W2+W6
-        { courtId: 3, teamA: [4, 5], teamB: [10, 11] }  // Mixed Breakaway: C3 vs C6 (Fresh)
+        { courtId: 1, teamA: [0, 6], teamB: [2, 10] },    // Men's: M1+M4 vs M2+M6
+        { courtId: 2, teamA: [1, 7], teamB: [3, 11] },    // Women's: W1+W4 vs W2+W6
+        { courtId: 3, teamA: [4, 5], teamB: [8, 9] }      // Couples: C3 vs C5
       ]
     },
     {
       round: 5,
       phase: "All-Mixed Round",
       courts: [
-        { courtId: 1, teamA: [0, 1], teamB: [6, 7] },   // C1 vs C4
-        { courtId: 2, teamA: [2, 3], teamB: [4, 5] },   // C2 vs C3
-        { courtId: 3, teamA: [8, 9], teamB: [10, 11] }  // C5 vs C6
+        { courtId: 1, teamA: [0, 1], teamB: [4, 5] },     // C1 vs C3
+        { courtId: 2, teamA: [2, 3], teamB: [8, 9] },     // C2 vs C5
+        { courtId: 3, teamA: [6, 7], teamB: [10, 11] }    // C4 vs C6
       ]
     },
     {
       round: 6,
       phase: "Hybrid Gender Split",
       courts: [
-        { courtId: 1, teamA: [4, 10], teamB: [6, 8] },  // Men's: M3+M6 vs M4+M5
-        { courtId: 2, teamA: [5, 11], teamB: [7, 9] },  // Women's: W3+W6 vs W4+W5
-        { courtId: 3, teamA: [0, 1], teamB: [8, 9] }    // Mixed Breakaway: C1 vs C5 (Fresh)
+        { courtId: 1, teamA: [4, 6], teamB: [8, 10] },    // Men's: M3+M4 vs M5+M6
+        { courtId: 2, teamA: [5, 7], teamB: [9, 11] },    // Women's: W3+W4 vs W5+W6
+        { courtId: 3, teamA: [0, 1], teamB: [2, 3] }      // Couples: C1 vs C2
       ]
     },
     {
       round: 7,
       phase: "All-Mixed Round",
       courts: [
-        { courtId: 1, teamA: [0, 1], teamB: [10, 11] }, // C1 vs C6
-        { courtId: 2, teamA: [2, 3], teamB: [6, 7] },   // C2 vs C4
-        { courtId: 3, teamA: [4, 5], teamB: [8, 9] }    // C3 vs C5
+        { courtId: 1, teamA: [0, 1], teamB: [6, 7] },     // C1 vs C4
+        { courtId: 2, teamA: [2, 3], teamB: [10, 11] },   // C2 vs C6
+        { courtId: 3, teamA: [4, 5], teamB: [8, 9] }      // C3 vs C5
       ]
     },
     {
       round: 8,
       phase: "Hybrid Gender Split",
       courts: [
-        { courtId: 1, teamA: [0, 4], teamB: [6, 10] },  // Men's: M1+M3 vs M4+M6
-        { courtId: 2, teamA: [1, 5], teamB: [7, 11] },  // Women's: W1+W3 vs W4+W11
-        { courtId: 3, teamA: [2, 3], teamB: [6, 7] }    // Mixed Breakaway: C2 vs C4 (Fresh)
+        { courtId: 1, teamA: [0, 10], teamB: [2, 8] },    // Men's: M1+M6 vs M2+M5
+        { courtId: 2, teamA: [1, 11], teamB: [3, 9] },    // Women's: W1+W6 vs W2+W5
+        { courtId: 3, teamA: [4, 5], teamB: [6, 7] }      // Couples: C3 vs C4
       ]
     },
     {
       round: 9,
       phase: "All-Mixed Round",
       courts: [
-        { courtId: 1, teamA: [0, 1], teamB: [8, 9] },   // C1 vs C5
-        { courtId: 2, teamA: [2, 3], teamB: [4, 5] },   // C2 vs C3
-        { courtId: 3, teamA: [6, 7], teamB: [10, 11] }  // C4 vs C6
+        { courtId: 1, teamA: [0, 1], teamB: [10, 11] },   // C1 vs C6
+        { courtId: 2, teamA: [2, 3], teamB: [4, 5] },     // C2 vs C3
+        { courtId: 3, teamA: [6, 7], teamB: [8, 9] }      // C4 vs C5
       ]
     },
     {
       round: 10,
       phase: "Hybrid Gender Split",
       courts: [
-        { courtId: 1, teamA: [0, 6], teamB: [8, 2] },   // Men's: M1+M4 vs M5+M2
-        { courtId: 2, teamA: [1, 7], teamB: [9, 3] },   // Women's: W1+W4 vs W5+W2
-        { courtId: 3, teamA: [4, 5], teamB: [6, 7] }    // Mixed Breakaway: C3 vs C4 (Fresh)
+        { courtId: 1, teamA: [0, 4], teamB: [6, 10] },    // Men's: M1+M3 vs M4+M6
+        { courtId: 2, teamA: [1, 5], teamB: [7, 11] },    // Women's: W1+W3 vs W4+W6
+        { courtId: 3, teamA: [2, 3], teamB: [8, 9] }      // Couples: C2 vs C5
+      ]
+    },
+    {
+      round: 11,
+      phase: "All-Mixed Round",
+      courts: [
+        { courtId: 1, teamA: [0, 1], teamB: [4, 5] },     // C1 vs C3
+        { courtId: 2, teamA: [2, 3], teamB: [6, 7] },     // C2 vs C4
+        { courtId: 3, teamA: [8, 9], teamB: [10, 11] }    // C5 vs C6
+      ]
+    },
+    {
+      round: 12,
+      phase: "Hybrid Gender Split",
+      courts: [
+        { courtId: 1, teamA: [0, 2], teamB: [4, 8] },     // Men's: M1+M2 vs M3+M5
+        { courtId: 2, teamA: [1, 3], teamB: [5, 9] },     // Women's: W1+W2 vs W3+W5
+        { courtId: 3, teamA: [6, 7], teamB: [10, 11] }    // Couples: C4 vs C6
       ]
     }
   ]
@@ -699,15 +1055,23 @@ const PRESETS = {
 {
       couplesCount: 8,
       courtsCount: 4,
-      roundsCount: 6,
-      description: "8 Couples, 4 Courts, 0 sit-outs. Round-by-round style interleaving.",
+      roundsCount: 14,
+      description: "8 Couples, 4 Courts, 14 Rounds. 0 sit-outs. Alternates Couples Matchups and Gender Split (courts 1-2 men, 3-4 women). Every couple plays every couple exactly once; every man partners every man once and faces each twice, same for women. No repeated matches.",
       rounds: [
-        { round: 1, phase: "Couples Matchups",     courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }, { courtId: 3, teamA: [8, 9], teamB: [10, 11] }, { courtId: 4, teamA: [12, 13], teamB: [14, 15] }], sitOuts: [] },
-        { round: 2, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 6] }, { courtId: 2, teamA: [8, 10], teamB: [12, 14] }, { courtId: 3, teamA: [1, 3], teamB: [5, 7] }, { courtId: 4, teamA: [9, 11], teamB: [13, 15] }], sitOuts: [] },
-        { round: 3, phase: "Couples Matchups",     courts: [{ courtId: 1, teamA: [0, 1], teamB: [4, 5] }, { courtId: 2, teamA: [2, 3], teamB: [6, 7] }, { courtId: 3, teamA: [8, 9], teamB: [12, 13] }, { courtId: 4, teamA: [10, 11], teamB: [14, 15] }], sitOuts: [] },
-        { round: 4, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 4], teamB: [8, 12] }, { courtId: 2, teamA: [2, 6], teamB: [10, 14] }, { courtId: 3, teamA: [1, 5], teamB: [9, 13] }, { courtId: 4, teamA: [3, 7], teamB: [11, 15] }], sitOuts: [] },
-        { round: 5, phase: "Couples Matchups",     courts: [{ courtId: 1, teamA: [0, 1], teamB: [6, 7] }, { courtId: 2, teamA: [2, 3], teamB: [4, 5] }, { courtId: 3, teamA: [8, 9], teamB: [14, 15] }, { courtId: 4, teamA: [10, 11], teamB: [12, 13] }], sitOuts: [] },
-        { round: 6, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 6], teamB: [10, 12] }, { courtId: 2, teamA: [2, 4], teamB: [8, 14] }, { courtId: 3, teamA: [1, 7], teamB: [11, 13] }, { courtId: 4, teamA: [3, 5], teamB: [9, 15] }], sitOuts: [] }
+        { round: 1,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [2, 3] }, { courtId: 2, teamA: [4, 5], teamB: [6, 7] }, { courtId: 3, teamA: [8, 9], teamB: [10, 11] }, { courtId: 4, teamA: [12, 13], teamB: [14, 15] }], sitOuts: [] },
+        { round: 2,  phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 2], teamB: [4, 6] }, { courtId: 2, teamA: [8, 10], teamB: [12, 14] }, { courtId: 3, teamA: [1, 3], teamB: [5, 7] }, { courtId: 4, teamA: [9, 11], teamB: [13, 15] }], sitOuts: [] },
+        { round: 3,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [4, 5] }, { courtId: 2, teamA: [2, 3], teamB: [8, 9] }, { courtId: 3, teamA: [6, 7], teamB: [12, 13] }, { courtId: 4, teamA: [10, 11], teamB: [14, 15] }], sitOuts: [] },
+        { round: 4,  phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 8], teamB: [2, 10] }, { courtId: 2, teamA: [4, 12], teamB: [6, 14] }, { courtId: 3, teamA: [1, 9], teamB: [3, 11] }, { courtId: 4, teamA: [5, 13], teamB: [7, 15] }], sitOuts: [] },
+        { round: 5,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [8, 9] }, { courtId: 2, teamA: [2, 3], teamB: [14, 15] }, { courtId: 3, teamA: [4, 5], teamB: [12, 13] }, { courtId: 4, teamA: [6, 7], teamB: [10, 11] }], sitOuts: [] },
+        { round: 6,  phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 12], teamB: [2, 14] }, { courtId: 2, teamA: [4, 8], teamB: [6, 10] }, { courtId: 3, teamA: [1, 13], teamB: [3, 15] }, { courtId: 4, teamA: [5, 9], teamB: [7, 11] }], sitOuts: [] },
+        { round: 7,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [12, 13] }, { courtId: 2, teamA: [2, 3], teamB: [6, 7] }, { courtId: 3, teamA: [4, 5], teamB: [10, 11] }, { courtId: 4, teamA: [8, 9], teamB: [14, 15] }], sitOuts: [] },
+        { round: 8,  phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 4], teamB: [8, 12] }, { courtId: 2, teamA: [2, 6], teamB: [10, 14] }, { courtId: 3, teamA: [1, 5], teamB: [9, 13] }, { courtId: 4, teamA: [3, 7], teamB: [11, 15] }], sitOuts: [] },
+        { round: 9,  phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [14, 15] }, { courtId: 2, teamA: [2, 3], teamB: [4, 5] }, { courtId: 3, teamA: [6, 7], teamB: [8, 9] }, { courtId: 4, teamA: [10, 11], teamB: [12, 13] }], sitOuts: [] },
+        { round: 10, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 10], teamB: [4, 14] }, { courtId: 2, teamA: [2, 8], teamB: [6, 12] }, { courtId: 3, teamA: [1, 11], teamB: [5, 15] }, { courtId: 4, teamA: [3, 9], teamB: [7, 13] }], sitOuts: [] },
+        { round: 11, phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [10, 11] }, { courtId: 2, teamA: [2, 3], teamB: [12, 13] }, { courtId: 3, teamA: [4, 5], teamB: [8, 9] }, { courtId: 4, teamA: [6, 7], teamB: [14, 15] }], sitOuts: [] },
+        { round: 12, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 14], teamB: [6, 8] }, { courtId: 2, teamA: [2, 12], teamB: [4, 10] }, { courtId: 3, teamA: [1, 15], teamB: [7, 9] }, { courtId: 4, teamA: [3, 13], teamB: [5, 11] }], sitOuts: [] },
+        { round: 13, phase: "Couples Matchups",      courts: [{ courtId: 1, teamA: [0, 1], teamB: [6, 7] }, { courtId: 2, teamA: [2, 3], teamB: [10, 11] }, { courtId: 3, teamA: [4, 5], teamB: [14, 15] }, { courtId: 4, teamA: [8, 9], teamB: [12, 13] }], sitOuts: [] },
+        { round: 14, phase: "Gender Split Rotation", courts: [{ courtId: 1, teamA: [0, 6], teamB: [10, 12] }, { courtId: 2, teamA: [2, 4], teamB: [8, 14] }, { courtId: 3, teamA: [1, 7], teamB: [11, 13] }, { courtId: 4, teamA: [3, 5], teamB: [9, 15] }], sitOuts: [] }
 ]
     }
   ]
@@ -910,6 +1274,9 @@ function navigateTo(screen) {
   if(screen==='schedule') renderSchedule();
   if(screen==='scoring') renderScoring();
   if(screen==='standings') renderStandings();
+  if(screen==='courtview') renderCourtView(); else nxDspStop();
+  var sharedHdr = document.querySelector('body > header');
+  if (sharedHdr) sharedHdr.style.display = (screen==='courtview') ? 'none' : 'flex';
   window.scrollTo(0,0);
 }
 
@@ -945,87 +1312,6 @@ function renderSchedule() {
 }
 
 // ─── SCORING ─────────────────────────────────────────────────────────────────
-function renderScoring() {
-  var p=preset();
-  var exRounds=expandedRounds();
-  const ri=S.currentRound;
-  updateRoundBadge();
-  if(ri>=exRounds.length){
-    document.getElementById('scoring-round-label').textContent='Session Complete';
-    document.getElementById('scoring-phase-label').textContent='All '+exRounds.length+' rounds done!';
-    document.getElementById('court-cards').innerHTML='<div class="col-span-2 text-center py-16"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:32px;font-weight:700;" class="text-court-green">All rounds complete!</div><button onclick="navigateTo(\'standings\')" class="mt-6 bg-court-green text-on-primary-fixed h-12 px-8 rounded-xl font-bold inline-flex items-center gap-2" style="font-family:\'Barlow Condensed\',sans-serif;">VIEW STANDINGS</button></div>';
-    document.getElementById('sitout-section').classList.add('hidden');
-    const sb=document.getElementById('submit-btn');
-    sb.disabled=true; sb.classList.add('opacity-40');
-    return;
-  }
-  const r=exRounds[ri];
-  var cycleInfo=exRounds.length>p.rounds.length&&r._cycle?' · Cycle '+r._cycle:'';
-  document.getElementById('scoring-round-label').textContent='Round '+r.round+' of '+exRounds.length+cycleInfo;
-  document.getElementById('scoring-phase-label').textContent=r.phase||'Live Session';
-  document.getElementById('scoring-score-label').textContent=S.scoreVal+(S.scoreType==='games'?' Games':' Pts');
-  const sb=document.getElementById('submit-btn'); sb.disabled=false; sb.classList.remove('opacity-40');
-
-  // Court cards — exact style from original
-  const cc=document.getElementById('court-cards');
-  cc.innerHTML='';
-  r.courts.forEach(function(ct,ci){
-    const a=Array.isArray(ct.teamA)?ct.teamA:[ct.teamA];
-    const b=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
-    const ex=S.scores.find(function(s){return s.ri===ri&&s.ci===ci;});
-    const sA=ex?ex.sA:0, sB=ex?ex.sB:0;
-    const art=document.createElement('article');
-    art.className='court-card-bg relative rounded-2xl overflow-hidden border border-outline-variant p-6 transition-all duration-300 hover:border-court-green/50';
-    art.innerHTML=
-      '<div class="absolute top-2 right-4 pointer-events-none select-none" style="font-family:\'Barlow Condensed\',sans-serif;font-size:100px;font-weight:800;color:rgba(255,255,255,0.05);line-height:1;">'+ct.courtId+'</div>'+
-      '<div class="flex justify-between items-center mb-6 border-b border-outline-variant pb-4">'+
-        '<h3 style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:700;" class="text-court-green">Court '+ct.courtId+'</h3>'+
-        '<span class="bg-court-green/10 text-court-green px-2 py-1 rounded text-xs font-bold tracking-tighter uppercase">'+S.scoreVal+(S.scoreType==='games'?' Games':' Pts')+'</span>'+
-      '</div>'+
-      '<div class="space-y-8">'+
-        '<div class="flex justify-between items-center group/team">'+
-          '<div class="flex-1"><p class="font-label-md text-label-md text-on-surface-variant mb-1">TEAM A</p>'+
-          '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:700;" class="leading-none">'+teamLabel(a)+'</p></div>'+
-          '<input class="w-20 h-20 bg-surface-container-lowest border-2 border-outline-variant focus:border-court-green text-center rounded-xl transition-all focus:ring-0" style="font-family:\'Barlow Condensed\',sans-serif;font-size:48px;font-weight:800;color:#DFFF00;" type="number" min="0" max="99" value="'+sA+'" data-ri="'+ri+'" data-ci="'+ci+'" data-side="A"/>'+
-        '</div>'+
-        '<div class="relative py-2 flex justify-center items-center">'+
-          '<div class="absolute inset-x-0 top-1/2 h-px bg-outline-variant"></div>'+
-          '<span class="relative z-10 bg-[#122131] px-4 font-label-md text-label-md text-on-surface-variant italic">vs</span>'+
-        '</div>'+
-        '<div class="flex justify-between items-center group/team">'+
-          '<div class="flex-1"><p class="font-label-md text-label-md text-on-surface-variant mb-1">TEAM B</p>'+
-          '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:700;" class="leading-none">'+teamLabel(b)+'</p></div>'+
-          '<input class="w-20 h-20 bg-surface-container-lowest border-2 border-outline-variant focus:border-court-green text-center rounded-xl transition-all focus:ring-0" style="font-family:\'Barlow Condensed\',sans-serif;font-size:48px;font-weight:800;color:#DFFF00;" type="number" min="0" max="99" value="'+sB+'" data-ri="'+ri+'" data-ci="'+ci+'" data-side="B"/>'+
-        '</div>'+
-      '</div>';
-    cc.appendChild(art);
-  });
-
-  // Bind score inputs
-  cc.querySelectorAll('input[type=number]').forEach(function(inp){
-    inp.addEventListener('input', function(){
-      const ri2=parseInt(this.dataset.ri), ci2=parseInt(this.dataset.ci), side=this.dataset.side;
-      const v=parseInt(this.value)||0;
-      let e=S.scores.find(function(s){return s.ri===ri2&&s.ci===ci2;});
-      if(!e){e={ri:ri2,ci:ci2,sA:0,sB:0};S.scores.push(e);}
-      if(side==='A') e.sA=v; else e.sB=v;
-      save();
-      if(v>=S.scoreVal){this.classList.add('border-court-green','shadow-[0_0_15px_rgba(223,255,0,0.3)]');this.classList.remove('border-outline-variant');}
-    });
-    inp.addEventListener('focus', function(){this.select();});
-  });
-
-  // Sit-outs
-  const ss=document.getElementById('sitout-section');
-  const sc=document.getElementById('sitout-chips');
-  if(r.sitOuts&&r.sitOuts.length){
-    ss.classList.remove('hidden');
-    sc.innerHTML=r.sitOuts.map(function(u){
-      return '<div class="flex items-center bg-slate-active/50 border border-court-green/20 rounded-xl px-5 py-3 gap-4"><div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center border border-outline"><span class="material-symbols-outlined text-court-green">hotel_class</span></div><div><p class="font-label-md text-label-md text-on-surface leading-tight">'+uName(u)+'</p><p class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant mt-1">Sitting Out</p></div></div>';
-    }).join('');
-  } else { ss.classList.add('hidden'); }
-}
-
 function submitRound() {
   const p=preset();
   S.currentRound++;
@@ -1081,7 +1367,7 @@ function computeStandings() {
     var bIds=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
     var winA=sc.sA>sc.sB;
     aIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sA;stats[id].gl+=sc.sB;if(winA)stats[id].wins++;});
-    bIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sB;stats[id].gl+=sc.sA;if(!winA)stats[id].wins++;});
+    bIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sB;stats[id].gl+=sc.sA;if(sc.sB>sc.sA)stats[id].wins++;});
   });
   return Object.entries(stats).map(function(e){
     var id=+e[0];
@@ -1131,7 +1417,7 @@ function _doublesBy(phaseFilter, couplesOnly) {
       if(won) pairs[key].wins++;
     }
     addPair(aIds,sc.sA,sc.sB,winA);
-    addPair(bIds,sc.sB,sc.sA,!winA);
+    addPair(bIds,sc.sB,sc.sA,sc.sB>sc.sA);
   });
   return Object.values(pairs).map(function(p){
     var name=p.ids.map(function(id){return uName(id);}).join(' / ');
@@ -1159,7 +1445,7 @@ function computeGenderStandings() {
     var bIds=Array.isArray(ct.teamB)?ct.teamB:[ct.teamB];
     var winA=sc.sA>sc.sB;
     aIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sA;stats[id].gl+=sc.sB;if(winA)stats[id].wins++;});
-    bIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sB;stats[id].gl+=sc.sA;if(!winA)stats[id].wins++;});
+    bIds.forEach(function(id){if(stats[id]===undefined)return;stats[id].played++;stats[id].gw+=sc.sB;stats[id].gl+=sc.sA;if(sc.sB>sc.sA)stats[id].wins++;});
   });
   return Object.entries(stats).map(function(e){
     var id=+e[0];
@@ -1167,141 +1453,6 @@ function computeGenderStandings() {
     return {id:id,name:uName(id),sub:sub,played:e[1].played,wins:e[1].wins,gw:e[1].gw,gl:e[1].gl,net:e[1].gw-e[1].gl};
   }).filter(function(p){return p.played>0;})
     .sort(function(a,b){return b.wins!==a.wins?b.wins-a.wins:b.net-a.net;});
-}
-
-// Active tab state
-var _activeRankTab='doubles';
-
-function getTabs() {
-  if(S.mode==='fixed_doubles') return [{id:'doubles',label:'Doubles'}];
-  if(S.mode==='individual_rotation') return [{id:'doubles',label:'Doubles'},{id:'individual',label:'Individual'}];
-  // interleaved_couples_mix — Mix tab already covers Gender Split rounds per-player
-  return [
-    {id:'couples',label:'Couples'},
-    {id:'mix',label:'Mix Pairs'},
-    {id:'individual',label:'Individual'}
-  ];
-}
-
-function switchRankTab(tab) {
-  _activeRankTab=tab;
-  document.querySelectorAll('.rank-tab-btn').forEach(function(btn){
-    var active=btn.dataset.tab===tab;
-    btn.className='rank-tab-btn px-4 py-1.5 rounded-md transition-all cursor-pointer '+(active?'bg-court-green text-on-primary-fixed':'text-on-surface-variant hover:text-white');
-    btn.style.fontFamily="'Barlow Condensed',sans-serif";
-    btn.style.fontSize='13px';
-    btn.style.fontWeight='700';
-    btn.style.letterSpacing='0.05em';
-  });
-  renderRankingsTable();
-}
-
-function renderRankingsTable() {
-  var st;
-  if(_activeRankTab==='individual') st=computeStandings();
-  else if(_activeRankTab==='couples') st=computeCouplesStandings();
-  else if(_activeRankTab==='mix') st=computeMixStandings();
-  else st=computeDoublesStandings();
-
-  var tbody=document.getElementById('rankings-body');
-  if(!tbody) return;
-  if(st.length===0){
-    tbody.innerHTML='<tr><td colspan="7" class="px-4 py-8 text-center text-on-surface-variant text-sm">No data yet — scores will appear here after rounds are played.</td></tr>';
-    return;
-  }
-  tbody.innerHTML=st.map(function(pl,i){
-    var rankColor=i===0?'#DFFF00':'rgba(255,255,255,0.3)';
-    var netPer=pl.played>0?((pl.gw-pl.gl)/pl.played):0;
-    var netStr=(netPer>=0?'+':'')+netPer.toFixed(1);
-    var netColor=netPer>=0?'text-court-green':'text-error-red';
-    var subHtml=pl.sub?'<div class="text-xs text-on-surface-variant opacity-60 mt-0.5">'+pl.sub+'</div>':'';
-    return [
-      '<tr class="hover:bg-white/5 transition-colors">',
-      '<td class="px-4 py-3" style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:800;color:'+rankColor+';">'+String(i+1).padStart(2,'0')+'</td>',
-      '<td class="px-4 py-3"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:700;" class="text-white leading-tight">'+pl.name+'</div>'+subHtml+'</td>',
-      '<td class="px-4 py-3 text-center text-white font-bold">'+pl.played+'</td>',
-      '<td class="px-4 py-3 text-center text-white">'+pl.wins+'</td>',
-      '<td class="px-4 py-3 text-center text-white">'+pl.gw+'</td>',
-      '<td class="px-4 py-3 text-center text-white">'+pl.gl+'</td>',
-      '<td class="px-4 py-3 text-center font-bold '+netColor+';">'+netStr+'</td>',
-      '</tr>'
-    ].join('');
-  }).join('');
-}
-
-function renderStandings() {
-  var exRdsLen=expandedRounds().length;
-  var pct=exRdsLen>0?Math.round(S.currentRound/exRdsLen*100):0;
-  document.getElementById('standings-subtitle').textContent='Round '+S.currentRound+' of '+exRdsLen+' complete';
-
-  // Stats bar
-  document.getElementById('stats-bar').innerHTML=[
-    '<div class="glass-card p-5 rounded-xl border-l-4 border-court-green"><p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Rounds</p>'+
-      '<div class="mt-2 flex items-baseline gap-1"><span style="font-family:\'Barlow Condensed\',sans-serif;font-size:40px;font-weight:800;color:#DFFF00;">'+S.currentRound+'</span>'+
-      '<span class="text-on-surface-variant text-sm">/ '+exRdsLen+'</span></div></div>',
-    '<div class="glass-card p-5 rounded-xl"><p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Matches</p>'+
-      '<div class="mt-2"><span style="font-family:\'Barlow Condensed\',sans-serif;font-size:40px;font-weight:800;color:#ffffff;">'+S.scores.length+'</span></div></div>',
-    '<div class="glass-card p-5 rounded-xl"><p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Players</p>'+
-      '<div class="mt-2"><span style="font-family:\'Barlow Condensed\',sans-serif;font-size:40px;font-weight:800;color:#ffffff;">'+unitCount()+'</span></div></div>',
-    '<div class="glass-card p-5 rounded-xl"><p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Progress</p>'+
-      '<div class="mt-2"><span style="font-family:\'Barlow Condensed\',sans-serif;font-size:40px;font-weight:800;color:#DFFF00;">'+pct+'%</span></div></div>'
-  ].join('');
-
-  // Top performers — mode-aware
-  var topPods=[];
-  var dbl=S.mode==='interleaved_couples_mix'?computeCouplesStandings():computeDoublesStandings();
-  var mix=S.mode==='interleaved_couples_mix'?computeMixStandings():[];
-  var ind=computeStandings();
-
-  if(S.mode==='interleaved_couples_mix'){
-    if(dbl.length>0){var d=dbl[0];topPods.push({label:'Best Couple',icon:'favorite',accent:true,name:d.name,stat:d.played+' MP · '+d.wins+'W · '+(d.played>0?(d.net>=0?'+':'')+((d.net/d.played).toFixed(1)):'0.0')+' Net/MP'});}
-    if(mix.length>0){var mx=mix[0];topPods.push({label:'Best Mix',icon:'wc',accent:false,name:mx.name,stat:mx.played+' MP · '+mx.wins+'W · '+(mx.played>0?(mx.net>=0?'+':'')+((mx.net/mx.played).toFixed(1)):'0.0')+' Net/MP'});}
-    if(ind.length>0){var iv=ind[0];topPods.push({label:'Best Individual',icon:'person',accent:false,name:iv.name,stat:iv.played+' MP · '+iv.wins+'W · '+(iv.played>0?(iv.net>=0?'+':'')+((iv.net/iv.played).toFixed(1)):'0.0')+' Net/MP'});}
-  } else {
-    if(dbl.length>0){var d2=dbl[0];topPods.push({label:'Best Double',icon:'groups',accent:true,name:d2.name,stat:d2.played+' MP · '+d2.wins+'W · '+(d2.played>0?(d2.net>=0?'+':'')+((d2.net/d2.played).toFixed(1)):'0.0')+' Net/MP'});}
-    if(S.mode!=='fixed_doubles'&&ind.length>0){var iv2=ind[0];topPods.push({label:'Best Individual',icon:'person',accent:false,name:iv2.name,stat:iv2.played+' MP · '+iv2.wins+'W · '+(iv2.played>0?(iv2.net>=0?'+':'')+((iv2.net/iv2.played).toFixed(1)):'0.0')+' Net/MP'});}
-  }
-
-  document.getElementById('top-performers').innerHTML=topPods.map(function(pod,i){
-    var bc=pod.accent?'border-court-green':'border-white/20';
-    var ic=pod.accent?'text-court-green':'text-white';
-    var lc=pod.accent?'text-court-green':'text-on-surface-variant';
-    return [
-      '<div class="glass-card p-4 rounded-xl flex items-center gap-4 relative overflow-hidden hover:bg-slate-active/50 transition-all">',
-        '<div class="w-16 h-16 rounded-full border-2 '+bc+' p-1 relative z-10 flex items-center justify-center bg-surface-container-highest flex-shrink-0">',
-          '<span class="material-symbols-outlined '+ic+'" style="font-size:26px;">'+pod.icon+'</span>',
-        '</div>',
-        '<div class="flex flex-col z-10 min-w-0">',
-          '<span class="text-xs '+lc+' uppercase tracking-widest font-bold">'+pod.label+'</span>',
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:17px;font-weight:700;" class="text-white truncate">'+pod.name+'</span>',
-          '<span class="text-xs text-on-surface-variant opacity-80 mt-0.5">'+pod.stat+'</span>',
-        '</div>',
-        '<div class="absolute top-2 right-2 opacity-10" style="font-family:\'Barlow Condensed\',sans-serif;font-size:48px;font-weight:800;line-height:1;">0'+(i+1)+'</div>',
-      '</div>'
-    ].join('');
-  }).join('');
-
-  // Tab switcher
-  var tabs=getTabs();
-  if(!tabs.find(function(t){return t.id===_activeRankTab;})) _activeRankTab=tabs[0].id;
-  var tabsEl=document.getElementById('rank-tabs');
-  tabsEl.innerHTML=tabs.map(function(t){
-    var active=t.id===_activeRankTab;
-    return '<button class="rank-tab-btn px-4 py-1.5 rounded-md transition-all cursor-pointer '+(active?'bg-court-green text-on-primary-fixed':'text-on-surface-variant hover:text-white')+'" '+
-      'data-tab="'+t.id+'" onclick="switchRankTab(\''+t.id+'\')" '+
-      'style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;">'+t.label+'</button>';
-  }).join('');
-
-  renderRankingsTable();
-
-  var cb=document.getElementById('continue-btn');
-  if(S.currentRound>=exRdsLen){
-    cb.innerHTML='<span class="material-symbols-outlined">emoji_events</span> SESSION COMPLETE';
-    cb.disabled=true; cb.classList.add('opacity-60');
-  } else {
-    cb.innerHTML='<span class="material-symbols-outlined">sports_tennis</span> CONTINUE SESSION';
-    cb.disabled=false; cb.classList.remove('opacity-60');
-  }
 }
 
 // ─── EDIT SCORE MODAL ────────────────────────────────────────────────────────
@@ -1341,6 +1492,7 @@ function saveEditedScore() {
   save();
   closeEditModal();
   renderSchedule();
+  if(document.getElementById('screen-courtview').classList.contains('active')) renderCourtView();
   showToast('Score updated');
 }
 
@@ -1537,6 +1689,420 @@ function exportHTML() {
 }
 
 
+// ─── COURT VIEW (TABLET DISPLAY) ──────────────────────────────────────────────
+var _cvTab = 'live';
+var _cvEsc = function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+
+function cvInitials(ids) {
+  var arr = Array.isArray(ids) ? ids : [ids];
+  return arr.slice(0,2).map(function(id){ var n=uName(id); return (n.charAt(0)||'?').toUpperCase(); }).join('');
+}
+
+function cvNameInitials(name) {
+  var parts = String(name||'').split('/').map(function(s){return s.trim();}).filter(Boolean);
+  if (!parts.length) return '?';
+  return parts.slice(0,2).map(function(p){ return (p.charAt(0)||'?').toUpperCase(); }).join('');
+}
+
+function cvCourtsGridClass(n) {
+  if (n <= 1) return 'cv-courts-grid cv-c1';
+  if (n === 2) return 'cv-courts-grid cv-c2';
+  return 'cv-courts-grid cv-c3plus';
+}
+
+// Trailing win-streak per unit id, based on rounds played so far (chronological)
+function cvComputeStreaks() {
+  var exRds = expandedRounds();
+  var streaks = {}, best = {}; // best[id] = current trailing streak
+  for (var ri = 0; ri < S.currentRound && ri < exRds.length; ri++) {
+    var r = exRds[ri];
+    r.courts.forEach(function(ct, ci) {
+      var sc = S.scores.find(function(s){return s.ri===ri&&s.ci===ci;});
+      if (!sc) return;
+      var a = Array.isArray(ct.teamA) ? ct.teamA : [ct.teamA];
+      var b = Array.isArray(ct.teamB) ? ct.teamB : [ct.teamB];
+      var winA = sc.sA > sc.sB, winB = sc.sB > sc.sA;
+      a.forEach(function(id){
+        if (winA) { streaks[id] = (streaks[id]||0) + 1; } else if (winB) { streaks[id] = 0; }
+        best[id] = streaks[id] || 0;
+      });
+      b.forEach(function(id){
+        if (winB) { streaks[id] = (streaks[id]||0) + 1; } else if (winA) { streaks[id] = 0; }
+        best[id] = streaks[id] || 0;
+      });
+    });
+  }
+  return best;
+}
+
+// ─── NX HELPERS (approved design v1) ─────────────────────────────────────────
+function nxEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function nxIni(name){
+  var parts=String(name||'').split(/\s*[\/&+]\s*/).filter(Boolean);
+  if(parts.length>1) return parts.slice(0,2).map(function(p){return p.charAt(0).toUpperCase();}).join('');
+  var w=String(name||'?').trim().split(/\s+/);
+  if(w.length>1) return (w[0].charAt(0)+w[1].charAt(0)).toUpperCase();
+  return w[0].slice(0,2).toUpperCase();
+}
+function nxIds(t){ return Array.isArray(t)?t:[t]; }
+function nxUnit(){ return S.scoreType==='games'?'games':'points'; }
+function nxSign(n){ return (n>0?'+':'')+n; }
+function nxRoundText(r){
+  if(!r) return '';
+  return r.courts.map(function(ct){ return 'Court '+ct.courtId+' · '+teamLabel(nxIds(ct.teamA))+' vs '+teamLabel(nxIds(ct.teamB)); }).join('   ·   ');
+}
+
+// ─── SCORE ENTRY ─────────────────────────────────────────────────────────────
+var _nxForce=false;
+
+function renderScoring() {
+  var p=preset();
+  var exRounds=expandedRounds();
+  var ri=S.currentRound;
+  updateRoundBadge();
+  _nxForce=false;
+  var cc=document.getElementById('court-cards');
+  var sb=document.getElementById('submit-btn');
+  var ss=document.getElementById('sitout-section');
+  if(ri>=exRounds.length){
+    document.getElementById('scoring-round-label').textContent='Session complete';
+    document.getElementById('scoring-phase-label').textContent='All '+exRounds.length+' rounds played';
+    document.getElementById('scoring-meta').textContent='';
+    cc.innerHTML='<div class="nx-card nx-empty" style="grid-column:1/-1;"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:32px;font-weight:700;color:#DFFF00;">All rounds complete!</div><button type="button" onclick="navigateTo(\'standings\')" class="nx-btn pri" style="display:inline-flex;margin-top:18px;padding:0 28px;">SEE FINAL RANKINGS</button></div>';
+    ss.classList.add('hidden');
+    sb.disabled=true;
+    document.getElementById('nx-entered').textContent='Session complete';
+    document.getElementById('nx-next').textContent='';
+    return;
+  }
+  var r=exRounds[ri];
+  var cycleInfo=exRounds.length>p.rounds.length&&r._cycle?' · Cycle '+r._cycle:'';
+  document.getElementById('scoring-round-label').textContent='Round '+r.round+' of '+exRounds.length+cycleInfo+(r.phase?' · '+r.phase:'');
+  document.getElementById('scoring-phase-label').textContent='Type the '+nxUnit()+' each team won';
+  document.getElementById('scoring-meta').textContent='Target: '+S.scoreVal+' '+nxUnit();
+  sb.disabled=false;
+
+  cc.className='nx-courts'+(r.courts.length>2?' many':'');
+  var U=nxUnit().toUpperCase();
+  cc.innerHTML=r.courts.map(function(ct,ci){
+    var a=nxIds(ct.teamA), b=nxIds(ct.teamB);
+    var ex=S.scores.find(function(s){return s.ri===ri&&s.ci===ci;});
+    var vA=ex?ex.sA:'', vB=ex?ex.sB:'';
+    function side(ids,cls,lbl,val,key){
+      return '<div class="nx-side '+cls+'" id="nx-side-'+ci+'-'+key+'">'+
+        '<div class="nx-side-top"><span class="nx-lbl">'+lbl+'</span><span class="nx-win">WIN</span></div>'+
+        ids.map(function(id){var n=uName(id);return '<div class="nx-pl"><span class="nx-av'+(key==='B'?' b':'')+'">'+nxEsc(nxIni(n))+'</span><span class="nx-pname">'+nxEsc(n)+'</span></div>';}).join('')+
+        '<label class="nx-gl" for="nx-in-'+ci+'-'+key+'">'+U+'</label>'+
+        '<input class="nx-in" id="nx-in-'+ci+'-'+key+'" type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="99" placeholder="–" value="'+val+'" data-ri="'+ri+'" data-ci="'+ci+'" data-side="'+key+'"/>'+
+      '</div>';
+    }
+    return '<section class="nx-court" id="nx-court-'+ci+'">'+
+      '<div class="nx-court-hd"><span class="nx-court-name">COURT '+ct.courtId+'</span><span class="nx-chip" id="nx-chip-'+ci+'">WAITING</span></div>'+
+      '<div class="nx-court-bd">'+side(a,'nx-a','TEAM A',vA,'A')+'<div class="nx-net"></div>'+side(b,'nx-b','TEAM B',vB,'B')+'</div>'+
+      '<div class="nx-court-ft"><span class="nx-dot"></span><span id="nx-note-'+ci+'"></span></div>'+
+    '</section>';
+  }).join('');
+
+  cc.querySelectorAll('.nx-in').forEach(function(inp){
+    inp.addEventListener('input', nxOnInput);
+    inp.addEventListener('focus', function(){ this.select(); });
+  });
+  r.courts.forEach(function(ct,ci){ nxPaintCourt(ri,ci); });
+
+  if(r.sitOuts&&r.sitOuts.length){
+    ss.classList.remove('hidden');
+    ss.innerHTML='<span style="font-size:11px;font-weight:700;letter-spacing:0.12em;">SITTING OUT</span>'+r.sitOuts.map(function(u){var n=uName(u);return '<span class="nx-sitout-chip"><span class="nx-av">'+nxEsc(nxIni(n))+'</span>'+nxEsc(n)+'</span>';}).join('');
+  } else { ss.classList.add('hidden'); ss.innerHTML=''; }
+
+  var nr=exRounds[ri+1];
+  document.getElementById('nx-next').textContent=nr?'Next up · Round '+nr.round+' · '+nxRoundText(nr):'This is the last round';
+  nxUpdateBar();
+}
+
+function nxOnInput(){
+  var ri=parseInt(this.dataset.ri), ci=parseInt(this.dataset.ci);
+  var raw=String(this.value).replace(/[^0-9]/g,'').slice(0,2);
+  if(raw!==this.value) this.value=raw;
+  var aEl=document.getElementById('nx-in-'+ci+'-A'), bEl=document.getElementById('nx-in-'+ci+'-B');
+  var a=aEl.value, b=bEl.value;
+  var idx=S.scores.findIndex(function(s){return s.ri===ri&&s.ci===ci;});
+  if(a!==''&&b!==''){
+    if(idx<0) S.scores.push({ri:ri,ci:ci,sA:+a,sB:+b});
+    else { S.scores[idx].sA=+a; S.scores[idx].sB=+b; }
+  } else if(idx>=0){ S.scores.splice(idx,1); }
+  save();
+  _nxForce=false;
+  nxPaintCourt(ri,ci);
+  nxUpdateBar();
+}
+
+function nxPaintCourt(ri,ci){
+  var sc=S.scores.find(function(s){return s.ri===ri&&s.ci===ci;});
+  var court=document.getElementById('nx-court-'+ci); if(!court) return;
+  var sa=document.getElementById('nx-side-'+ci+'-A'), sbx=document.getElementById('nx-side-'+ci+'-B');
+  var chip=document.getElementById('nx-chip-'+ci), note=document.getElementById('nx-note-'+ci);
+  court.classList.toggle('done',!!sc);
+  sa.classList.toggle('win',!!sc&&sc.sA>sc.sB);
+  sbx.classList.toggle('win',!!sc&&sc.sB>sc.sA);
+  if(!sc){ chip.textContent='WAITING'; note.textContent='Tap a box and type the '+nxUnit()+' won'; return; }
+  var tie=sc.sA===sc.sB;
+  chip.textContent=tie?'TIE · ENTERED':'ENTERED';
+  note.textContent=tie?'Tie saved. Each team keeps the '+nxUnit()+' it won.':'Saved · '+sc.sA+'–'+sc.sB+(Math.max(sc.sA,sc.sB)<S.scoreVal?' (ended on time)':'');
+}
+
+function nxEnteredCount(){
+  var exRounds=expandedRounds(), ri=S.currentRound, r=exRounds[ri];
+  if(!r) return {n:0,total:0};
+  var n=r.courts.filter(function(ct,ci){return S.scores.some(function(s){return s.ri===ri&&s.ci===ci;});}).length;
+  return {n:n,total:r.courts.length};
+}
+
+function nxUpdateBar(){
+  var c=nxEnteredCount(), exRounds=expandedRounds(), r=exRounds[S.currentRound];
+  document.getElementById('nx-entered').textContent=c.n+' of '+c.total+' court'+(c.total>1?'s':'')+' entered';
+  var sb=document.getElementById('submit-btn');
+  sb.classList.toggle('ready',c.n===c.total&&c.total>0);
+  document.getElementById('submit-label').textContent=_nxForce?'SUBMIT ANYWAY':'SUBMIT ROUND '+(r?r.round:'');
+}
+
+function nxSubmit(){
+  var c=nxEnteredCount();
+  if(c.n<c.total&&!_nxForce){
+    _nxForce=true;
+    var miss=c.total-c.n;
+    showToast(miss+' court'+(miss>1?'s have':' has')+' no score yet. Tap again to submit anyway.');
+    nxUpdateBar();
+    return;
+  }
+  _nxForce=false;
+  submitRound();
+}
+
+// ─── RANKINGS ────────────────────────────────────────────────────────────────
+function nxWithScoresBefore(maxRi, fn){
+  var keep=S.scores;
+  S.scores=keep.filter(function(s){return s.ri<maxRi;});
+  try { return fn(); } finally { S.scores=keep; }
+}
+function nxListFor(tab){
+  if(tab==='individual') return computeStandings().filter(function(p){return p.played>0;});
+  if(tab==='couples') return computeCouplesStandings();
+  if(tab==='mix') return computeMixStandings();
+  return computeDoublesStandings();
+}
+// list with movement vs. the standings before the last completed round
+function nxRanked(tab){
+  var list=nxListFor(tab);
+  var prevPos={};
+  var lastRi=S.currentRound-1;
+  if(lastRi>=1 && S.scores.some(function(s){return s.ri===lastRi;})){
+    nxWithScoresBefore(lastRi,function(){ nxListFor(tab).forEach(function(p,i){prevPos[p.name]=i;}); });
+  }
+  return list.map(function(p,i){
+    var mv=prevPos[p.name]===undefined?0:prevPos[p.name]-i;
+    return Object.assign({},p,{pos:i+1,move:mv});
+  });
+}
+function nxDefaultTab(){
+  if(S.mode==='fixed_doubles') return 'doubles';
+  return 'individual';
+}
+
+function nxTableHtml(list){
+  if(!list.length) return '<div class="nx-empty">No scores yet. Rankings appear after the first round is entered.</div>';
+  return '<div class="nx-tr nx-th"><span>#</span><span></span><span>'+(S.mode==='fixed_doubles'?'TEAM':'NAME')+'</span><span style="text-align:center;">W–L</span><span class="nx-rate">WIN RATE</span><span style="text-align:right;">+/-</span></div>'+
+    list.map(function(p,i){
+      var lead=i===0;
+      var pct=p.played>0?Math.round(p.wins/p.played*100):0;
+      var mv=p.move>0?'<span class="nx-mv up">▲'+p.move+'</span>':p.move<0?'<span class="nx-mv">▼'+(-p.move)+'</span>':'<span class="nx-mv">–</span>';
+      return '<div class="nx-tr'+(lead?' lead':'')+'">'+
+        '<span class="nx-pos">'+(i+1)+'</span>'+mv+
+        '<div class="nx-who"><span class="nx-av'+(lead?' l':'')+'">'+nxEsc(nxIni(p.name))+'</span><div style="min-width:0;"><div class="nx-who-nm">'+nxEsc(p.name)+'</div>'+(p.sub?'<div class="nx-who-sub">'+nxEsc(p.sub)+'</div>':'')+'</div></div>'+
+        '<span class="nx-wl">'+p.wins+'–'+(p.played-p.wins)+'</span>'+
+        '<div class="nx-rate"><div class="nx-rate-bar"><i style="width:'+pct+'%"></i></div>'+pct+'%</div>'+
+        '<span class="nx-net-v'+(p.net>0?' pos':'')+'">'+nxSign(p.net)+'</span>'+
+      '</div>';
+    }).join('');
+}
+
+function nxPodiumHtml(list){
+  if(!list.length) return '<div class="nx-empty" style="grid-column:1/-1;align-self:center;">The podium fills up after the first round.</div>';
+  var order=[1,0,2];
+  return order.map(function(i){
+    var p=list[i];
+    if(!p) return '<div></div>';
+    return '<div class="nx-pod p'+(i+1)+'">'+
+      '<span class="nx-av'+(i===0?' l':'')+'">'+nxEsc(nxIni(p.name))+'</span>'+
+      '<span class="nx-pod-name">'+nxEsc(p.name)+'</span>'+
+      '<span class="nx-pod-stat">'+p.wins+'W–'+(p.played-p.wins)+'L · '+nxSign(p.net)+'</span>'+
+      '<div class="nx-pod-blk"><span>'+(i+1)+'</span></div>'+
+    '</div>';
+  }).join('');
+}
+
+function nxHighlightsHtml(list){
+  var cards=[];
+  // streak
+  var streaks=cvComputeStreaks(), bestId=null, bestVal=0;
+  Object.keys(streaks).forEach(function(id){ if(streaks[id]>bestVal){bestVal=streaks[id];bestId=+id;} });
+  cards.push(['ON A STREAK','#FB923C', bestVal>=2 ? '<strong>'+nxEsc(uName(bestId))+'</strong> · '+bestVal+' wins in a row' : 'No streaks yet']);
+  // climb
+  var climb=null; list.forEach(function(p){ if(p.move>0&&(!climb||p.move>climb.move)) climb=p; });
+  cards.push(['BIGGEST CLIMB','#DFFF00', climb ? '<strong>'+nxEsc(climb.name)+'</strong> · up '+climb.move : 'No changes yet']);
+  // pair / biggest win
+  if(S.mode==='fixed_doubles'){
+    var big=null, exR=expandedRounds();
+    S.scores.forEach(function(s){ var r=exR[s.ri]; if(!r||!r.courts[s.ci]) return; var m=Math.abs(s.sA-s.sB); if(!big||m>big.m) big={m:m,s:s,ct:r.courts[s.ci]}; });
+    cards.push(['BIGGEST WIN','#A78BFA', big&&big.m>0 ? '<strong>'+nxEsc(teamLabel(nxIds(big.s.sA>big.s.sB?big.ct.teamA:big.ct.teamB)))+'</strong> · '+Math.max(big.s.sA,big.s.sB)+'–'+Math.min(big.s.sA,big.s.sB) : 'No results yet']);
+  } else {
+    var pairs=S.mode==='interleaved_couples_mix'?computeMixStandings():computeDoublesStandings();
+    var bp=pairs[0];
+    cards.push([S.mode==='interleaved_couples_mix'?'BEST MIX PAIR':'BEST PAIR','#A78BFA', bp ? '<strong>'+nxEsc(bp.name)+'</strong> · '+bp.wins+'–'+(bp.played-bp.wins) : 'No results yet']);
+  }
+  return cards.map(function(c){ return '<div class="nx-hl"><span class="nx-hl-k" style="color:'+c[1]+';">'+c[0]+'</span><span class="nx-hl-v">'+c[2]+'</span></div>'; }).join('');
+}
+
+var _activeRankTab='individual';
+
+function getTabs() {
+  if(S.mode==='fixed_doubles') return [{id:'doubles',label:'Teams'}];
+  if(S.mode==='individual_rotation') return [{id:'individual',label:'Players'},{id:'doubles',label:'Pairs'}];
+  return [{id:'individual',label:'Players'},{id:'couples',label:'Couples'},{id:'mix',label:'Mix pairs'}];
+}
+
+function switchRankTab(tab) {
+  _activeRankTab=tab;
+  renderStandings();
+}
+
+function renderRankingsTable() { renderStandings(); }
+
+function renderStandings() {
+  var exRdsLen=expandedRounds().length;
+  var tabs=getTabs();
+  if(!tabs.find(function(t){return t.id===_activeRankTab;})) _activeRankTab=nxDefaultTab();
+  document.getElementById('standings-subtitle').textContent=S.currentRound>=exRdsLen?'Final · all '+exRdsLen+' rounds':'After round '+S.currentRound+' of '+exRdsLen;
+  document.getElementById('rank-tabs').innerHTML=tabs.length>1?tabs.map(function(t){
+    var on=t.id===_activeRankTab;
+    return '<button type="button" role="tab" aria-selected="'+on+'" class="nx-tab'+(on?' on':'')+'" onclick="switchRankTab(\''+t.id+'\')">'+t.label+'</button>';
+  }).join(''):'';
+  var list=nxRanked(_activeRankTab);
+  document.getElementById('nx-podium').innerHTML=nxPodiumHtml(list);
+  document.getElementById('nx-highlights').innerHTML=nxHighlightsHtml(list);
+  document.getElementById('rankings-body').innerHTML=nxTableHtml(list);
+
+  var cb=document.getElementById('continue-btn');
+  if(S.currentRound>=exRdsLen){
+    cb.innerHTML='<span class="material-symbols-outlined">emoji_events</span> SESSION COMPLETE';
+    cb.disabled=true;
+  } else {
+    cb.innerHTML='<span class="material-symbols-outlined">scoreboard</span> CONTINUE SESSION';
+    cb.disabled=false;
+  }
+}
+
+// ─── WALL DISPLAY ────────────────────────────────────────────────────────────
+var _nxView='matches', _nxLeft=15, _nxTimer=null, _nxWake=null;
+var NX_ROTATE_SECS=15;
+
+function nxDspList(){
+  return nxRanked(S.mode==='fixed_doubles'?'doubles':'individual');
+}
+
+function nxNowPlayingHtml(){
+  var exRds=expandedRounds(), ri=S.currentRound, r=exRds[ri];
+  if(!r){
+    var top=nxDspList()[0];
+    return '<section class="nx-np"><span class="nx-np-k">SESSION COMPLETE</span><div class="nx-np-card" style="flex:1;align-items:center;text-align:center;">'+
+      '<span class="material-symbols-outlined" style="font-size:56px;color:#DFFF00;">emoji_events</span>'+
+      (top?'<span class="nx-np-nm" style="font-size:52px;">'+nxEsc(top.name)+'</span><span style="color:#9fb0c6;font-size:16px;">Winner · '+top.wins+'W–'+(top.played-top.wins)+'L · '+nxSign(top.net)+'</span>':'')+
+    '</div></section>';
+  }
+  var n=r.courts.length;
+  var cls='nx-np-grid'+(n>=3?' g2 small':'');
+  return '<section class="nx-np" aria-label="Now playing"><span class="nx-np-k">NOW PLAYING'+(r.phase?' · '+nxEsc(r.phase.toUpperCase()):'')+'</span><div class="'+cls+'">'+
+    r.courts.map(function(ct,ci){
+      var a=nxIds(ct.teamA), b=nxIds(ct.teamB);
+      var sc=S.scores.find(function(s){return s.ri===ri&&s.ci===ci;});
+      function team(ids,cls,av){ return '<div class="nx-np-team '+cls+'">'+ids.map(function(id){var nm=uName(id);return '<div class="nx-np-p"><span class="nx-av'+av+'">'+nxEsc(nxIni(nm))+'</span><span class="nx-np-nm">'+nxEsc(nm)+'</span></div>';}).join('')+'</div>'; }
+      var mid=sc?'<span class="nx-np-sc">'+(sc.sA>sc.sB?'<b>'+sc.sA+'</b>':sc.sA)+'–'+(sc.sB>sc.sA?'<b>'+sc.sB+'</b>':sc.sB)+'</span>':'<span class="nx-np-vs">VS</span>';
+      return '<div class="nx-np-card"><span class="nx-np-ct">COURT '+ct.courtId+'</span><div class="nx-np-m">'+team(a,'','')+mid+team(b,'r',' b')+'</div></div>';
+    }).join('')+
+  '</div></section>';
+}
+
+function nxLeaderboardHtml(){
+  var list=nxDspList().slice(0,8);
+  var rows=list.length?list.map(function(p,i){
+    var mv=p.move>0?'<small class="up">▲'+p.move+'</small>':p.move<0?'<small>▼'+(-p.move)+'</small>':'';
+    return '<div class="nx-lb-row'+(i===0?' lead':'')+'"><span class="nx-lb-pos">'+(i+1)+'</span><span class="nx-av'+(i===0?' l':'')+'">'+nxEsc(nxIni(p.name))+'</span>'+
+      '<span class="nx-lb-nm">'+nxEsc(p.name)+mv+'</span><span class="nx-lb-wl">'+p.wins+'–'+(p.played-p.wins)+'</span><span class="nx-lb-net'+(p.net>0?' pos':'')+'">'+nxSign(p.net)+'</span></div>';
+  }).join(''):'<div class="nx-empty">Scores appear here after the first round.</div>';
+  return '<section class="nx-lb" aria-label="Leaderboard"><div class="nx-lb-hd"><span class="nx-np-k">LEADERBOARD</span><span style="font-size:12px;color:#9fb0c6;">W–L · '+nxUnit()+' +/-</span></div>'+rows+'</section>';
+}
+
+function renderCourtView() {
+  var exRds=expandedRounds(), ri=S.currentRound, total=exRds.length, r=exRds[ri];
+  var lbl=document.getElementById('cv-round-label');
+  lbl.innerHTML=r?'ROUND '+r.round+' <span>/ '+total+'</span>':'SESSION COMPLETE';
+  var body=document.getElementById('nx-dsp-body');
+  if(_nxView==='rankings'){
+    body.className='nx-dsp-body full';
+    body.innerHTML='<section class="nx-card nx-table nx-dsp-full" style="display:flex;flex-direction:column;" aria-label="Full ranking">'+nxTableHtml(nxDspList())+'</section>';
+  } else {
+    body.className='nx-dsp-body';
+    body.innerHTML=nxNowPlayingHtml()+nxLeaderboardHtml();
+  }
+  var ft=document.getElementById('nx-dsp-ft');
+  var nr=exRds[ri+1];
+  var parts=[];
+  if(r&&r.sitOuts&&r.sitOuts.length) parts.push('<b>SITTING OUT</b><span>'+nxEsc(r.sitOuts.map(uName).join(', '))+'</span><em>|</em>');
+  if(nr){ parts.push('<b>UP NEXT · ROUND '+nr.round+'</b>'+nr.courts.map(function(ct){return '<span>Court '+ct.courtId+' · '+nxEsc(teamLabel(nxIds(ct.teamA)))+' vs '+nxEsc(teamLabel(nxIds(ct.teamB)))+'</span>';}).join('<em>|</em>')); }
+  else if(r) parts.push('<b>LAST ROUND</b><span>Final rankings after this one</span>');
+  else parts.push('<b>THANKS FOR PLAYING</b>');
+  ft.innerHTML=parts.join('');
+  document.getElementById('nx-rot-a').classList.toggle('on',_nxView==='matches');
+  document.getElementById('nx-rot-b').classList.toggle('on',_nxView==='rankings');
+  nxDspStart();
+}
+
+function nxDspTick(){
+  if(!document.getElementById('screen-courtview').classList.contains('active')){ nxDspStop(); return; }
+  _nxLeft--;
+  if(_nxLeft<=0){ _nxView=_nxView==='matches'?'rankings':'matches'; _nxLeft=NX_ROTATE_SECS; renderCourtView(); return; }
+  var t=document.getElementById('nx-rot-txt');
+  if(t) t.textContent=(_nxView==='matches'?'Rankings':'Courts')+' in '+_nxLeft+'s';
+}
+function nxDspStart(){
+  var t=document.getElementById('nx-rot-txt');
+  if(t) t.textContent=(_nxView==='matches'?'Rankings':'Courts')+' in '+_nxLeft+'s';
+  if(!_nxTimer){ _nxTimer=setInterval(nxDspTick,1000); }
+  nxWakeOn();
+}
+function nxDspStop(){
+  if(_nxTimer){ clearInterval(_nxTimer); _nxTimer=null; }
+  _nxView='matches'; _nxLeft=NX_ROTATE_SECS;
+  if(_nxWake){ try{_nxWake.release();}catch(e){} _nxWake=null; }
+}
+function nxDspToggle(){
+  _nxView=_nxView==='matches'?'rankings':'matches';
+  _nxLeft=NX_ROTATE_SECS;
+  renderCourtView();
+}
+function nxWakeOn(){
+  if(_nxWake||!('wakeLock' in navigator)) return;
+  navigator.wakeLock.request('screen').then(function(w){ _nxWake=w; w.addEventListener('release',function(){ _nxWake=null; }); }).catch(function(){});
+}
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&document.getElementById('screen-courtview').classList.contains('active')) nxWakeOn();
+});
+function nxFullscreen(){
+  var d=document.documentElement;
+  if(document.fullscreenElement){ if(document.exitFullscreen) document.exitFullscreen(); return; }
+  var f=d.requestFullscreen||d.webkitRequestFullscreen;
+  if(f) try{ f.call(d); }catch(e){}
+}
+
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 function showToast(msg) {
   var t=document.getElementById('toast');
@@ -1555,6 +2121,45 @@ function confirmReset() {
     renderNameInputs();
     showToast('Session cleared');
   }
+}
+
+// ─── PWA — INSTALL PROMPT + SERVICE WORKER ───────────────────────────────────
+var _pwaDeferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _pwaDeferredPrompt = e;
+  ['pwa-install-btn','pwa-install-btn-cv'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) { el.classList.remove('hidden'); el.style.display = (id==='pwa-install-btn-cv') ? 'inline-flex' : 'flex'; }
+  });
+});
+
+function pwaInstall() {
+  if (!_pwaDeferredPrompt) return;
+  _pwaDeferredPrompt.prompt();
+  _pwaDeferredPrompt.userChoice.then(function() {
+    _pwaDeferredPrompt = null;
+    ['pwa-install-btn','pwa-install-btn-cv'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) { el.classList.add('hidden'); el.style.display = 'none'; }
+    });
+  });
+}
+
+window.addEventListener('appinstalled', function() {
+  _pwaDeferredPrompt = null;
+  ['pwa-install-btn','pwa-install-btn-cv'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) { el.classList.add('hidden'); el.style.display = 'none'; }
+  });
+  showToast('App installed');
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js').catch(function() {});
+  });
 }
 
 // ─── BOOT ────────────────────────────────────────────────────────────────────
